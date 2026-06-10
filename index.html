@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ApuntesLarry — Recepción Sanitaria</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+:root{--bg:#0c0e14;--bg2:#13161f;--bg3:#1a1e2b;--border:#252a3a;--border2:#2e3450;--text:#e8eaf2;--muted:#6b7294;--dim:#3d4460;--blue:#4d8fff;--teal:#2dd4bf;--amber:#f59e0b;--rose:#f87171;--violet:#a78bfa;--green:#4ade80;--orange:#fb923c}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:15px;line-height:1.75}
+.topbar{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(12,14,20,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:200}
+.logo{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;cursor:pointer}.logo span{color:var(--teal)}
+.nav-tabs{display:flex;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:3px}
+.nav-tab{padding:5px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all .15s;font-family:'Space Grotesk',sans-serif}
+.nav-tab.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.nav-tab:hover:not(.active){color:var(--text)}
+.topbar-profile{display:flex;align-items:center;gap:10px;cursor:pointer;padding:4px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);transition:border-color .15s}
+.topbar-profile:hover{border-color:var(--border2)}
+.tb-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--blue));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.tb-info{line-height:1.2}.tb-name{font-size:12px;font-weight:600}.tb-level{font-size:10px;color:var(--violet);font-family:'Space Mono',monospace}
+.tb-xpbar{width:60px;height:4px;background:var(--border);border-radius:99px;overflow:hidden}
+.tb-xpfill{height:100%;background:linear-gradient(90deg,var(--violet),var(--blue));border-radius:99px;transition:width .4s ease}
+.page{display:none;padding-top:56px;min-height:100vh}.page.active{display:block}
+.hero{padding:72px 40px 48px;max-width:860px;margin:0 auto}
+.hero-eye{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.15em;color:var(--teal);text-transform:uppercase;margin-bottom:14px}
+.hero-title{font-size:clamp(32px,5vw,60px);font-weight:700;line-height:1.08;letter-spacing:-.03em;margin-bottom:18px}
+.hero-title em{font-style:normal;color:var(--teal)}
+.hero-sub{font-size:16px;color:var(--muted);max-width:460px;margin-bottom:36px}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
+.btn-p{padding:12px 24px;background:var(--teal);color:#0c0e14;border:none;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;cursor:pointer;transition:opacity .15s}
+.btn-p:hover{opacity:.85}
+.btn-s{padding:12px 24px;background:transparent;color:var(--text);border:1px solid var(--border2);border-radius:8px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;cursor:pointer;transition:all .15s}
+.btn-s:hover{border-color:var(--teal);color:var(--teal)}
+.stats-row{padding:0 40px 48px;max-width:860px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 20px}
+.stat-n{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;line-height:1;margin-bottom:4px}.stat-l{font-size:12px;color:var(--muted)}
+.pp{position:fixed;top:56px;right:0;width:300px;height:calc(100vh - 56px);background:var(--bg2);border-left:1px solid var(--border);transform:translateX(300px);transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:150;overflow-y:auto;padding:20px}
+.pp.open{transform:translateX(0)}
+.pp-av{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--blue));display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;margin:0 auto 12px;border:3px solid var(--border2)}
+.pp-name{text-align:center;font-size:17px;font-weight:700;margin-bottom:3px}
+.pp-title{text-align:center;font-size:11px;color:var(--violet);font-family:'Space Mono',monospace;margin-bottom:18px}
+.pp-xp-labels{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px}
+.pp-xpbar{height:8px;background:var(--bg3);border-radius:99px;overflow:hidden;border:1px solid var(--border);margin-bottom:14px}
+.pp-xpfill{height:100%;background:linear-gradient(90deg,var(--amber),var(--orange));border-radius:99px;transition:width .6s ease}
+.lv-badge{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:18px}
+.lv-num{font-family:'Space Mono',monospace;font-size:34px;font-weight:700;color:var(--violet);line-height:1}
+.lv-name{font-weight:700;font-size:13px}.lv-next{font-size:11px;color:var(--muted)}
+.pp-sec{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);margin-bottom:8px;font-family:'Space Mono',monospace}
+.ach-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:18px}
+.ach{aspect-ratio:1;background:var(--bg3);border:1px solid var(--border);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:default}
+.ach.locked{opacity:.25;filter:grayscale(1)}
+.lb-row{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:6px;font-size:13px;margin-bottom:3px}
+.lb-row:hover{background:var(--bg3)}.lb-row.me{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2)}
+.lb-pos{width:18px;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted)}
+.lb-pos.g{color:#fbbf24}.lb-pos.s{color:#9ca3af}.lb-pos.b{color:#b45309}
+.lb-av2{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.lb-nm{flex:1;font-weight:500}.lb-xp{font-family:'Space Mono',monospace;font-size:11px;color:var(--amber)}
+.lb-lv2{font-size:10px;background:rgba(167,139,250,.15);color:var(--violet);padding:1px 6px;border-radius:99px;font-family:'Space Mono',monospace}
+.al{display:flex;max-width:1060px;margin:0 auto;padding:32px 20px 80px;gap:28px}
+.asb{width:188px;flex-shrink:0;position:sticky;top:76px;height:fit-content}
+.asb-sec{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--dim);padding:10px 0 3px;font-family:'Space Mono',monospace}
+.asb-lnk{display:block;padding:5px 10px;font-size:12.5px;color:var(--muted);cursor:pointer;border-left:2px solid transparent;transition:all .12s;border-radius:0 4px 4px 0}
+.asb-lnk:hover,.asb-lnk.active{color:var(--text);border-left-color:var(--teal);background:var(--bg2)}
+.ac{flex:1;min-width:0}
+.blq{margin-bottom:52px}
+.blq-hdr{display:flex;align-items:center;gap:11px;margin-bottom:18px;padding-bottom:11px;border-bottom:1px solid var(--border)}
+.blq-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.blq-title{font-size:20px;font-weight:700}.blq-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.txt{font-size:14.5px;color:var(--muted);line-height:1.8;margin-bottom:14px}
+.txt strong{color:var(--text)}.txt em{color:var(--teal);font-style:normal;font-weight:600}
+.def-box{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:6px;padding:13px 17px;margin:13px 0}
+.def-term{font-weight:700;color:var(--teal);font-size:12.5px;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
+.def-body{color:var(--muted);font-size:14px}.def-body strong{color:var(--text)}
+.key-box{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:15px 19px;margin:13px 0}
+.key-title{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);margin-bottom:9px;font-family:'Space Mono',monospace}
+.ilist{list-style:none}
+.ilist li{padding:7px 0 7px 20px;position:relative;border-bottom:1px solid var(--border);font-size:14px;color:var(--muted)}
+.ilist li:last-child{border:none}.ilist li::before{content:'›';position:absolute;left:4px;color:var(--teal);font-weight:700}
+.ilist li strong{color:var(--text)}
+.tl{padding-left:22px;position:relative;margin:14px 0}
+.tl::before{content:'';position:absolute;left:5px;top:0;bottom:0;width:1px;background:var(--border)}
+.tl-i{position:relative;margin-bottom:14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+.tl-i::before{content:'';position:absolute;left:-19px;top:14px;width:8px;height:8px;border-radius:50%;background:var(--teal);border:2px solid var(--bg)}
+.tl-d{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--amber);margin-bottom:3px;font-family:'Space Mono',monospace}
+.tl-n{font-weight:700;font-size:13.5px;margin-bottom:5px}.tl-t{font-size:13px;color:var(--muted)}
+.img-wrap{margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--bg2)}
+.img-wrap img{width:100%;display:block}.img-cap{font-size:11px;color:var(--dim);padding:7px 12px;font-family:'Space Mono',monospace;background:var(--bg3)}
+.aviso{background:#0f2318;border:1px solid #1a3d28;border-left:3px solid var(--green);border-radius:6px;padding:11px 15px;margin:13px 0;font-size:13.5px;color:#8fcfaf}
+.aviso-t{font-weight:700;color:var(--green);font-size:11px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
+.dato{background:#1a1a0a;border:1px solid #2a2a12;border-left:3px solid var(--amber);border-radius:6px;padding:11px 15px;margin:13px 0;font-size:13.5px;color:#c9af6a}
+.dato strong{color:var(--amber)}
+.tema-sep{margin:64px 0 44px;display:flex;align-items:center;gap:18px;color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.12em;font-family:'Space Mono',monospace}
+.tema-sep::before,.tema-sep::after{content:'';flex:1;height:1px;background:var(--border)}
+.ej-blq{background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--amber);border-radius:10px;padding:22px 26px;margin:28px 0}
+.ej-header{display:flex;align-items:center;gap:9px;margin-bottom:20px}
+.ej-badge{background:#1a1400;color:var(--amber);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:3px 9px;border-radius:99px;font-family:'Space Mono',monospace}
+.ej-title-text{font-weight:600;font-size:14px}
+.ej-group{margin-bottom:22px}.ej-tipo{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);margin-bottom:10px;font-family:'Space Mono',monospace}
+.pregunta{margin-bottom:13px;padding:13px 15px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)}
+.preg-n{font-size:10px;color:var(--dim);margin-bottom:5px;font-family:'Space Mono',monospace}
+.preg-q{font-size:14px;margin:0}
+details{margin-top:7px}
+summary{cursor:pointer;font-size:12px;color:var(--dim);padding:5px 0;list-style:none;display:flex;align-items:center;gap:5px;transition:color .15s}
+summary::before{content:'▶';font-size:8px;transition:transform .2s}
+details[open] summary::before{transform:rotate(90deg)}
+summary:hover{color:var(--teal)}
+.resp{background:#0a1f18;border:1px solid #1a3a2a;border-radius:6px;padding:11px 13px;font-size:13.5px;color:#9fcfbf;margin-top:5px;line-height:1.6}
+.resp strong{color:var(--teal)}
+.test-opt{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px 0}
+.test-btn{padding:10px 13px;background:var(--bg3);border:2px solid var(--border);border-radius:7px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;cursor:pointer;transition:all .15s;text-align:left}
+.test-btn:hover{border-color:var(--border2)}
+.test-btn.correct{border-color:var(--green);background:rgba(74,222,128,.08);color:var(--green);pointer-events:none}
+.test-btn.wrong{border-color:var(--rose);background:rgba(248,113,113,.08);color:var(--rose)}
+.test-btn.reveal{border-color:var(--green);background:rgba(74,222,128,.05);color:var(--green);pointer-events:none}
+.fib{font-size:14px;line-height:2.6;padding:12px 0;color:var(--muted)}
+.fib strong{color:var(--text)}
+.fib-input{background:transparent;border:none;border-bottom:2px solid var(--teal);color:var(--teal);font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;min-width:110px;padding:0 4px;transition:border-color .15s}
+.fib-input:focus{border-color:var(--blue)}.fib-input.ok{border-color:var(--green);color:var(--green)}.fib-input.ko{border-color:var(--rose);color:var(--rose)}
+.fib-check{margin-top:12px;padding:8px 16px;background:var(--amber);color:#0c0e14;border:none;border-radius:6px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:opacity .15s}
+.fib-check:hover{opacity:.85}
+.vf-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;color:var(--muted)}
+.vf-item:last-child{border:none}
+.match-cols{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px}
+.match-col{display:flex;flex-direction:column;gap:7px}
+.match-item{padding:10px 13px;background:var(--bg3);border:2px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;transition:all .15s;user-select:none;min-height:42px;display:flex;align-items:center}
+.match-item:hover{border-color:var(--border2)}
+.match-item.sel{border-color:var(--teal);background:rgba(45,212,191,.08)}
+.match-item.ok{border-color:var(--green);background:rgba(74,222,128,.08);color:var(--green);pointer-events:none}
+.match-item.ko{border-color:var(--rose);background:rgba(248,113,113,.08);color:var(--rose);animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.gl{max-width:860px;margin:0 auto;padding:36px 24px 80px}
+.gl h2{font-size:30px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+.gl>p{color:var(--muted);margin-bottom:32px}
+.games-sec{margin-bottom:36px}
+.games-sec-title{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--dim);text-transform:uppercase;margin-bottom:12px}
+.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.gc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:border-color .15s,transform .15s;position:relative;overflow:hidden}
+.gc:hover{border-color:var(--border2);transform:translateY(-2px)}
+.gc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.gc.blue::before{background:var(--blue)}.gc.teal::before{background:var(--teal)}.gc.amber::before{background:var(--amber)}.gc.violet::before{background:var(--violet)}.gc.rose::before{background:var(--rose)}
+.gc-icon{font-size:28px;margin-bottom:10px}.gc-title{font-size:15px;font-weight:700;margin-bottom:5px}
+.gc-desc{font-size:12.5px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.gc-meta{display:flex;gap:7px;flex-wrap:wrap}
+.gtag{font-size:11px;padding:2px 8px;border-radius:99px;font-family:'Space Mono',monospace}
+.gtag.xp{background:rgba(245,158,11,.15);color:var(--amber)}.gtag.tema{background:rgba(45,212,191,.12);color:var(--teal)}.gtag.diff{background:rgba(167,139,250,.12);color:var(--violet)}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-ov.open{display:flex}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;padding:30px;position:relative}
+.modal-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:color .15s}
+.modal-close:hover{color:var(--text)}
+.modal-title{font-size:21px;font-weight:700;margin-bottom:5px}.modal-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+.bone-q{font-size:17px;font-weight:600;margin-bottom:18px;min-height:56px;display:flex;align-items:center;justify-content:center;text-align:center}
+.bone-opts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:18px}
+.bone-btn{padding:11px;background:var(--bg3);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;cursor:pointer;transition:all .15s}
+.bone-btn:hover{border-color:var(--border2)}
+.bone-btn.correct{border-color:var(--green);background:rgba(74,222,128,.1);color:var(--green)}
+.bone-btn.wrong{border-color:var(--rose);background:rgba(248,113,113,.1);color:var(--rose)}
+.pp-circle{position:relative;width:210px;height:210px;margin:0 auto 20px}
+.pp-lt{position:absolute;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Space Mono',monospace;border:2px solid var(--border);background:var(--bg3);transition:all .2s}
+.pp-lt.cur{border-color:var(--blue);background:rgba(77,143,255,.15);color:var(--blue);transform:scale(1.2)}
+.pp-lt.ok{border-color:var(--green);background:rgba(74,222,128,.2);color:var(--green)}
+.pp-lt.ko{border-color:var(--rose);background:rgba(248,113,113,.15);color:var(--rose)}
+.pp-lt.sk{border-color:var(--amber);background:rgba(245,158,11,.1);color:var(--amber)}
+.pp-clue{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:13px 17px;margin-bottom:14px;font-size:14px}
+.pp-cl{font-family:'Space Mono',monospace;font-weight:700;color:var(--blue);margin-right:8px}
+.pp-row{display:flex;gap:7px}
+.pp-inp{flex:1;padding:9px 13px;background:var(--bg3);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;transition:border-color .15s}
+.pp-inp:focus{border-color:var(--blue)}
+.pp-ok{padding:9px 14px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:opacity .15s}
+.pp-ok:hover{opacity:.85}
+.pp-sk{padding:9px 14px;background:var(--bg3);color:var(--amber);border:1px solid var(--border);border-radius:8px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:opacity .15s}
+.pp-sk:hover{opacity:.85}
+.result{text-align:center;padding:18px 0}
+.res-score{font-family:'Space Mono',monospace;font-size:62px;font-weight:700;color:var(--teal);line-height:1;margin-bottom:7px}
+.res-label{font-size:14px;color:var(--muted);margin-bottom:16px}.res-xp{font-size:17px;font-weight:700;color:var(--amber);margin-bottom:22px}
+.res-btns{display:flex;gap:9px;justify-content:center}
+.xp-toast{position:fixed;bottom:22px;right:22px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:13px 18px;display:flex;align-items:center;gap:11px;z-index:400;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
+.xp-toast.show{transform:translateY(0);opacity:1}
+.toast-icon{font-size:22px}.toast-title{font-weight:700;font-size:14px}.toast-sub{font-size:12px;color:var(--muted)}.toast-xp{font-family:'Space Mono',monospace;font-size:19px;font-weight:700;color:var(--amber);margin-left:auto}
+.lu-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center}
+.lu-ov.show{display:flex}
+.lu-num{font-family:'Space Mono',monospace;font-size:100px;font-weight:700;color:var(--violet);line-height:1;animation:pop .5s ease}
+@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.lu-title{font-size:22px;font-weight:700;margin-top:8px}.lu-sub{font-size:13px;color:var(--muted);margin-top:5px}
+.lu-btn{margin-top:24px;padding:10px 24px;background:var(--violet);color:#fff;border:none;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;cursor:pointer}
+.setup-lbl{font-size:13px;color:var(--muted);margin-bottom:5px;display:block}
+.setup-inp{width:100%;padding:10px 13px;background:var(--bg3);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none;transition:border-color .15s;margin-bottom:14px}
+.setup-inp:focus{border-color:var(--teal)}
+.av-opts{display:flex;gap:9px;margin-bottom:18px;flex-wrap:wrap}
+.av-opt{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer;border:2px solid var(--border);background:var(--bg3);transition:all .15s}
+.av-opt:hover,.av-opt.sel{border-color:var(--teal);transform:scale(1.1)}
+@media(max-width:768px){.asb{display:none}.al{padding:16px 14px 60px}.stats-row{grid-template-columns:repeat(2,1fr)}.hero{padding:36px 18px 28px}.games-grid{grid-template-columns:1fr}.match-cols{grid-template-columns:1fr}.bone-opts{grid-template-columns:1fr}.test-opt{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo" onclick="nav('home')">Apuntes<span>Larry</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="tab-home" onclick="nav('home')">Inicio</button>
+    <button class="nav-tab" id="tab-apuntes" onclick="nav('apuntes')">Apuntes</button>
+    <button class="nav-tab" id="tab-juegos" onclick="nav('juegos')">Juegos</button>
+  </div>
+  <div class="topbar-profile" onclick="togglePP()">
+    <div class="tb-avatar" id="tb-av">🦁</div>
+    <div class="tb-info"><div class="tb-name" id="tb-name">Larry</div><div class="tb-level" id="tb-lv">Nv.1</div></div>
+    <div class="tb-xpbar"><div class="tb-xpfill" id="tb-xpf" style="width:20%"></div></div>
+  </div>
+</div>
+
+<!-- PANEL PERFIL -->
+<div class="pp" id="pp">
+  <div style="text-align:right;margin-bottom:14px"><button onclick="togglePP()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px">✕</button></div>
+  <div class="pp-av" id="pp-av">🦁</div>
+  <div class="pp-name" id="pp-name">Larry</div>
+  <div class="pp-title" id="pp-title">Nv.1 · Estudiante de Guardia</div>
+  <div class="pp-xp-labels"><span style="color:var(--muted);font-size:11px">XP</span><span style="color:var(--amber);font-size:11px;font-family:Space Mono,monospace" id="pp-xplbl">120 / 500</span></div>
+  <div class="pp-xpbar"><div class="pp-xpfill" id="pp-xpf" style="width:24%"></div></div>
+  <div class="lv-badge"><div class="lv-num" id="lv-num">1</div><div><div class="lv-name" id="lv-name">Estudiante de Guardia</div><div class="lv-next" id="lv-next">Sig: Residente Nato</div></div></div>
+  <div class="pp-sec">Logros</div>
+  <div class="ach-grid">
+    <div class="ach">🎯</div><div class="ach">🧠</div>
+    <div class="ach locked">🔥</div><div class="ach locked">⭐</div>
+    <div class="ach locked">🏆</div><div class="ach locked">💎</div>
+    <div class="ach locked">🎖️</div><div class="ach locked">🚀</div>
+  </div>
+  <div class="pp-sec">Clasificación</div>
+  <div id="lb"></div>
+  <div style="margin-top:16px"><button class="btn-p" style="width:100%;font-size:13px" onclick="openSetup()">✏️ Editar perfil</button></div>
+</div>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-eye">// Recepción Sanitaria · Ciclo Formativo</div>
+    <h1 class="hero-title">Estudia.<br><em>Juega.</em><br>Aprueba.</h1>
+    <p class="hero-sub">Apuntes con imágenes reales, ejercicios integrados y minijuegos para Recepcionista en Centros Sanitarios.</p>
+    <div class="hero-ctas">
+      <button class="btn-p" onclick="nav('apuntes')">Ver apuntes →</button>
+      <button class="btn-s" onclick="nav('juegos')">Jugar ahora</button>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-n" style="color:var(--teal)">2</div><div class="stat-l">Temas</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:var(--violet)">5</div><div class="stat-l">Minijuegos</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:var(--amber)" id="home-xp">120</div><div class="stat-l">Tu XP</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:var(--rose)" id="home-rank">#4</div><div class="stat-l">Posición</div></div>
+  </div>
+</div>
+
+<!-- APUNTES PAGE -->
+<div class="page" id="page-apuntes">
+<div class="al">
+<nav class="asb">
+  <div class="asb-sec">Tema 1</div>
+  <div class="asb-lnk active" onclick="goTo('t1-intro')">Sistema Sanitario</div>
+  <div class="asb-lnk" onclick="goTo('t1-historia')">Historia</div>
+  <div class="asb-lnk" onclick="goTo('t1-estructura')">Estructura actual</div>
+  <div class="asb-lnk" onclick="goTo('t1-catsalut')">CatSalut</div>
+  <div class="asb-lnk" onclick="goTo('t1-siscat')">SISCAT e ICS</div>
+  <div class="asb-lnk" onclick="goTo('t1-hospitales')">Hospitales</div>
+  <div class="asb-lnk" onclick="goTo('t1-organigrama')">Organigrama</div>
+  <div class="asb-lnk" onclick="goTo('t1-recep')">Recepcionista</div>
+  <div class="asb-lnk" onclick="goTo('t1-derechos')">Derechos y deberes</div>
+  <div class="asb-sec">Tema 2</div>
+  <div class="asb-lnk" onclick="goTo('t2-intro')">Cuerpo humano</div>
+  <div class="asb-lnk" onclick="goTo('t2-tejidos')">Tejidos</div>
+  <div class="asb-lnk" onclick="goTo('t2-oseo')">Sistema oseo</div>
+  <div class="asb-lnk" onclick="goTo('t2-craneo')">Huesos del craneo</div>
+  <div class="asb-lnk" onclick="goTo('t2-columna')">Columna vertebral</div>
+  <div class="asb-lnk" onclick="goTo('t2-digestivo')">Sistema digestivo</div>
+  <div class="asb-lnk" onclick="goTo('t2-nervioso')">Sistema nervioso</div>
+  <div class="asb-lnk" onclick="goTo('t2-cerebro')">El cerebro</div>
+  <div class="asb-lnk" onclick="goTo('t2-periferico')">S.N. Periferico</div>
+  <div class="asb-lnk" onclick="goTo('t2-neurona')">La neurona</div>
+</nav>
+<div class="ac">
+
+<!-- T1 INTRO -->
+<div id="t1-intro" style="margin-bottom:40px">
+  <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.15em;color:var(--teal);text-transform:uppercase;margin-bottom:8px">Tema 1</div>
+  <h1 style="font-size:34px;font-weight:700;letter-spacing:-.02em;margin-bottom:10px">El Sistema Sanitario Espanol</h1>
+  <p class="txt">Historia, estructura y administracion del sistema sanitario espanol, con foco especial en Cataluna.</p>
+</div>
+
+<!-- HISTORIA -->
+<div class="blq" id="t1-historia">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--blue)"></div><div><div class="blq-title">Historia del Sistema Sanitario</div><div class="blq-sub">Como llegamos desde la Edad Media a la Seguridad Social</div></div></div>
+  <p class="txt">La sanidad espanola no aparecio de la nada. Fue una construccion lenta donde cada epoca aporto una pieza.</p>
+  <div class="tl">
+    <div class="tl-i"><div class="tl-d">Edad Media - Siglo XIII</div><div class="tl-n">Aparecen los primeros Hospitales</div><div class="tl-t">Alfonso X el Sabio promulga <strong>Las Siete Partidas</strong>. Fiscaliza las limosnas de la Iglesia y obliga a destinarlas a los necesitados. Las instalaciones religiosas se convierten en red de hospitalidad bajo control de la ley real.</div></div>
+    <div class="tl-i"><div class="tl-d">Edad Moderna - Siglos XV-XVI</div><div class="tl-n">Aparecen los Gremios</div><div class="tl-t">Los trabajadores artesanos crean cajas comunes de aportacion mensual para cubrirse si alguien enferma. Nacen los Gremios (herreros, zapateros...). Ademas de la caja comun, pactaban precios y normas, ganando poder politico.</div></div>
+    <div class="tl-i"><div class="tl-d">Revolucion Industrial - Siglos XIX-XX</div><div class="tl-n">Aparecen las Mutuas</div><div class="tl-t">Las fabricas de hasta 500 personas disparaban los accidentes laborales. Los gremios no podian gestionar ese volumen. Nacen las <strong>Mutuas</strong>: agrupaciones que invierten en hospitales y clinicas propias.</div></div>
+    <div class="tl-i"><div class="tl-d">1908</div><div class="tl-n">Alfonso XIII: el Estado entra en escena</div><div class="tl-t">Las mutuas privadas quebraban y los trabajadores se quedaban sin cobertura. Alfonso XIII hace el seguro obligatorio. Crea el <strong>INP</strong> (Instituto Nacional de Prevision), el Retiro Obrero, el Seguro de Maternidad (1923) y el SOVI (1947).</div></div>
+    <div class="tl-i"><div class="tl-d">1960-1966</div><div class="tl-n">Nace la Seguridad Social</div><div class="tl-t">Espana unifica todos los seguros. En 1966 se crean las <strong>cotizaciones</strong> como las conocemos hoy: un porcentaje fijo del sueldo que va a la caja comun.</div></div>
+    <div class="tl-i"><div class="tl-d">1978 - 2002</div><div class="tl-n">El INP se divide - nacen las CC.AA</div><div class="tl-t">El INP se divide en tres piezas: <strong>INSS</strong> (pensiones y bajas), <strong>IMSERSO</strong> (servicios sociales) e <strong>INSALUD</strong> (asistencia sanitaria). Cataluna asume su parte en 1990 con CatSalut. En 2002, INSALUD desaparece.</div></div>
+  </div>
+  <div class="dato"><strong>Regla mnemotecnica:</strong> Hospitales - Gremios - Mutuas - INP - Seguridad Social - CC.AA. Cada etapa coge el problema de la anterior y lo escala.</div>
+  <div class="ej-blq">
+    <div class="ej-header"><span class="ej-badge">Ejercicios</span><span class="ej-title-text">Historia</span></div>
+    <div class="ej-group">
+      <div class="ej-tipo">Tipo test</div>
+      <div class="pregunta"><div class="preg-n">01</div><div class="preg-q">Cual fue la diferencia principal entre los Gremios y las Mutuas?</div>
+        <div class="test-opt">
+          <button class="test-btn" onclick="testAns(this,false)">Los Gremios eran mas modernos</button>
+          <button class="test-btn" onclick="testAns(this,true)">Las Mutuas agrupaban varios sectores y eran mas grandes</button>
+          <button class="test-btn" onclick="testAns(this,false)">Los Gremios los creo el Estado</button>
+          <button class="test-btn" onclick="testAns(this,false)">No hay diferencia real</button>
+        </div>
+      </div>
+      <div class="pregunta"><div class="preg-n">02</div><div class="preg-q">En que anno se crean las cotizaciones tal como las conocemos hoy?</div>
+        <div class="test-opt">
+          <button class="test-btn" onclick="testAns(this,false)">1908</button>
+          <button class="test-btn" onclick="testAns(this,false)">1947</button>
+          <button class="test-btn" onclick="testAns(this,true)">1966</button>
+          <button class="test-btn" onclick="testAns(this,false)">1978</button>
+        </div>
+      </div>
+    </div>
+    <div class="ej-group">
+      <div class="ej-tipo">Respuesta elaborada</div>
+      <div class="pregunta"><div class="preg-n">03</div><p class="preg-q">Por que Alfonso XIII hace el seguro obligatorio en 1908?</p><details><summary>Ver respuesta</summary><div class="resp">Las mutuas privadas quebraban y los trabajadores se quedaban sin cobertura. Alfonso XIII lo hace obligatorio para evitar ese caos y calmar el descontento social que podia derivar en una revolucion.</div></details></div>
+      <div class="pregunta"><div class="preg-n">04</div><p class="preg-q">Que tres organismos nacen cuando se divide el INP?</p><details><summary>Ver respuesta</summary><div class="resp"><strong>INSS</strong> - pensiones y bajas. <strong>IMSERSO</strong> - servicios sociales. <strong>INSALUD</strong> - asistencia sanitaria (medicos, enfermeras, hospitales).</div></details></div>
+    </div>
+    <div class="ej-group">
+      <div class="ej-tipo">Verdadero o falso</div>
+      <div class="vf-item"><span style="flex:1">INSALUD sigue activo hoy gestionando los territorios sin comunidad autonoma.</span><details><summary>Ver</summary><div class="resp">Falso. INSALUD desaparecio en 2002.</div></details></div>
+    </div>
+  </div>
+</div>
+
+<!-- ESTRUCTURA -->
+<div class="blq" id="t1-estructura">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--teal)"></div><div><div class="blq-title">Estructura Actual en Cataluna</div><div class="blq-sub">Quien manda, quien planifica y quien paga</div></div></div>
+  <div class="key-box">
+    <div class="key-title">Cadena de mando</div>
+    <ul class="ilist">
+      <li><strong>Gobierno de Espana</strong> - Garantiza condiciones basicas en todo el territorio.</li>
+      <li><strong>Ministerio de Sanidad</strong> - Define como se hacen las cosas.</li>
+      <li><strong>La Generalitat</strong> - El tesorero del territorio.</li>
+      <li><strong>Departament de Salut</strong> - Los estrategas: donde poner hospitales, que enfermedades priorizar.</li>
+      <li><strong>CatSalut</strong> - La gestora: recibe el dinero y paga los servicios.</li>
+      <li><strong>SISCAT</strong> - Red de todos los centros publicos y concertados.</li>
+      <li><strong>ICS</strong> - La flota propia del gobierno.</li>
+    </ul>
+  </div>
+  <div class="aviso"><div class="aviso-t">Plan de Salud</div>El Departament de Salut redacta un plan estrategico cada <strong>5 anos</strong>.</div>
+  <div class="ej-blq">
+    <div class="ej-header"><span class="ej-badge">Ejercicios</span><span class="ej-title-text">Estructura</span></div>
+    <div class="ej-group">
+      <div class="ej-tipo">Relacionar</div>
+      <div class="match-cols">
+        <div class="match-col">
+          <div class="match-item" data-left="0" onclick="mL(this)">CatSalut</div>
+          <div class="match-item" data-left="1" onclick="mL(this)">Departament de Salut</div>
+          <div class="match-item" data-left="2" onclick="mL(this)">SISCAT</div>
+          <div class="match-item" data-left="3" onclick="mL(this)">ICS</div>
+        </div>
+        <div class="match-col">
+          <div class="match-item" data-right="2" onclick="mR(this)">Red de centros publicos y concertados</div>
+          <div class="match-item" data-right="3" onclick="mR(this)">Principal proveedor, centros propios</div>
+          <div class="match-item" data-right="0" onclick="mR(this)">Gestiona el dinero y paga los servicios</div>
+          <div class="match-item" data-right="1" onclick="mR(this)">Define la estrategia sanitaria</div>
+        </div>
+      </div>
+    </div>
+    <div class="ej-group">
+      <div class="ej-tipo">Rellena los huecos</div>
+      <div class="fib" id="fib1">El organismo que redacta el Plan de Salud cada 5 anos es el <input class="fib-input" data-ans="departament de salut" placeholder="...">. El que paga los servicios es <input class="fib-input" data-ans="catsalut" placeholder="...">. El que agrupa todos los centros es el <input class="fib-input" data-ans="siscat" placeholder="...">.</div>
+      <button class="fib-check" onclick="checkFib('fib1')">Comprobar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CATSALUT -->
+<div class="blq" id="t1-catsalut">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--teal)"></div><div><div class="blq-title">CatSalut</div><div class="blq-sub">Servei Catala de la Salut</div></div></div>
+  <div class="def-box"><div class="def-term">Definicion oficial</div><div class="def-body">Entidad publica responsable de garantizar la atencion sanitaria de forma <strong>integral y de calidad</strong>. Sistema <strong>publico, equitativo, eficiente y sostenible</strong>.</div></div>
+  <div class="key-box">
+    <div class="key-title">Asistencia Integral - los 4 pilares</div>
+    <ul class="ilist">
+      <li><strong>Prevencion</strong> - Que no enfermes. Vacunas, revisiones, charlas.</li>
+      <li><strong>Curacion</strong> - Curarte cuando estas enfermo.</li>
+      <li><strong>Rehabilitacion</strong> - Recuperarte despues. Fisioterapia.</li>
+      <li><strong>Paliacion</strong> - Aliviar el sufrimiento cuando no hay cura.</li>
+    </ul>
+  </div>
+  <div class="key-box">
+    <div class="key-title">Las 5 funciones de ordenacion</div>
+    <ul class="ilist">
+      <li><strong>Ordenar</strong> - El mapa y las reglas.</li><li><strong>Planificar</strong> - El objetivo.</li>
+      <li><strong>Programar</strong> - El calendario y los responsables.</li>
+      <li><strong>Evaluar</strong> - Si ha funcionado bien.</li><li><strong>Inspeccionar</strong> - Que sea seguro y legal.</li>
+    </ul>
+  </div>
+  <div class="ej-blq">
+    <div class="ej-header"><span class="ej-badge">Ejercicios</span><span class="ej-title-text">CatSalut</span></div>
+    <div class="ej-group">
+      <div class="ej-tipo">Tipo test</div>
+      <div class="pregunta"><div class="preg-n">01</div><div class="preg-q">Un medico te pone la vacuna de la gripe. Que pilar es?</div>
+        <div class="test-opt"><button class="test-btn" onclick="testAns(this,true)">Prevencion</button><button class="test-btn" onclick="testAns(this,false)">Curacion</button><button class="test-btn" onclick="testAns(this,false)">Rehabilitacion</button><button class="test-btn" onclick="testAns(this,false)">Paliacion</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SISCAT -->
+<div class="blq" id="t1-siscat">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--teal)"></div><div><div class="blq-title">SISCAT e ICS</div></div></div>
+  <div class="def-box"><div class="def-term">SISCAT</div><div class="def-body">Conjunto de todos los centros (publicos y concertados) gestionados por CatSalut. Optimiza infraestructuras cada <strong>3 anos</strong>.</div></div>
+  <div class="def-box" style="border-left-color:var(--amber)"><div class="def-term" style="color:var(--amber)">ICS</div><div class="def-body">Empresa publica, <strong>principal proveedor de CatSalut</strong>. Gestiona <strong>300 equipamientos de atencion primaria</strong> y los <strong>8 hospitales de referencia</strong>.</div></div>
+</div>
+
+<!-- HOSPITALES -->
+<div class="blq" id="t1-hospitales">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--amber)"></div><div><div class="blq-title">Tipos de Hospitales</div><div class="blq-sub">XHUP y niveles de complejidad</div></div></div>
+  <div class="key-box">
+    <div class="key-title">Niveles de complejidad</div>
+    <ul class="ilist">
+      <li><strong>Nivel 1 - Basico</strong> - Necesidades habituales, sin especializacion. Ej: Viladecans.</li>
+      <li><strong>Nivel 2 - Referencia</strong> - Casi todo excepto alta tecnologia. Ej: Arnau de Vilanova, Joan XXIII, Trueta.</li>
+      <li><strong>Nivel 3 - Alta tecnologia</strong> - Maxima especializacion. Ej: Vall d'Hebron, Bellvitge, Germans Trias i Pujol.</li>
+    </ul>
+  </div>
+  <div class="key-box">
+    <div class="key-title">Clasificacion por tipo</div>
+    <ul class="ilist">
+      <li><strong>Generales</strong> - Cualquier enfermedad. Urgencias, cirugia, medicina interna.</li>
+      <li><strong>Pediatricos</strong> - Solo ninos y adolescentes (0-18 anos).</li>
+      <li><strong>Psiquiatricos</strong> - Trastornos mentales y salud emocional.</li>
+      <li><strong>Militares</strong> - Para soldados, veteranos y familias.</li>
+      <li><strong>Universitarios</strong> - Asistencia + formacion + investigacion.</li>
+      <li><strong>Hospital de dia</strong> - Tratamientos sin ingreso.</li>
+      <li><strong>Modulares</strong> - Estructuras prefabricadas.</li>
+      <li><strong>De campana</strong> - Temporales para situaciones extraordinarias.</li>
+    </ul>
+  </div>
+  <div class="ej-blq">
+    <div class="ej-header"><span class="ej-badge">Ejercicios</span><span class="ej-title-text">Hospitales</span></div>
+    <div class="ej-group">
+      <div class="ej-tipo">Tipo test</div>
+      <div class="pregunta"><div class="preg-n">01</div><div class="preg-q">El Hospital Vall d'Hebron, a que nivel pertenece?</div>
+        <div class="test-opt"><button class="test-btn" onclick="testAns(this,false)">Nivel 1</button><button class="test-btn" onclick="testAns(this,false)">Nivel 2</button><button class="test-btn" onclick="testAns(this,true)">Nivel 3</button><button class="test-btn" onclick="testAns(this,false)">Nivel 4</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ORGANIGRAMA -->
+<div class="blq" id="t1-organigrama">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--amber)"></div><div><div class="blq-title">Organigrama de un Hospital</div></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:16px 0">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden"><div style="padding:9px;font-size:11px;font-weight:700;text-align:center;background:#1a2a3a;color:#60a5fa;border-bottom:1px solid var(--border)">Direccion Medica</div><div style="padding:10px;font-size:12px;color:var(--muted)"><div style="padding:3px 0;border-bottom:1px solid var(--border)">Recursos Humanos</div><div style="padding:3px 0;border-bottom:1px solid var(--border)">Subdirecciones clinicas</div><div style="padding:3px 0">Seleccion de Personal</div></div></div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden"><div style="padding:9px;font-size:11px;font-weight:700;text-align:center;background:#1a3a2a;color:#4ade80;border-bottom:1px solid var(--border)">Direccion Enfermeria</div><div style="padding:10px;font-size:12px;color:var(--muted)"><div style="padding:3px 0;border-bottom:1px solid var(--border)">Servicios Generales</div><div style="padding:3px 0;border-bottom:1px solid var(--border)">Almacen</div><div style="padding:3px 0">Hosteleria</div></div></div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden"><div style="padding:9px;font-size:11px;font-weight:700;text-align:center;background:#2a1a3a;color:#c084fc;border-bottom:1px solid var(--border)">Direccion Economica</div><div style="padding:10px;font-size:12px;color:var(--muted)"><div style="padding:3px 0;border-bottom:1px solid var(--border)">Administracion</div><div style="padding:3px 0;border-bottom:1px solid var(--border);color:var(--teal);font-weight:600">Recepcionistas</div><div style="padding:3px 0">Citas · Altas · Bajas</div></div></div>
+  </div>
+  <div class="aviso"><div class="aviso-t">Tu lugar</div>Direccion Economica - Administracion. El <strong>primer punto de contacto</strong> entre el paciente y el sistema.</div>
+</div>
+
+<!-- RECEPCIONISTA -->
+<div class="blq" id="t1-recep">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--violet)"></div><div><div class="blq-title">El Recepcionista Sanitario</div></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0">
+    <div class="key-box" style="margin:0"><div class="key-title" style="color:var(--blue)">En un centro medico</div><ul class="ilist"><li>Recibir al paciente y avisar</li><li>Atender llamadas y correos</li><li>Gestionar citas y cancelaciones</li><li>Crear fichas medicas</li><li>Cobrar pagos y gestionar facturas</li><li>Resolver quejas</li><li>Tareas administrativas y contabilidad</li></ul></div>
+    <div class="key-box" style="margin:0"><div class="key-title" style="color:var(--teal)">En un hospital</div><ul class="ilist"><li>Registrar informacion del paciente</li><li>Responder llamadas</li><li>Informar sobre actividades del hospital</li><li>Mantener orden en sala de espera</li><li>Tareas administrativas</li><li>Informar de citas al paciente</li></ul></div>
+  </div>
+</div>
+
+<!-- DERECHOS Y DEBERES -->
+<div class="blq" id="t1-derechos">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--violet)"></div><div><div class="blq-title">Derechos y Deberes</div></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0">
+    <div class="key-box" style="margin:0"><div class="key-title" style="color:var(--teal)">Derechos del usuario</div><ul class="ilist"><li>Ser informado de los procedimientos</li><li>Intimidad y no discriminacion</li><li>Ser tratado con respeto</li><li>Contacto con familia y amigos</li><li>Secreto profesional de sus datos</li><li>Reclamar y sugerir</li><li>Morir con dignidad</li><li>Segunda opinion medica</li></ul></div>
+    <div class="key-box" style="margin:0"><div class="key-title" style="color:var(--amber)">Deberes del usuario</div><ul class="ilist"><li>Respetar instalaciones y personal</li><li>Avisar si no asiste a citas</li><li>Cumplir normas del centro</li><li>Facilitar historial medico</li><li>Facilitar su asistencia y tratamiento</li></ul></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0">
+    <div class="key-box" style="margin:0"><div class="key-title" style="color:var(--blue)">Derechos del sanitario</div><ul class="ilist"><li>Trabajar con seguridad</li><li>Recibir herramientas necesarias</li><li>Buen clima laboral</li><li>Horario con descanso</li><li>Sueldo y contrato</li><li>Formacion continuada</li></ul></div>
+    <div class="key-box" style="margin:0"><div class="key-title" style="color:var(--rose)">Deberes del sanitario</div><ul class="ilist"><li>Informar debidamente al paciente</li><li>Respetar la intimidad ajena</li><li>Ofrecer atencion de calidad</li><li>Actuar con etica profesional</li><li>Completar la documentacion</li><li>Mantener el secreto profesional</li></ul></div>
+  </div>
+</div>
+
+
+<!-- TEMA 2 -->
+<div class="tema-sep" id="t2-intro">Tema 2</div>
+<div style="margin-bottom:40px">
+  <div style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.15em;color:var(--violet);text-transform:uppercase;margin-bottom:8px">Tema 2</div>
+  <h1 style="font-size:34px;font-weight:700;letter-spacing:-.02em;margin-bottom:10px">El Cuerpo Humano y su Anatomia</h1>
+  <p class="txt">Tejidos, organos, sistemas y aparatos. El recorrido por los grandes sistemas del cuerpo humano.</p>
+</div>
+
+<!-- TEJIDOS -->
+<div class="blq" id="t2-tejidos">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--teal)"></div><div><div class="blq-title">Definiciones y Tejidos</div></div></div>
+  <div class="def-box"><div class="def-term">Anatomia</div><div class="def-body">Ciencia que estudia la <strong>estructura y la forma</strong> de los seres vivos y sus relaciones.</div></div>
+  <div class="def-box"><div class="def-term">Fisiologia</div><div class="def-body">Ciencia que estudia la <strong>funcion, los procesos vitales y la homeostasis</strong> de los seres vivos.</div></div>
+  <div class="key-box">
+    <div class="key-title">Jerarquia del cuerpo</div>
+    <ul class="ilist">
+      <li><strong>Tejido</strong> - Conjunto de celulas similares con funcion comun. El ladrillo basico.</li>
+      <li><strong>Organo</strong> - Tejidos con una funcion especifica. El pulmon y el higado usan tejidos similares pero hacen cosas distintas.</li>
+      <li><strong>Sistema</strong> - Organos del mismo tipo de tejido dominante. Ej: sistema oseo.</li>
+      <li><strong>Aparato</strong> - Organos de tejidos distintos aliados para una gran funcion. Ej: sistema oseo + muscular = Aparato Locomotor.</li>
+    </ul>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0">
+    <div class="key-box" style="margin:0"><div class="key-title">Tejido Epitelial</div><p style="font-size:13.5px;color:var(--muted)">Recubre superficies y conductos. <strong style="color:var(--text)">Protege, absorbe y secreta</strong>. Produce queratina.</p></div>
+    <div class="key-box" style="margin:0"><div class="key-title">Tejido Muscular</div><p style="font-size:13.5px;color:var(--muted)">Celulas que se <strong style="color:var(--text)">contraen y relajan</strong> para generar movimientos voluntarios e involuntarios.</p></div>
+    <div class="key-box" style="margin:0"><div class="key-title">Tejido Nervioso</div><p style="font-size:13.5px;color:var(--muted)">Red especializada que <strong style="color:var(--text)">recoge estimulos, procesa y transmite</strong> senales electricas.</p></div>
+    <div class="key-box" style="margin:0;border-left:2px solid var(--amber)"><div class="key-title">Tejido Conectivo</div><p style="font-size:13px;color:var(--muted)"><strong style="color:var(--text)">Sostiene, une, protege</strong> a otros organos. Subtipos: laxo (relleno), cartilaginoso (orejas), oseo (huesos), sanguineo (sangre).</p></div>
+  </div>
+  <div class="ej-blq">
+    <div class="ej-header"><span class="ej-badge">Ejercicios</span><span class="ej-title-text">Tejidos y jerarquia</span></div>
+    <div class="ej-group">
+      <div class="ej-tipo">Tipo test</div>
+      <div class="pregunta"><div class="preg-n">01</div><div class="preg-q">Cual define correctamente un APARATO?</div>
+        <div class="test-opt">
+          <button class="test-btn" onclick="testAns(this,false)">Organos del mismo tejido dominante</button>
+          <button class="test-btn" onclick="testAns(this,true)">Organos de tejidos distintos que colaboran para una funcion comun</button>
+          <button class="test-btn" onclick="testAns(this,false)">Una sola celula especializada</button>
+          <button class="test-btn" onclick="testAns(this,false)">Lo mismo que un sistema</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SISTEMA OSEO -->
+<div class="blq" id="t2-oseo">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--amber)"></div><div><div class="blq-title">El Sistema Oseo</div><div class="blq-sub">Funciones, esferas de proteccion y planos anatomicos</div></div></div>
+  <div class="key-box">
+    <div class="key-title">Funciones del sistema oseo</div>
+    <ul class="ilist">
+      <li><strong>Sosten</strong> - Estructura sobre la que se asientan todos los tejidos.</li>
+      <li><strong>Proteccion</strong> - Protege los organos vitales de golpes e impactos.</li>
+      <li><strong>Reserva energetica</strong> - La medula osea <em>amarilla</em> almacena grasa.</li>
+      <li><strong>Creacion de celulas sanguineas</strong> - La medula osea <em>roja</em> genera globulos rojos, blancos y plaquetas.</li>
+      <li><strong>Equilibrio mineral</strong> - Almacena calcio y fosforo.</li>
+    </ul>
+  </div>
+  <div class="key-box">
+    <div class="key-title">Las 3 esferas de proteccion</div>
+    <div style="display:flex;gap:12px;margin-top:10px">
+      <div style="flex:1;text-align:center;padding:18px 12px;border-radius:50%;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a2a3a;border:2px solid #60a5fa">
+        <div style="font-weight:700;font-size:13px;color:#60a5fa;margin-bottom:5px">Craneo</div>
+        <div style="font-size:11px;color:var(--muted)">Rigida<br>Protege el cerebro</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:18px 12px;border-radius:50%;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a3a2a;border:2px solid #4ade80">
+        <div style="font-weight:700;font-size:13px;color:#4ade80;margin-bottom:5px">Caja Toracica</div>
+        <div style="font-size:11px;color:var(--muted)">Semirigida<br>Corazon y pulmones</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:18px 12px;border-radius:50%;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#2a2a1a;border:2px solid #f59e0b">
+        <div style="font-weight:700;font-size:13px;color:#f59e0b;margin-bottom:5px">Pelvis</div>
+        <div style="font-size:11px;color:var(--muted)">Basal<br>S. reproductor y digestivo</div>
+      </div>
+    </div>
+  </div>
+  <div class="key-box">
+    <div class="key-title">Planos anatomicos y movimientos</div>
+    <div class="img-wrap" style="margin:12px 0"><img src="images/image8.png" alt="Planos anatomicos con movimientos"><div class="img-cap">Planos y ejes anatomicos con movimientos asociados</div></div>
+    <div class="img-wrap" style="margin:12px 0"><img src="images/image12.png" alt="Movimientos corporales detallados"><div class="img-cap">Movimientos del cuerpo: flexion, extension, abduccion, aduccion, rotaciones</div></div>
+    <ul class="ilist" style="margin-top:12px">
+      <li><strong>Plano Sagital</strong> (izq/der) - Flexion (doblar) y Extension (estirar)</li>
+      <li><strong>Plano Frontal</strong> (delante/detras) - Abduccion (alejar) - Aduccion (acercar) - Lateralizaciones</li>
+      <li><strong>Plano Transversal</strong> (sup/inf) - Rotaciones</li>
+    </ul>
+  </div>
+  <div class="ej-blq">
+    <div class="ej-header"><span class="ej-badge">Ejercicios</span><span class="ej-title-text">Sistema oseo y planos</span></div>
+    <div class="ej-group">
+      <div class="ej-tipo">Identifica el movimiento y el plano</div>
+      <div class="pregunta"><div class="preg-n">01</div><div class="preg-q">Separas los brazos del cuerpo como si fueras a volar. Que movimiento es? En que plano?</div><details><summary>Ver</summary><div class="resp"><strong>Abduccion</strong> - Plano Frontal.</div></details></div>
+      <div class="pregunta"><div class="preg-n">02</div><div class="preg-q">Doblas la rodilla para subir un escalon. Que movimiento es?</div><details><summary>Ver</summary><div class="resp"><strong>Flexion</strong> - Plano Sagital.</div></details></div>
+      <div class="pregunta"><div class="preg-n">03</div><div class="preg-q">Giras la cabeza para mirar por encima del hombro. Que movimiento es?</div><details><summary>Ver</summary><div class="resp"><strong>Rotacion</strong> - Plano Transversal.</div></details></div>
+    </div>
+  </div>
+</div>
+
+<!-- HUESOS DEL CRANEO -->
+<div class="blq" id="t2-craneo">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--amber)"></div><div><div class="blq-title">Los Huesos del Craneo</div></div></div>
+  <div class="img-wrap"><img src="images/image9.png" alt="Huesos del craneo vista lateral"><div class="img-cap">Vista lateral del craneo - 8 huesos coloreados</div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0">
+    <div class="key-box" style="margin:0"><div class="key-title" style="color:var(--blue)">8 huesos del craneo superior</div><ul class="ilist"><li>1 Frontal</li><li>2 Parietales (I y D)</li><li>2 Temporales (I y D)</li><li>1 Occipital</li><li>1 Esfenoides</li><li>1 Etmoides</li></ul></div>
+    <div><div class="img-wrap" style="margin:0 0 10px"><img src="images/image21.png" alt="Huesos de la cara"><div class="img-cap">Vista frontal del craneo</div></div>
+    <div class="key-box" style="margin:0"><div class="key-title" style="color:var(--teal)">12 huesos de la cara</div><ul class="ilist"><li>2 Palatinos - 1 Vomer</li><li>2 Lagrimales (unguis)</li><li>2 Nasales - 2 Cornetes inferiores</li><li>2 Maxilares superiores</li><li>1 Mandibula (maxilar inferior)</li><li>2 Zigomaticos (Malar)</li></ul></div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0">
+    <div><div class="img-wrap" style="margin:0 0 10px"><img src="images/image7.png" alt="Orbita ocular"><div class="img-cap">Orbita ocular - 7 huesos</div></div>
+    <div class="key-box" style="margin:0"><div class="key-title" style="color:var(--violet)">7 huesos de la orbita ocular</div><ul class="ilist"><li>Frontal - Esfenoides - Etmoides</li><li>Maxilar - Zigomatico</li><li>Lagrimal - Palatino</li></ul></div></div>
+    <div>
+      <div class="key-box" style="margin:0 0 10px"><div class="key-title" style="color:var(--amber)">3 huesos del canal auditivo</div><ul class="ilist"><li>Yunque</li><li>Martillo</li><li>Estribo</li></ul></div>
+      <div class="key-box" style="margin:0"><div class="key-title">Senos paranasales</div><ul class="ilist"><li>Aligerar el peso del craneo</li><li>Calentar y humedecer el aire</li><li>Producir moco protector</li><li>Resonancia para la voz</li></ul></div>
+    </div>
+  </div>
+  <div class="img-wrap"><img src="images/image22.png" alt="Sinusitis y senos paranasales"><div class="img-cap">Los 4 senos paranasales</div></div>
+  <div class="key-box" style="margin-top:16px">
+    <div class="key-title">Caja toracica</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+      <div class="img-wrap" style="margin:0"><img src="images/image2.png" alt="Caja toracica posterior"><div class="img-cap">Vista posterior</div></div>
+      <div class="img-wrap" style="margin:0"><img src="images/image26.png" alt="Caja toracica frontal"><div class="img-cap">Vista frontal</div></div>
+    </div>
+  </div>
+  <div class="key-box">
+    <div class="key-title">Recursos interactivos recomendados</div>
+    <ul class="ilist">
+      <li><a href="https://www.cerebriti.com/juegos-de-ciencias/huesos-de-la-cabeza" target="_blank" style="color:var(--blue)">cerebriti.com - Huesos de la cabeza</a></li>
+      <li><a href="https://es.educaplay.com/recursos-educativos/3446877-la_caja_toracica.html" target="_blank" style="color:var(--blue)">educaplay.com - Caja toracica</a></li>
+      <li><a href="https://www.purposegames.com/es/game/huesos-caja-toracica" target="_blank" style="color:var(--blue)">purposegames.com - Caja toracica facil</a></li>
+    </ul>
+  </div>
+  <div class="ej-blq">
+    <div class="ej-header"><span class="ej-badge">Ejercicios</span><span class="ej-title-text">Huesos del craneo</span></div>
+    <div class="ej-group">
+      <div class="ej-tipo">Rellena los huecos</div>
+      <div class="fib" id="fib2">El craneo superior tiene <input class="fib-input" data-ans="8" placeholder="?"> huesos. La cara tiene <input class="fib-input" data-ans="12" placeholder="?"> huesos. La orbita ocular tiene <input class="fib-input" data-ans="7" placeholder="?"> huesos. Los 3 huesos del canal auditivo son yunque, <input class="fib-input" data-ans="martillo" placeholder="?"> y <input class="fib-input" data-ans="estribo" placeholder="?>.</div>
+      <button class="fib-check" onclick="checkFib('fib2')">Comprobar</button>
+    </div>
+    <div class="ej-group">
+      <div class="ej-tipo">Tipo test</div>
+      <div class="pregunta"><div class="preg-n">01</div><div class="preg-q">Cual de estos NO es un hueso del craneo superior?</div>
+        <div class="test-opt"><button class="test-btn" onclick="testAns(this,false)">Esfenoides</button><button class="test-btn" onclick="testAns(this,true)">Vomer</button><button class="test-btn" onclick="testAns(this,false)">Etmoides</button><button class="test-btn" onclick="testAns(this,false)">Occipital</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COLUMNA VERTEBRAL -->
+<div class="blq" id="t2-columna">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--amber)"></div><div><div class="blq-title">La Columna Vertebral</div></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0">
+    <div><div class="img-wrap" style="margin:0 0 12px"><img src="images/image31.png" alt="Columna vertebral completa"><div class="img-cap">Columna vertebral - regiones</div></div></div>
+    <div>
+      <div class="key-box" style="margin:0"><div class="key-title">Las 5 regiones</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+          <div style="flex:1;min-width:70px;text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 6px"><div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--teal)">7</div><div style="font-size:10px;color:var(--muted)">Cervical</div></div>
+          <div style="flex:1;min-width:70px;text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 6px"><div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--teal)">12</div><div style="font-size:10px;color:var(--muted)">Toracica</div></div>
+          <div style="flex:1;min-width:70px;text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 6px"><div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--teal)">5</div><div style="font-size:10px;color:var(--muted)">Lumbar</div></div>
+          <div style="flex:1;min-width:70px;text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 6px"><div style="font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--teal)">5</div><div style="font-size:10px;color:var(--muted)">Sacra</div></div>
+          <div style="flex:1;min-width:70px;text-align:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 6px"><div style="font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--teal)">3-5</div><div style="font-size:10px;color:var(--muted)">Coccix</div></div>
+        </div>
+      </div>
+      <div class="aviso" style="margin-top:10px"><div class="aviso-t">Total: 33-34 huesos</div>Las dos primeras vertebras tienen nombre propio: <strong>Atlas (C1)</strong> y <strong>Axis (C2)</strong>.</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0">
+    <div><div class="img-wrap" style="margin:0 0 10px"><img src="images/image20.png" alt="Partes de una vertebra"><div class="img-cap">Partes de una vertebra tipica</div></div>
+    <div class="key-box" style="margin:0"><div class="key-title">Partes principales de una vertebra</div><ul class="ilist"><li><strong>Apofisis espinosa</strong> - Lo que notas al tocar la espalda</li><li><strong>Agujero raquideo</strong> - Canal por donde pasa la medula espinal</li><li><strong>Cuerpo vertebral</strong> - La parte maciza que soporta el peso</li></ul></div></div>
+    <div><div class="img-wrap" style="margin:0 0 10px"><img src="images/image18.png" alt="Atlas C1 y Axis C2"><div class="img-cap">Atlas (C1) y Axis (C2)</div></div>
+    <div class="key-box" style="margin:0"><div class="key-title">Atlas y Axis</div><p style="font-size:13.5px;color:var(--muted)">El <strong style="color:var(--text)">Atlas (C1)</strong> es el nexo entre craneo y columna. Recibe el nombre del titan griego condenado a cargar la boveda celeste. El <strong style="color:var(--text)">Axis (C2)</strong> permite los movimientos rotacionales de la cabeza.</p></div></div>
+  </div>
+  <div class="img-wrap"><img src="images/image25.png" alt="Variaciones morfologicas de las vertebras"><div class="img-cap">Diferencias entre vertebras cervicales, toracicas y lumbares</div></div>
+  <div class="ej-blq">
+    <div class="ej-header"><span class="ej-badge">Ejercicios</span><span class="ej-title-text">Columna vertebral</span></div>
+    <div class="ej-group">
+      <div class="ej-tipo">Rellena los huecos</div>
+      <div class="fib" id="fib3">La primera vertebra cervical se llama <input class="fib-input" data-ans="atlas" placeholder="?"> y la segunda <input class="fib-input" data-ans="axis" placeholder="?>. La region con mas vertebras es la <input class="fib-input" data-ans="toracica" placeholder="?"> con <input class="fib-input" data-ans="12" placeholder="?"> vertebras.</div>
+      <button class="fib-check" onclick="checkFib('fib3')">Comprobar</button>
+    </div>
+  </div>
+</div>
+
+<!-- DIGESTIVO -->
+<div class="blq" id="t2-digestivo">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--orange)"></div><div><div class="blq-title">El Sistema Digestivo</div><div class="blq-sub">Del bolo al residuo</div></div></div>
+  <div class="key-box">
+    <div class="key-title">El trayecto completo en orden</div>
+    <ul class="ilist">
+      <li><strong>Boca</strong> - 32 dientes: 8 incisivos (cortan), 4 caninos (desgarran), 8 premolares (trituran), 12 molares (trituran).</li>
+      <li><strong>Faringe</strong> - Primer tubo del tracto. Con sistema de lubricacion propio.</li>
+      <li><strong>Esofago</strong> - ~25 cm. Transporta el bolo al estomago mediante movimientos peristalticos controlados por el plexo de Auerbach.</li>
+      <li><strong>Estomago</strong> - Almacena, mezcla y descompone. Contiene acido clorhidrico protegido por mucosa. El esfinter Cardias evita el reflujo. Partes: Fundus - Cuerpo - Antrax.</li>
+      <li><strong>Intestino delgado</strong> - Absorbe la mayoria de nutrientes. Duodeno (mezcla con bilis y enzimas) - Yeyuno (absorbe nutrientes) - Ileon (conecta con el grueso).</li>
+      <li><strong>Intestino grueso (colon)</strong> - Absorbe agua y electrolitos, forma las heces. Porciones ascendente, transversal y descendente.</li>
+      <li><strong>Recto + Ampolla rectal</strong> - Almacenamiento temporal antes de la expulsion.</li>
+    </ul>
+  </div>
+  <div class="key-box">
+    <div class="key-title">Musculos de la masticacion</div>
+    <div class="img-wrap" style="margin:10px 0"><img src="images/image14.png" alt="Musculos de la masticacion"><div class="img-cap">Masetero, Temporal, Pterigoideos medial y lateral</div></div>
+    <ul class="ilist">
+      <li><strong>Masetero</strong> - Cierra la boca (eleva la mandibula)</li>
+      <li><strong>Temporal</strong> - Eleva y retrae la mandibula</li>
+      <li><strong>Pterigoideo medial</strong> - Eleva y lateraliza la mandibula</li>
+      <li><strong>Pterigoideo lateral</strong> - Abre y protuye la mandibula</li>
+      <li><strong>Buccinador</strong> - Empuja la comida hacia los dientes</li>
+      <li><strong>Orbicular de los labios</strong> - Cierra la boca al masticar</li>
+    </ul>
+    <div class="img-wrap" style="margin:10px 0"><img src="images/image29.png" alt="Orbicular y Buccinador"><div class="img-cap">Orbicular de los labios (izquierda) y Buccinador (derecha)</div></div>
+  </div>
+  <div class="key-box">
+    <div class="key-title">Higado, pancreas y bacterias</div>
+    <ul class="ilist">
+      <li><strong>Higado</strong> - Produce bilis para digerir los lipidos. La digestion de grasas empieza en el duodeno.</li>
+      <li><strong>Pancreas</strong> - Enzimas: <em>lipasa</em> (grasas) - <em>proteasa</em> (proteinas) - <em>amilasa</em> (hidratos de carbono).</li>
+      <li><strong>Microbiota</strong> - Bacterias que descomponen alimentos, sintetizan vitaminas y protegen contra microbios nocivos.</li>
+    </ul>
+  </div>
+  <div class="dato"><strong>Prebioticos vs Probioticos:</strong> Los <strong>Prebioticos</strong> son fibras que alimentan a las bacterias. Los <strong>Probioticos</strong> son los microorganismos vivos que se comen esos prebioticos. Los Probioticos comen Prebioticos.</div>
+  <div class="ej-blq">
+    <div class="ej-header"><span class="ej-badge">Ejercicios</span><span class="ej-title-text">Sistema digestivo</span></div>
+    <div class="ej-group">
+      <div class="ej-tipo">Ordena el recorrido</div>
+      <div class="pregunta"><div class="preg-n">01</div><p class="preg-q">Pon en orden: Ileon - Esofago - Duodeno - Boca - Colon - Recto - Estomago - Yeyuno</p><details><summary>Ver</summary><div class="resp">Boca - Esofago - Estomago - Duodeno - Yeyuno - Ileon - Colon - Recto</div></details></div>
+    </div>
+    <div class="ej-group">
+      <div class="ej-tipo">Tipo test</div>
+      <div class="pregunta"><div class="preg-n">02</div><div class="preg-q">Que enzima pancreatica digiere los hidratos de carbono?</div>
+        <div class="test-opt"><button class="test-btn" onclick="testAns(this,false)">Lipasa</button><button class="test-btn" onclick="testAns(this,false)">Proteasa</button><button class="test-btn" onclick="testAns(this,true)">Amilasa</button><button class="test-btn" onclick="testAns(this,false)">Bilis</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SISTEMA NERVIOSO -->
+<div class="blq" id="t2-nervioso">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--rose)"></div><div><div class="blq-title">El Sistema Nervioso</div><div class="blq-sub">SNC, SNP, aferencia y eferencia</div></div></div>
+  <div class="img-wrap"><img src="images/image13.png" alt="Mapa del sistema nervioso"><div class="img-cap">SNC (Encefalo + Medula Espinal) y SNP (12 pares craneales + 31 pares raquideos)</div></div>
+  <div class="def-box" style="border-left-color:var(--blue)"><div class="def-term" style="color:var(--blue)">Aferencia (sensitiva)</div><div class="def-body">Recibe informacion del exterior o del interior. <strong>Es el chivato que le cuenta al cerebro lo que pasa.</strong></div></div>
+  <div class="def-box" style="border-left-color:var(--rose)"><div class="def-term" style="color:var(--rose)">Eferencia (motora)</div><div class="def-body">Envia ordenes hacia los organos y musculos. <strong>Es el sargento que manda la solucion a los musculos.</strong></div></div>
+  <div class="img-wrap"><img src="images/image10.png" alt="Sistema nervioso central y periferico"><div class="img-cap">El sistema nervioso central (verde) y el periferico (azul)</div></div>
+  <div class="key-box">
+    <div class="key-title">El Encefalo - 3 divisiones</div>
+    <ul class="ilist">
+      <li><strong>Tronco encefalico</strong> - Mesencefalo + Protuberancia + Bulbo Raquideos. Supervivencia automatica.</li>
+      <li><strong>Cerebelo</strong> - Coordinacion, equilibrio, aprendizaje motor y estabilizacion emocional.</li>
+      <li><strong>Cerebro</strong> - Diencefalo + Telencefalo. El CEO. Pensamiento, memoria y conciencia.</li>
+    </ul>
+  </div>
+  <div class="key-box">
+    <div class="key-title">Tronco encefalico - los 3 departamentos</div>
+    <ul class="ilist">
+      <li><strong>Mesencefalo</strong> - La estructura mas antigua. Reacciones reflejas ante estimulos visuales o auditivos subitos.</li>
+      <li><strong>Protuberancia (puente)</strong> - Nodo de comunicacion entre cerebro y cerebelo. Activa la Fase REM del sueno.</li>
+      <li><strong>Bulbo raquideos</strong> - El agente 24/7. Mantiene activos los latidos, la respiracion y la presion sanguinea. Activa tos, estornudo, hipo.</li>
+    </ul>
+  </div>
+  <div class="key-box">
+    <div class="key-title">El Cerebelo</div>
+    <p class="txt" style="margin-bottom:8px">Pese a su pequeno tamano, alberga <strong>69.000 millones de neuronas</strong> - mas de la mitad de las del cuerpo entero.</p>
+    <ul class="ilist">
+      <li><strong>Regulador motriz</strong> - Precision milimetrica en los movimientos.</li>
+      <li><strong>Sensor de estabilidad</strong> - Mantiene el equilibrio usando informacion de oidos y vista.</li>
+      <li><strong>Aprendizaje motor</strong> - Automatiza acciones repetidas: escribir, bicicleta, instrumento.</li>
+      <li><strong>Estabilizador emocional</strong> - Regula las transiciones emocionales.</li>
+      <li><strong>Armonizador linguistico</strong> - Sincroniza velocidad del pensamiento con la del habla.</li>
+    </ul>
+  </div>
+  <div class="ej-blq">
+    <div class="ej-header"><span class="ej-badge">Ejercicios</span><span class="ej-title-text">Sistema nervioso</span></div>
+    <div class="ej-group">
+      <div class="ej-tipo">Tipo test</div>
+      <div class="pregunta"><div class="preg-n">01</div><div class="preg-q">Llevas 3 anos tocando el piano. Ejecutas escalas sin pensar. Que estructura lo ha mecanizado?</div>
+        <div class="test-opt"><button class="test-btn" onclick="testAns(this,false)">Bulbo raquideos</button><button class="test-btn" onclick="testAns(this,true)">Cerebelo</button><button class="test-btn" onclick="testAns(this,false)">Mesencefalo</button><button class="test-btn" onclick="testAns(this,false)">Corteza prefrontal</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EL CEREBRO -->
+<div class="blq" id="t2-cerebro">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--rose)"></div><div><div class="blq-title">El Cerebro - El CEO</div><div class="blq-sub">Hemisferios, corteza, lobulos, memoria y sistema limbico</div></div></div>
+  <div class="img-wrap"><img src="images/image24.png" alt="Hemisferios cerebrales"><div class="img-cap">Hemisferios izquierdo y derecho, unidos por el cuerpo calloso</div></div>
+  <div class="key-box">
+    <div class="key-title">Los 4 lobulos - la piel del aguacate</div>
+    <div class="img-wrap" style="margin:10px 0"><img src="images/image15.png" alt="Los cuatro lobulos cerebrales"><div class="img-cap">Lobulos: Frontal, Parietal, Temporal y Occipital</div></div>
+    <ul class="ilist">
+      <li><strong>Lobulo Frontal - El despacho del CEO:</strong> el mas grande. Toma de decisiones y control de impulsos. Area de Broca (produce el lenguaje) y corteza premotora (planifica movimientos).</li>
+      <li><strong>Lobulo Parietal - El centro sensorial:</strong> dolor, temperatura, posicion y tacto. Areas de Brodmann: Area 3 (sensor de contacto), Area 1 (textura), Area 2 (forma y tamano).</li>
+      <li><strong>Lobulo Temporal - El archivo central:</strong> memoria, audicion y reconocimiento de rostros. Area de Wernicke (comprende el lenguaje escrito y hablado).</li>
+      <li><strong>Lobulo Occipital - El kinepolis craneal:</strong> construye la imagen visual. Los ojos son solo sensores de luz. Por eso al golpearte la nuca ves estrellas.</li>
+    </ul>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0">
+    <div class="img-wrap" style="margin:0"><img src="images/image30.png" alt="Lobulo frontal y area de Broca"><div class="img-cap">Lobulo frontal - Area de Broca</div></div>
+    <div class="img-wrap" style="margin:0"><img src="images/image6.png" alt="Lobulo parietal y areas de Brodmann"><div class="img-cap">Lobulo parietal - Areas de Brodmann</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0">
+    <div class="img-wrap" style="margin:0"><img src="images/image32.png" alt="Lobulo temporal - Wernicke"><div class="img-cap">Lobulo temporal - Area de Wernicke</div></div>
+    <div class="img-wrap" style="margin:0"><img src="images/image11.png" alt="Homunculo de Penfield"><div class="img-cap">Homunculo de Penfield - mapa de sensibilidad</div></div>
+  </div>
+  <div class="img-wrap"><img src="images/image27.png" alt="Mapa funcional del cerebro"><div class="img-cap">Mapa funcional completo del cerebro</div></div>
+  <div class="key-box">
+    <div class="key-title">La memoria - donde se guarda cada tipo</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px"><div style="font-weight:700;font-size:13px;color:var(--violet);margin-bottom:3px">A corto plazo</div><div style="font-size:12.5px;color:var(--muted)">Se almacena en el <strong style="color:var(--text)">hipocampo</strong> (bandeja de entrada)</div></div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px"><div style="font-weight:700;font-size:13px;color:var(--violet);margin-bottom:3px">A largo plazo</div><div style="font-size:12.5px;color:var(--muted)">Se almacena en la <strong style="color:var(--text)">corteza cerebral</strong> (almacen definitivo)</div></div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px"><div style="font-weight:700;font-size:13px;color:var(--violet);margin-bottom:3px">De trabajo</div><div style="font-size:12.5px;color:var(--muted)">Se gestiona en la <strong style="color:var(--text)">corteza prefrontal</strong> (el escritorio)</div></div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px"><div style="font-weight:700;font-size:13px;color:var(--violet);margin-bottom:3px">Motora</div><div style="font-size:12.5px;color:var(--muted)">Regulada en el <strong style="color:var(--text)">cerebelo y ganglios basales</strong> (piloto automatico)</div></div>
+    </div>
+  </div>
+  <div class="key-box">
+    <div class="key-title">Estructuras internas importantes</div>
+    <ul class="ilist">
+      <li><strong>Sistema Limbico</strong> - Centro de emociones. Hipocampo, amigdala, talamo e hipotalamo.</li>
+      <li><strong>Amigdala</strong> - Genera las emociones. Marca lo que te emociona o asusta.</li>
+      <li><strong>Ganglios Basales</strong> - Control motor de precision. Su alteracion provoca Parkinson, Corea y Distonias.</li>
+      <li><strong>Cuerpo Calloso</strong> - Super cable que conecta los dos hemisferios.</li>
+      <li><strong>Talamo e Hipotalamo</strong> - Regulan y reenvian la informacion sensorial a la corteza (excepto el olfato).</li>
+      <li><strong>Hipofisis (pituitaria)</strong> - Regula crecimiento, metabolismo, reproduccion, lactancia, tiroides. Ubicada en la silla turca.</li>
+      <li><strong>Glandula Pineal (epifisis)</strong> - Tamano de una lenteja. Regula los ciclos circadianos.</li>
+    </ul>
+  </div>
+  <div class="img-wrap"><img src="images/image4.png" alt="Partes del cerebro"><div class="img-cap">Partes del cerebro con areas funcionales</div></div>
+  <div class="img-wrap"><img src="images/image1.png" alt="Sistema nervioso central detallado"><div class="img-cap">Sistema nervioso central - vision detallada</div></div>
+  <div class="ej-blq">
+    <div class="ej-header"><span class="ej-badge">Ejercicios</span><span class="ej-title-text">El cerebro</span></div>
+    <div class="ej-group">
+      <div class="ej-tipo">Tipo test</div>
+      <div class="pregunta"><div class="preg-n">01</div><div class="preg-q">Que area gestiona la PRODUCCION del lenguaje?</div>
+        <div class="test-opt"><button class="test-btn" onclick="testAns(this,false)">Area de Wernicke</button><button class="test-btn" onclick="testAns(this,true)">Area de Broca</button><button class="test-btn" onclick="testAns(this,false)">Lobulo occipital</button><button class="test-btn" onclick="testAns(this,false)">Hipocampo</button></div>
+      </div>
+      <div class="pregunta"><div class="preg-n">02</div><div class="preg-q">Por que el Parkinson afecta al movimiento y no al pensamiento?</div>
+        <div class="test-opt"><button class="test-btn" onclick="testAns(this,false)">Afecta al cerebelo</button><button class="test-btn" onclick="testAns(this,false)">Afecta al lobulo frontal</button><button class="test-btn" onclick="testAns(this,true)">Afecta a los ganglios basales, que controlan el movimiento de precision</button><button class="test-btn" onclick="testAns(this,false)">Afecta al hipocampo</button></div>
+      </div>
+    </div>
+    <div class="ej-group">
+      <div class="ej-tipo">Respuesta elaborada</div>
+      <div class="pregunta"><div class="preg-n">03</div><p class="preg-q">Si alguien sufre dano en el hipocampo, que tipo de memoria se vera afectada y por que?</p><details><summary>Ver respuesta</summary><div class="resp">La <strong>memoria a corto plazo</strong>. El hipocampo actua como la bandeja de entrada: recibe la informacion nueva y la prepara para consolidarla en la corteza. Sin el, la informacion nueva no puede pasar a la memoria a largo plazo, aunque los recuerdos antiguos pueden mantenerse.</div></details></div>
+    </div>
+  </div>
+</div>
+
+<!-- SN PERIFERICO -->
+<div class="blq" id="t2-periferico">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--rose)"></div><div><div class="blq-title">Sistema Nervioso Periferico</div><div class="blq-sub">Pares craneales, nervios raquideos y sistema autonomo</div></div></div>
+  <div class="img-wrap"><img src="images/image28.png" alt="Los 12 pares craneales"><div class="img-cap">Los 12 pares craneales y su distribucion</div></div>
+  <div class="key-box">
+    <div class="key-title">Los 12 pares craneales - 3 tipos</div>
+    <ul class="ilist">
+      <li><strong>Solo sienten (Sensitivos):</strong> Olfatorio (I) - Optico (II) - Vestibulococlear/oido (VIII)</li>
+      <li><strong>Solo mueven (Motores):</strong> Oculomotor (III) - Troclear (IV) - Abducens (VI) - Accesorio/cuello (XI) - Hipogloso/lengua (XII)</li>
+      <li><strong>Sienten y mueven (Mixtos):</strong> Trigemino/cara y masticacion (V) - Facial/expresiones y gusto (VII) - Glosofaringeo/garganta (IX) - Vago (X)</li>
+    </ul>
+  </div>
+  <div class="aviso"><div class="aviso-t">El nervio rebelde: Nervio Vago (X)</div>El mas largo de los 12 pares. Se llama "vago" porque viaja hacia abajo para controlar el corazon, la respiracion y la digestion desde el torax y el abdomen.</div>
+  <div class="key-box">
+    <div class="key-title">Los 31 pares raquideos</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <span style="background:rgba(77,143,255,.12);color:var(--blue);padding:4px 12px;border-radius:99px;font-size:12px">8 Cervicales</span>
+      <span style="background:rgba(167,139,250,.12);color:var(--violet);padding:4px 12px;border-radius:99px;font-size:12px">12 Toracicos</span>
+      <span style="background:rgba(74,222,128,.12);color:var(--green);padding:4px 12px;border-radius:99px;font-size:12px">5 Lumbares</span>
+      <span style="background:rgba(248,113,113,.12);color:var(--rose);padding:4px 12px;border-radius:99px;font-size:12px">5 Sacros</span>
+      <span style="background:rgba(245,158,11,.12);color:var(--amber);padding:4px 12px;border-radius:99px;font-size:12px">1 Coxigeo</span>
+    </div>
+    <div class="img-wrap" style="margin:12px 0"><img src="images/image16.png" alt="Nervios perifericos y plexos"><div class="img-cap">Sistema nervioso periferico con plexos braquial, lumbar y sacro</div></div>
+  </div>
+  <div class="key-box">
+    <div class="key-title">Sistema autonomo</div>
+    <ul class="ilist">
+      <li><strong>Sistema Somatico (voluntario)</strong> - Los movimientos que controlas conscientemente.</li>
+      <li><strong>Simpatico (modo alerta)</strong> - Se activa ante el peligro. Acelera el corazon, dilata pupilas, prepara para huir.</li>
+      <li><strong>Parasimpatico (modo relax)</strong> - Se activa en calma. Ralentiza el corazon, mejora la digestion y el descanso.</li>
+    </ul>
+  </div>
+  <div class="key-box">
+    <div class="key-title">Medula espinal y sus vias</div>
+    <ul class="ilist">
+      <li>Estructura cilindrica protegida por las meninges y el LCR.</li>
+      <li>Sustancia gris en forma de H en el centro. Raices anteriores = motoras (eferencias). Raices posteriores = sensitivas (aferencias).</li>
+      <li><strong>Corticoespinal</strong> - Movimientos voluntarios finos y precisos</li>
+      <li><strong>Espinotalamica</strong> - Dolor, temperatura y tacto al cerebro</li>
+      <li><strong>Espinocerebelosa</strong> - Posicion muscular al cerebelo (equilibrio inconsciente)</li>
+      <li><strong>Intersegmentarias</strong> - Reflejos rapidos (retirar la mano del fuego)</li>
+    </ul>
+  </div>
+  <div class="key-box">
+    <div class="key-title">Las meninges y el LCR</div>
+    <ul class="ilist">
+      <li><strong>Duramadre</strong> - La mas externa y densa. Une la medula al hueso.</li>
+      <li><strong>Aracnoides</strong> - La intermedia. Amortigua.</li>
+      <li><strong>Piamadre</strong> - La mas interna. En contacto con el tejido nervioso.</li>
+      <li><strong>LCR</strong> - Amortiguacion mecanica, flotabilidad del SNC, elimina residuos y transporta nutrientes.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- NEURONA -->
+<div class="blq" id="t2-neurona">
+  <div class="blq-hdr"><div class="blq-dot" style="background:var(--rose)"></div><div><div class="blq-title">La Neurona y las Celulas Gliales</div></div></div>
+  <div class="def-box"><div class="def-term">Neurona</div><div class="def-body">Celula fundamental del sistema nervioso. Recibe, procesa y transmite informacion mediante senales electricas y quimicas (<strong>neurotransmisores</strong>).</div></div>
+  <div class="img-wrap"><img src="images/image17.png" alt="Diagrama de una neurona"><div class="img-cap">Partes de una neurona: dendritas, soma, axon con vaina de mielina y terminal</div></div>
+  <div class="key-box">
+    <div class="key-title">Las 3 partes de la neurona</div>
+    <ul class="ilist">
+      <li><strong>Soma (cuerpo celular)</strong> - Amielinico. Contiene el nucleo. Mantiene viva a la neurona y decide que hacer con la informacion.</li>
+      <li><strong>Dendritas</strong> - Actuan como antenas receptoras. Reciben mensajes de otras neuronas o de los sentidos.</li>
+      <li><strong>Axon</strong> - Envia el mensaje hacia la siguiente neurona o hacia un musculo. Muchos axones estan cubiertos de <em>mielina</em> (aislante que hace que el impulso viaje hasta <strong>400 km/h</strong>).</li>
+    </ul>
+  </div>
+  <div class="img-wrap"><img src="images/image3.png" alt="Tipos de neuronas"><div class="img-cap">Tipos de neuronas: pseudounipolar, bipolar, multipolar, unipolar y anaxonica</div></div>
+  <div class="def-box" style="border-left-color:var(--violet)"><div class="def-term" style="color:var(--violet)">Celulas Gliales</div><div class="def-body">El equipo de soporte que trabaja entre bastidores. Proporcionan <strong>soporte, nutricion, aislamiento y defensa</strong> a las neuronas.</div></div>
+  <div class="ej-blq">
+    <div class="ej-header"><span class="ej-badge">Ejercicios</span><span class="ej-title-text">Neurona y SNP</span></div>
+    <div class="ej-group">
+      <div class="ej-tipo">Tipo test</div>
+      <div class="pregunta"><div class="preg-n">01</div><div class="preg-q">Que parte de la neurona actua como antena receptora?</div>
+        <div class="test-opt"><button class="test-btn" onclick="testAns(this,false)">El soma</button><button class="test-btn" onclick="testAns(this,true)">Las dendritas</button><button class="test-btn" onclick="testAns(this,false)">El axon</button><button class="test-btn" onclick="testAns(this,false)">La mielina</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESUMEN FINAL T2 -->
+  <div style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--violet);border-radius:10px;padding:22px 26px;margin-top:36px">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--violet);margin-bottom:14px;font-family:'Space Mono',monospace">Puntos clave Tema 2</div>
+    <ol style="padding-left:18px;font-size:13.5px;color:var(--muted);line-height:2">
+      <li><strong style="color:var(--text)">Tejidos - Organos - Sistemas - Aparatos:</strong> la jerarquia del cuerpo.</li>
+      <li>El sistema oseo protege con <strong style="color:var(--text)">3 esferas</strong>: craneo, caja toracica y pelvis.</li>
+      <li>El encefalo: <strong style="color:var(--text)">tronco encefalico</strong> (supervivencia), <strong style="color:var(--text)">cerebelo</strong> (coordinacion) y <strong style="color:var(--text)">cerebro</strong> (pensamiento).</li>
+      <li>Los <strong style="color:var(--text)">4 lobulos</strong> tienen funciones concretas y ubicacion estrategica.</li>
+      <li>La informacion entra por <strong style="color:var(--text)">aferencia</strong> y sale por <strong style="color:var(--text)">eferencia</strong>.</li>
+    </ol>
+  </div>
+</div>
+
+</div></div></div>
+
+
+<!-- JUEGOS -->
+<div class="page" id="page-juegos">
+<div class="gl">
+  <h2>Sala de juegos</h2>
+  <p>Cada partida da XP y sube tu nivel. Los juegos refuerzan lo que has leido en los apuntes.</p>
+  <div class="games-sec">
+    <div class="games-sec-title">Sistema Sanitario - Tema 1</div>
+    <div class="games-grid">
+      <div class="gc teal" onclick="openGame('relacionar')"><div class="gc-icon">🔗</div><div class="gc-title">Relacionar organismos</div><div class="gc-desc">Une cada organismo sanitario con su funcion. CatSalut, SISCAT, ICS, Departament de Salut.</div><div class="gc-meta"><span class="gtag xp">+60 XP</span><span class="gtag tema">Tema 1</span><span class="gtag diff">Facil</span></div></div>
+      <div class="gc amber" onclick="openGame('pasapalabra')"><div class="gc-icon">🅰️</div><div class="gc-title">Pasapalabra sanitario</div><div class="gc-desc">El rosco clasico. Una definicion, una letra, una respuesta.</div><div class="gc-meta"><span class="gtag xp">+150 XP</span><span class="gtag tema">T1+T2</span><span class="gtag diff">Dificil</span></div></div>
+    </div>
+  </div>
+  <div class="games-sec">
+    <div class="games-sec-title">Anatomia - Tema 2</div>
+    <div class="games-grid">
+      <div class="gc blue" onclick="openGame('huesos')"><div class="gc-icon">💀</div><div class="gc-title">Huesos contrarreloj</div><div class="gc-desc">60 segundos. Preguntas sobre huesos del craneo y la columna.</div><div class="gc-meta"><span class="gtag xp">+80 XP</span><span class="gtag tema">Tema 2</span><span class="gtag diff">Medio</span></div></div>
+      <div class="gc violet" onclick="openGame('planos')"><div class="gc-icon">🏃</div><div class="gc-title">Planos y movimientos</div><div class="gc-desc">Te describen un movimiento del cuerpo, tu dices que plano es.</div><div class="gc-meta"><span class="gtag xp">+60 XP</span><span class="gtag tema">Tema 2</span><span class="gtag diff">Facil</span></div></div>
+      <div class="gc rose" onclick="openGame('nervioso-quiz')"><div class="gc-icon">🧠</div><div class="gc-title">Quiz del sistema nervioso</div><div class="gc-desc">10 preguntas sobre el encefalo, lobulos y pares craneales.</div><div class="gc-meta"><span class="gtag xp">+100 XP</span><span class="gtag tema">Tema 2</span><span class="gtag diff">Medio</span></div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL JUEGO -->
+<div class="modal-ov" id="modal-ov">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">x</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- MODAL SETUP -->
+<div class="modal-ov" id="setup-ov">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeSetup()">x</button>
+    <div class="modal-title">Tu perfil</div>
+    <div class="modal-sub">Personaliza como te ven tus companeros en el ranking.</div>
+    <label class="setup-lbl">Nombre</label>
+    <input class="setup-inp" id="setup-name" placeholder="Tu nombre..." value="Larry">
+    <label class="setup-lbl">Avatar</label>
+    <div class="av-opts">
+      <div class="av-opt sel" data-av="🦁" onclick="selAv(this)">🦁</div>
+      <div class="av-opt" data-av="🦊" onclick="selAv(this)">🦊</div>
+      <div class="av-opt" data-av="🐺" onclick="selAv(this)">🐺</div>
+      <div class="av-opt" data-av="🦅" onclick="selAv(this)">🦅</div>
+      <div class="av-opt" data-av="🐉" onclick="selAv(this)">🐉</div>
+      <div class="av-opt" data-av="🌙" onclick="selAv(this)">🌙</div>
+      <div class="av-opt" data-av="⚡" onclick="selAv(this)">⚡</div>
+      <div class="av-opt" data-av="🎭" onclick="selAv(this)">🎭</div>
+    </div>
+    <button class="btn-p" style="width:100%" onclick="saveProfile()">Guardar perfil</button>
+  </div>
+</div>
+
+<!-- XP TOAST -->
+<div class="xp-toast" id="xp-toast">
+  <div class="toast-icon">⭐</div>
+  <div><div class="toast-title" id="toast-t">Correcto!</div><div class="toast-sub" id="toast-s">Sigue asi</div></div>
+  <div class="toast-xp" id="toast-x">+50 XP</div>
+</div>
+
+<!-- LEVEL UP -->
+<div class="lu-ov" id="lu-ov">
+  <div style="font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;color:var(--violet);text-transform:uppercase;margin-bottom:6px">Subida de nivel!</div>
+  <div class="lu-num" id="lu-num">2</div>
+  <div class="lu-title" id="lu-title">Residente Nato</div>
+  <div class="lu-sub">Has desbloqueado un nuevo rango</div>
+  <button class="lu-btn" onclick="closeLU()">A seguir estudiando!</button>
+</div>
+
+<script>
+const LEVELS=[{min:0,name:'Estudiante de Guardia'},{min:500,name:'Residente Nato'},{min:1200,name:'Especialista en Practicas'},{min:2500,name:'Medico de Urgencias'},{min:4500,name:'Jefe de Planta'},{min:7000,name:'Director Medico'},{min:10000,name:'Leyenda Sanitaria'}];
+const LB_DATA=[{name:'Larry',xp:120,av:'🦁',col:'#7c3aed',me:true},{name:'Marta',xp:340,av:'🦊',col:'#0891b2',me:false},{name:'Rafa',xp:290,av:'⚡',col:'#d97706',me:false},{name:'Alba',xp:210,av:'🌙',col:'#059669',me:false},{name:'Cristian',xp:85,av:'🐺',col:'#dc2626',me:false}];
+let S={name:'Larry',av:'🦁',xp:120};
+
+function getLV(xp){let l=0;for(let i=LEVELS.length-1;i>=0;i--){if(xp>=LEVELS[i].min){l=i;break;}}return l;}
+function getLVName(l){return LEVELS[l]?.name||LEVELS[LEVELS.length-1].name;}
+function getXPMin(l){return LEVELS[l]?.min||0;}
+function getXPMax(l){return LEVELS[l+1]?.min||LEVELS[l].min+1000;}
+
+function updateUI(){
+  const lv=getLV(S.xp),xmin=getXPMin(lv),xmax=getXPMax(lv);
+  const pct=((S.xp-xmin)/(xmax-xmin)*100).toFixed(1);
+  const lvn=getLVName(lv);
+  document.getElementById('tb-av').textContent=S.av;
+  document.getElementById('tb-name').textContent=S.name;
+  document.getElementById('tb-lv').textContent='Nv.'+(lv+1);
+  document.getElementById('tb-xpf').style.width=pct+'%';
+  document.getElementById('pp-av').textContent=S.av;
+  document.getElementById('pp-name').textContent=S.name;
+  document.getElementById('pp-title').textContent='Nv.'+(lv+1)+' · '+lvn;
+  document.getElementById('pp-xplbl').textContent=S.xp+' / '+xmax;
+  document.getElementById('pp-xpf').style.width=pct+'%';
+  document.getElementById('lv-num').textContent=lv+1;
+  document.getElementById('lv-name').textContent=lvn;
+  document.getElementById('lv-next').textContent=LEVELS[lv+1]?'Siguiente: '+LEVELS[lv+1].name:'Nivel maximo!';
+  document.getElementById('home-xp').textContent=S.xp;
+  renderLB();
+}
+
+function renderLB(){
+  const sorted=[...LB_DATA].sort((a,b)=>b.xp-a.xp);
+  const me=sorted.find(p=>p.me);if(me){me.xp=S.xp;me.name=S.name;me.av=S.av;}
+  sorted.sort((a,b)=>b.xp-a.xp);
+  const mr=sorted.findIndex(p=>p.me)+1;
+  document.getElementById('home-rank').textContent='#'+mr;
+  const pc=['g','s','b'];
+  document.getElementById('lb').innerHTML=sorted.map((p,i)=>'<div class="lb-row '+(p.me?'me':'')+'"><div class="lb-pos '+(pc[i]||'')+'">'+(i+1)+'</div><div class="lb-av2" style="background:'+p.col+'">'+p.av+'</div><div class="lb-nm">'+p.name+(p.me?' (tu)':'')+'</div><div class="lb-xp">'+p.xp+'</div><div class="lb-lv2">Nv.'+(getLV(p.xp)+1)+'</div></div>').join('');
+}
+
+function addXP(amt,title,sub){
+  const oldLv=getLV(S.xp);S.xp+=amt;const newLv=getLV(S.xp);
+  updateUI();showToast(title||'Correcto!',sub||'',amt);
+  if(newLv>oldLv)setTimeout(()=>showLU(newLv),1200);
+}
+
+function nav(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function goTo(id){nav('apuntes');setTimeout(()=>{document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});},100);}
+
+let ppOpen=false;
+function togglePP(){ppOpen=!ppOpen;document.getElementById('pp').classList.toggle('open',ppOpen);}
+function openSetup(){document.getElementById('setup-ov').classList.add('open');document.getElementById('setup-name').value=S.name;}
+function closeSetup(){document.getElementById('setup-ov').classList.remove('open');}
+function selAv(el){document.querySelectorAll('.av-opt').forEach(a=>a.classList.remove('sel'));el.classList.add('sel');}
+function saveProfile(){S.name=document.getElementById('setup-name').value.trim()||'Larry';S.av=document.querySelector('.av-opt.sel')?.dataset.av||'🦁';updateUI();closeSetup();showToast('Perfil guardado','Listo',0);}
+
+let toastT;
+function showToast(t,s,xp){const el=document.getElementById('xp-toast');document.getElementById('toast-t').textContent=t;document.getElementById('toast-s').textContent=s;document.getElementById('toast-x').textContent=xp>0?'+'+xp+' XP':'';el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2500);}
+function showLU(lv){document.getElementById('lu-num').textContent=lv+1;document.getElementById('lu-title').textContent=getLVName(lv);document.getElementById('lu-ov').classList.add('show');}
+function closeLU(){document.getElementById('lu-ov').classList.remove('show');}
+
+function openModal(html){document.getElementById('modal-content').innerHTML=html;document.getElementById('modal-ov').classList.add('open');}
+function closeModal(){document.getElementById('modal-ov').classList.remove('open');}
+document.getElementById('modal-ov').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.getElementById('setup-ov').addEventListener('click',function(e){if(e.target===this)closeSetup();});
+
+function testAns(el,correct){
+  const btns=el.closest('.test-opt').querySelectorAll('.test-btn');
+  btns.forEach(b=>b.disabled=true);
+  if(correct){el.classList.add('correct');addXP(10,'Correcto!','Test integrado');}
+  else{el.classList.add('wrong');btns.forEach(b=>{try{if(b.getAttribute('onclick').includes(',true'))b.classList.add('reveal');}catch(e){}});}
+}
+
+let _mSel={l:null,r:null};
+window.mL=function(el){if(el.classList.contains('ok'))return;el.closest('.match-cols').querySelectorAll('[data-left]').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');_mSel.l=el;_checkM();};
+window.mR=function(el){if(el.classList.contains('ok'))return;el.closest('.match-cols').querySelectorAll('[data-right]').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');_mSel.r=el;_checkM();};
+function _checkM(){
+  if(!_mSel.l||!_mSel.r)return;
+  if(_mSel.l.dataset.left===_mSel.r.dataset.right){_mSel.l.classList.replace('sel','ok');_mSel.r.classList.replace('sel','ok');addXP(15,'Correcto!','Relacion encontrada');}
+  else{_mSel.l.classList.add('ko');_mSel.r.classList.add('ko');setTimeout(()=>{_mSel.l?.classList.remove('ko','sel');_mSel.r?.classList.remove('ko','sel');},600);}
+  _mSel={l:null,r:null};
+}
+
+function checkFib(id){
+  const inputs=document.getElementById(id).querySelectorAll('.fib-input');
+  let allOk=true;
+  inputs.forEach(inp=>{
+    const val=inp.value.trim().toLowerCase();
+    const ans=inp.dataset.ans.toLowerCase();
+    if(val===ans||ans.includes(val)&&val.length>=3){inp.classList.add('ok');inp.classList.remove('ko');}
+    else{inp.classList.add('ko');inp.classList.remove('ok');allOk=false;}
+  });
+  if(allOk)addXP(20,'Todo correcto!','Rellena huecos');
+}
+
+function openGame(id){
+  if(id==='relacionar')gameRelacionar();
+  else if(id==='huesos')gameHuesos();
+  else if(id==='pasapalabra')gamePasapalabra();
+  else if(id==='planos')gamePlanos();
+  else if(id==='nervioso-quiz')gameNervioso();
+}
+
+function gameRelacionar(){
+  const pairs=[{l:'CatSalut',r:'0'},{l:'Departament de Salut',r:'1'},{l:'SISCAT',r:'2'},{l:'ICS',r:'3'}];
+  const defs=['Gestiona el dinero y paga los servicios','Define la estrategia sanitaria','Red de centros publicos y concertados','Principal proveedor, centros propios'];
+  const sr=[0,1,2,3].sort(()=>Math.random()-.5);
+  window._mp=pairs;window._md=defs;window._ms2={l:null,r:null};window._mc=0;
+  openModal('<div class="modal-title">🔗 Relacionar organismos</div><div class="modal-sub">Toca un termino y luego su definicion.</div><div class="match-cols"><div class="match-col">'+pairs.map((p,i)=>'<div class="match-item" data-left="'+p.r+'" onclick="_gML(this)">'+p.l+'</div>').join('')+'</div><div class="match-col">'+sr.map(i=>'<div class="match-item" data-right="'+i+'" onclick="_gMR(this)">'+defs[i]+'</div>').join('')+'</div></div><div id="mfb" style="text-align:center;font-size:13px;color:var(--muted);min-height:20px"></div>');
+}
+window._gML=function(el){if(el.classList.contains('ok'))return;document.querySelectorAll('#modal-content [data-left]').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');window._ms2.l=el;_gCheckM();};
+window._gMR=function(el){if(el.classList.contains('ok'))return;document.querySelectorAll('#modal-content [data-right]').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');window._ms2.r=el;_gCheckM();};
+function _gCheckM(){
+  if(!window._ms2.l||!window._ms2.r)return;
+  if(window._ms2.l.dataset.left===window._ms2.r.dataset.right){window._ms2.l.classList.replace('sel','ok');window._ms2.r.classList.replace('sel','ok');window._mc++;addXP(15,'Correcto!',window._mc+'/4');if(window._mc===4){setTimeout(()=>{const f=document.getElementById('mfb');if(f)f.innerHTML='<span style="color:var(--green);font-weight:700">Completado! +50 XP extra</span>';addXP(50,'Completado!','Relacionar');},400);}}
+  else{window._ms2.l.classList.add('ko');window._ms2.r.classList.add('ko');setTimeout(()=>{window._ms2.l?.classList.remove('ko','sel');window._ms2.r?.classList.remove('ko','sel');},600);}
+  window._ms2={l:null,r:null};
+}
+
+function gameHuesos(){
+  const qs=[{q:'Cuantos huesos tiene el CRANEO SUPERIOR?',opts:['6','7','8','9'],ans:'8'},{q:'Cuantos huesos tiene la CARA?',opts:['10','12','14','8'],ans:'12'},{q:'Cuantos huesos tiene la ORBITA OCULAR?',opts:['5','6','7','8'],ans:'7'},{q:'Como se llama la primera vertebra cervical?',opts:['Axis','Atlas','Clivus','Sacro'],ans:'Atlas'},{q:'Cuantas vertebras tiene la region TORACICA?',opts:['7','10','12','5'],ans:'12'},{q:'Cuantos huesos tiene el canal auditivo?',opts:['2','3','4','5'],ans:'3'},{q:'Como se llama la segunda vertebra cervical?',opts:['Atlas','Axis','Sacro','Coccix'],ans:'Axis'},{q:'Cual NO es un hueso del craneo superior?',opts:['Frontal','Vomer','Parietal','Occipital'],ans:'Vomer'}];
+  let cur=0,score=0,tl=60,timer;
+  function render(){
+    if(cur>=qs.length){clearInterval(timer);const e=score*10+(tl>0?10:0);openModal('<div class="result"><div class="res-score">'+score+'/'+qs.length+'</div><div class="res-label">respuestas correctas</div><div class="res-xp">+'+e+' XP</div><div class="res-btns"><button class="btn-s" onclick="closeModal()">Cerrar</button><button class="btn-p" onclick="gameHuesos()">Repetir</button></div></div>');addXP(e,'Completado!',score+'/'+qs.length);return;}
+    const q=qs[cur],sh=[...q.opts].sort(()=>Math.random()-.5);
+    openModal('<div class="modal-title">Huesos - Contrarreloj</div><div class="modal-sub" style="display:flex;justify-content:space-between"><span>Pregunta '+(cur+1)+'/'+qs.length+'</span><span style="font-family:Space Mono,monospace;color:var(--amber)" id="tmr">'+tl+'s</span></div><div class="bone-q">'+q.q+'</div><div class="bone-opts">'+sh.map(o=>'<button class="bone-btn" onclick="ansH(this,''+o+'',''+q.ans+'')">'+o+'</button>').join('')+'</div><div style="height:4px;background:var(--border);border-radius:99px;overflow:hidden"><div id="tbar" style="height:100%;background:var(--amber);border-radius:99px;width:'+(tl/60*100)+'%;transition:width 1s linear"></div></div>');
+  }
+  render();
+  timer=setInterval(()=>{tl--;const td=document.getElementById('tmr'),tb=document.getElementById('tbar');if(td)td.textContent=tl+'s';if(tb)tb.style.width=(tl/60*100)+'%';if(tl<=0){clearInterval(timer);cur=qs.length;render();}},1000);
+  window.ansH=function(el,ans,cor){document.querySelectorAll('.bone-btn').forEach(b=>b.disabled=true);if(ans===cor){el.classList.add('correct');score++;}else{el.classList.add('wrong');document.querySelectorAll('.bone-btn').forEach(b=>{if(b.textContent===cor)b.classList.add('correct');});}cur++;setTimeout(render,700);};
+}
+
+function gamePasapalabra(){
+  const words=[{l:'A',c:'Ciencia que estudia la estructura y forma de los seres vivos',a:'ANATOMIA'},{l:'C',c:'Gestora sanitaria de Cataluna que paga los servicios con dinero de la Generalitat',a:'CATSALUT'},{l:'F',c:'Ciencia que estudia la funcion y los procesos vitales',a:'FISIOLOGIA'},{l:'I',c:'Organismo que gestiona pensiones y bajas en Espana',a:'INSS'},{l:'M',c:'Organizacion que agrupa trabajadores para cubrir riesgos laborales',a:'MUTUA'},{l:'N',c:'Celula fundamental del sistema nervioso',a:'NEURONA'},{l:'P',c:'Glandula que segrega lipasa, proteasa y amilasa',a:'PANCREAS'},{l:'S',c:'Red de centros publicos y concertados gestionados por CatSalut',a:'SISCAT'},{l:'V',c:'Par craneal numero X, el mas largo de todos',a:'VAGO'},{l:'B',c:'Musculo que empuja la comida desde las mejillas hacia los dientes',a:'BUCCINADOR'},{l:'E',c:'Proceso de enviar informacion desde el cerebro hacia los musculos',a:'EFERENCIA'},{l:'T',c:'Primera vertebra cervical',a:'ATLAS'}];
+  let cur=0,ok=0,ko=0,sk=0,results=new Array(words.length).fill(null),pass=0;
+  function pos(i,t){const a=(i/t)*2*Math.PI-Math.PI/2,r=82,cx=105,cy=105;return{l:(cx+r*Math.cos(a)-14)+'px',t:(cy+r*Math.sin(a)-14)+'px'};}
+  function circle(){return words.map((w,i)=>{const p=pos(i,words.length),cls=results[i]===true?'ok':results[i]===false?'ko':i===cur?'cur':results[i]==='sk'?'sk':'';return'<div class="pp-lt '+cls+'" style="left:'+p.l+';top:'+p.t+'">'+w.l+'</div>';}).join('');}
+  function render(){
+    if(pass>=words.length+1){const e=ok*15;openModal('<div class="result"><div class="res-score">'+ok+'</div><div class="res-label">letras de '+words.length+'</div><div class="res-xp">+'+e+' XP</div><div class="res-btns"><button class="btn-s" onclick="closeModal()">Cerrar</button><button class="btn-p" onclick="gamePasapalabra()">Repetir</button></div></div>');addXP(e,'Pasapalabra!',ok+' letras');return;}
+    openModal('<div class="modal-title">Pasapalabra</div><div class="modal-sub" style="display:flex;justify-content:space-between"><span style="color:var(--green)">✓ '+ok+'</span><span style="color:var(--rose)">x '+ko+'</span><span style="color:var(--amber)">- '+sk+'</span></div><div style="display:flex;justify-content:center;margin-bottom:20px"><div class="pp-circle">'+circle()+'</div></div><div class="pp-clue"><span class="pp-cl">'+words[cur].l+'</span>'+words[cur].c+'</div><div class="pp-row"><input class="pp-inp" id="pp-inp" placeholder="Tu respuesta..." onkeydown="if(event.key==='Enter')_ppOk()"><button class="pp-ok" onclick="_ppOk()">OK</button><button class="pp-sk" onclick="_ppSk()">Pasa</button></div>');
+    setTimeout(()=>document.getElementById('pp-inp')?.focus(),50);
+  }
+  window._ppOk=function(){const inp=document.getElementById('pp-inp');if(!inp)return;const val=inp.value.trim().toUpperCase();if(val===words[cur].a||words[cur].a.startsWith(val)&&val.length>=3){results[cur]=true;ok++;addXP(15,'Correcto!',words[cur].l+' OK');}else{results[cur]=false;ko++;}nextWord();};
+  window._ppSk=function(){if(results[cur]===null)results[cur]='sk';sk++;pass++;nextWord();};
+  function nextWord(){cur=(cur+1)%words.length;let loops=0;while(results[cur]!==null&&results[cur]!=='sk'&&loops<words.length){cur=(cur+1)%words.length;loops++;}if(loops>=words.length)pass=words.length+1;render();}
+  render();
+}
+
+function gamePlanos(){
+  const qs=[{q:'Separas los brazos del cuerpo como si volaras',a:'Frontal',opts:['Sagital','Frontal','Transversal']},{q:'Doblas la rodilla para subir un escalon',a:'Sagital',opts:['Sagital','Frontal','Transversal']},{q:'Giras la cabeza para mirar por encima del hombro',a:'Transversal',opts:['Sagital','Frontal','Transversal']},{q:'Inclinas el cuello hacia el hombro',a:'Frontal',opts:['Sagital','Frontal','Transversal']},{q:'Estiras el brazo hacia arriba (extension)',a:'Sagital',opts:['Sagital','Frontal','Transversal']},{q:'Giras el hombro sobre su propio eje (rotacion)',a:'Transversal',opts:['Sagital','Frontal','Transversal']}];
+  let cur=0,score=0;
+  function render(){if(cur>=qs.length){const e=score*12;openModal('<div class="result"><div class="res-score">'+score+'/'+qs.length+'</div><div class="res-label">correctas</div><div class="res-xp">+'+e+' XP</div><div class="res-btns"><button class="btn-s" onclick="closeModal()">Cerrar</button><button class="btn-p" onclick="gamePlanos()">Repetir</button></div></div>');addXP(e,'Planos completado',score+'/'+qs.length);return;}const q=qs[cur];openModal('<div class="modal-title">Planos anatomicos</div><div class="modal-sub">Pregunta '+(cur+1)+' de '+qs.length+'</div><div class="bone-q">'+q.q+'</div><div class="bone-opts" style="grid-template-columns:1fr 1fr 1fr">'+q.opts.map(o=>'<button class="bone-btn" onclick="_ansP(this,''+o+'',''+q.a+'')">'+o+'</button>').join('')+'</div>');}
+  window._ansP=function(el,a,c){document.querySelectorAll('.bone-btn').forEach(b=>b.disabled=true);if(a===c){el.classList.add('correct');score++;}else{el.classList.add('wrong');document.querySelectorAll('.bone-btn').forEach(b=>{if(b.textContent===c)b.classList.add('correct');});}cur++;setTimeout(render,700);};
+  render();
+}
+
+function gameNervioso(){
+  const qs=[{q:'Que parte del encefalo mantiene la respiracion y los latidos?',a:'Bulbo raquideos',opts:['Cerebelo','Mesencefalo','Bulbo raquideos','Talamo']},{q:'Que area cerebral PRODUCE el lenguaje?',a:'Area de Broca',opts:['Area de Wernicke','Area de Broca','Corteza premotora','Hipocampo']},{q:'Que area COMPRENDE el lenguaje escrito y hablado?',a:'Area de Wernicke',opts:['Area de Broca','Area de Wernicke','Lobulo occipital','Amigdala']},{q:'Donde se almacena la memoria a CORTO PLAZO?',a:'Hipocampo',opts:['Amigdala','Corteza prefrontal','Hipocampo','Cerebelo']},{q:'Que lobulo construye la imagen visual?',a:'Occipital',opts:['Frontal','Parietal','Temporal','Occipital']},{q:'Cuantos pares craneales hay?',a:'12',opts:['8','10','12','14']},{q:'Que par craneal es el Nervio Vago?',a:'X',opts:['VII','IX','X','XI']},{q:'Que estructura activa la fase REM del sueno?',a:'Protuberancia',opts:['Bulbo raquideos','Protuberancia','Mesencefalo','Hipotalamo']},{q:'Que sistema se activa ante el peligro (modo alerta)?',a:'Simpatico',opts:['Parasimpatico','Simpatico','Somatico','Autonomo']},{q:'Que estructura tiene 69.000 millones de neuronas?',a:'Cerebelo',opts:['Corteza cerebral','Tronco encefalico','Cerebelo','Hipocampo']}];
+  let cur=0,score=0;
+  function render(){if(cur>=qs.length){const e=score*10+(score===qs.length?50:0);openModal('<div class="result"><div class="res-score">'+score+'/'+qs.length+'</div><div class="res-label">correctas '+(score===qs.length?'Perfecto!':'')+'</div><div class="res-xp">+'+e+' XP</div><div class="res-btns"><button class="btn-s" onclick="closeModal()">Cerrar</button><button class="btn-p" onclick="gameNervioso()">Repetir</button></div></div>');addXP(e,score===qs.length?'Perfecto!':'Quiz completado',score+'/'+qs.length);return;}const q=qs[cur],sh=[...q.opts].sort(()=>Math.random()-.5);openModal('<div class="modal-title">Sistema Nervioso</div><div class="modal-sub">Pregunta '+(cur+1)+' de '+qs.length+'</div><div class="bone-q">'+q.q+'</div><div class="bone-opts">'+sh.map(o=>'<button class="bone-btn" onclick="_ansN(this,''+o+'',''+q.a+'')">'+o+'</button>').join('')+'</div>');}
+  window._ansN=function(el,a,c){document.querySelectorAll('.bone-btn').forEach(b=>b.disabled=true);if(a===c){el.classList.add('correct');score++;}else{el.classList.add('wrong');document.querySelectorAll('.bone-btn').forEach(b=>{if(b.textContent===c)b.classList.add('correct');});}cur++;setTimeout(render,700);};
+  render();
+}
+
+updateUI();nav('home');
+</script>
+</body>
+</html>
