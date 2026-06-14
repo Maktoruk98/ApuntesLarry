@@ -1,0 +1,2340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ApuntesLarry</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+/* ── TEMAS DE COLOR ─────────────────────────── */
+:root {
+  --bg-base: #0c0e14;
+  --bg-surface: #13161f;
+  --bg-card: #1a1e2b;
+  --bg-card2: #252a3a;
+  --text-primary: #e8eaf2;
+  --text-secondary: #9fa3b8;
+  --text-muted: #6b7294;
+  --text-faint: #3d4460;
+  --border: #252a3a;
+  --accent: #2dd4bf;
+  --accent-logo: #2dd4bf;
+  --topbar-bg: #13161f;
+  --topbar-border: #252a3a;
+}
+/* CAFÉ DARK */
+[data-tema="cafe"][data-modo="dark"]{--bg-base:#1e1610;--bg-surface:#170f09;--bg-card:#2a1e14;--bg-card2:#3a2a1a;--text-primary:#f5e6d0;--text-secondary:#c4a882;--text-muted:#a07855;--text-faint:#5a3a20;--border:rgba(255,220,180,0.12);--accent:#c8854a;--accent-logo:#c8854a;--topbar-bg:#170f09;--topbar-border:rgba(255,220,180,0.1)}
+/* CAFÉ LIGHT */
+[data-tema="cafe"][data-modo="light"]{--bg-base:#fdf6ee;--bg-surface:#fff8f0;--bg-card:#fff;--bg-card2:#f5ede8;--text-primary:#2a1a0a;--text-secondary:#5a4030;--text-muted:#7a5040;--text-faint:#c4a882;--border:#e8d8c4;--accent:#9a5020;--accent-logo:#9a5020;--topbar-bg:#c4956a;--topbar-border:#b07d50}
+/* TÉ VERDE DARK */
+[data-tema="te"][data-modo="dark"]{--bg-base:#1a2018;--bg-surface:#131810;--bg-card:#1f2820;--bg-card2:#2a3525;--text-primary:#e8f0e0;--text-secondary:#a0b890;--text-muted:#7a9870;--text-faint:#3a5030;--border:rgba(180,220,160,0.12);--accent:#7eb86a;--accent-logo:#7eb86a;--topbar-bg:#131810;--topbar-border:rgba(180,220,160,0.1)}
+/* TÉ VERDE LIGHT */
+[data-tema="te"][data-modo="light"]{--bg-base:#f4f8f0;--bg-surface:#f8fcf4;--bg-card:#fff;--bg-card2:#eef6e8;--text-primary:#1a2a10;--text-secondary:#3a5030;--text-muted:#4a6040;--text-faint:#a0c090;--border:#d0e4c0;--accent:#3a7830;--accent-logo:#3a7830;--topbar-bg:#4a7a38;--topbar-border:#3a6028}
+/* LAVANDA DARK */
+[data-tema="lavanda"][data-modo="dark"]{--bg-base:#221e2e;--bg-surface:#1a1626;--bg-card:#2a2438;--bg-card2:#342e48;--text-primary:#ede8ff;--text-secondary:#c8b8f0;--text-muted:#9880d0;--text-faint:#4a3870;--border:rgba(200,180,255,0.12);--accent:#b89af0;--accent-logo:#b89af0;--topbar-bg:#1a1626;--topbar-border:rgba(200,180,255,0.1)}
+/* LAVANDA LIGHT */
+[data-tema="lavanda"][data-modo="light"]{--bg-base:#f8f6ff;--bg-surface:#fcfaff;--bg-card:#fff;--bg-card2:#f2eeff;--text-primary:#1e1830;--text-secondary:#4a3870;--text-muted:#6a50a0;--text-faint:#c8b8f0;--border:#ddd0f8;--accent:#6a40c0;--accent-logo:#6a40c0;--topbar-bg:#7050b0;--topbar-border:#5a3898}
+/* OCÉANO DARK */
+[data-tema="oceano"][data-modo="dark"]{--bg-base:#0f1e2a;--bg-surface:#091520;--bg-card:#132230;--bg-card2:#1a3040;--text-primary:#e0f0f8;--text-secondary:#90b8c8;--text-muted:#5a90a8;--text-faint:#2a4858;--border:rgba(100,200,220,0.12);--accent:#4db8d4;--accent-logo:#4db8d4;--topbar-bg:#091520;--topbar-border:rgba(100,200,220,0.1)}
+/* OCÉANO LIGHT */
+[data-tema="oceano"][data-modo="light"]{--bg-base:#f0f8fc;--bg-surface:#f8fcff;--bg-card:#fff;--bg-card2:#e8f4fa;--text-primary:#0a2030;--text-secondary:#2a5068;--text-muted:#3a7090;--text-faint:#90c0d8;--border:#c0dce8;--accent:#1878a0;--accent-logo:#1878a0;--topbar-bg:#1a6888;--topbar-border:#0f5070}
+
+body{background:var(--bg-base);color:var(--text-primary);font-family:sans-serif;margin:0;overflow-x:hidden;transition:background .3s,color .3s}
+html,body{height:100%;overflow:hidden}
+.page-wrapper{height:100vh;overflow:hidden;position:relative}
+.topbar{position:fixed;top:0;left:0;right:0;height:56px;background:var(--topbar-bg);border-bottom:1px solid var(--topbar-border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:200;transition:background .3s}
+.logo{font-size:16px;font-weight:700;cursor:pointer;color:var(--text-primary)}.logo span{color:var(--accent-logo)}
+.nav-tabs{display:flex;gap:4px;background:#1a1e2b;border:1px solid #252a3a;border-radius:8px;padding:3px}
+.nav-tab{padding:5px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:#6b7294;font-family:sans-serif}
+.nav-tab.active{background:#13161f;color:#e8eaf2}
+.topbar-profile{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 10px;border-radius:8px;border:1px solid #252a3a;background:#1a1e2b}
+.tb-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#4d8fff);display:flex;align-items:center;justify-content:center;font-size:13px}
+.tb-name{font-size:12px;font-weight:600}.tb-level{font-size:10px;color:#a78bfa}
+.tb-xpbar{width:60px;height:4px;background:#252a3a;border-radius:99px;overflow:hidden}
+.tb-xpfill{height:100%;background:linear-gradient(90deg,#a78bfa,#4d8fff);border-radius:99px}
+.page{display:none;padding-top:80px;padding-left:40px;padding-right:40px;height:100vh;overflow-y:auto;box-sizing:border-box}
+.page.active{display:block;padding-bottom:100px}
+.pp{position:fixed;top:56px;right:0;width:300px;height:calc(100vh - 56px);background:#13161f;border-left:1px solid #252a3a;transform:translateX(300px);transition:transform .3s;z-index:300;padding:20px;overflow-y:auto;box-sizing:border-box}
+.pp.open{transform:translateX(0)}
+.pp-av{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#4d8fff);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px}
+.pp-name{text-align:center;font-size:17px;font-weight:700;margin-bottom:3px}
+.pp-title{text-align:center;font-size:11px;color:#a78bfa;margin-bottom:18px}
+.pp-xpbar{height:8px;background:#1a1e2b;border-radius:99px;overflow:hidden;margin-bottom:14px}
+.pp-xpfill{height:100%;background:linear-gradient(90deg,#f59e0b,#fb923c);border-radius:99px}
+.lv-badge{display:flex;align-items:center;gap:10px;background:#1a1e2b;border:1px solid #252a3a;border-radius:10px;padding:12px;margin-bottom:18px}
+.lv-num{font-size:34px;font-weight:700;color:#a78bfa}
+.xp-toast{position:fixed;bottom:22px;right:22px;background:#13161f;border:1px solid #2e3450;border-radius:12px;padding:13px 18px;display:flex;align-items:center;gap:11px;z-index:400;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
+.xp-toast.show{transform:translateY(0);opacity:1}
+.lu-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center}
+.lu-ov.show{display:flex}
+.lu-num{font-size:100px;font-weight:700;color:#a78bfa;line-height:1}
+.lu-btn{margin-top:24px;padding:10px 24px;background:#a78bfa;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-ov.open{display:flex}
+.modal-box{background:#13161f;border:1px solid #2e3450;border-radius:16px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;padding:30px;position:relative}
+.modal-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:#1a1e2b;border:1px solid #252a3a;color:#6b7294;cursor:pointer;font-size:15px}
+.stat-card{background:#13161f;border:1px solid #252a3a;border-radius:10px;padding:16px 20px;display:inline-block;margin:8px}
+.stat-n{font-size:28px;font-weight:700;line-height:1;margin-bottom:4px}
+.stat-l{font-size:12px;color:#6b7294}
+.lb-row{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:6px;font-size:13px;margin-bottom:3px}
+.lb-row.me{background:rgba(167,139,250,.08)}
+.lb-av2{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.btn-p{padding:10px 20px;background:#2dd4bf;color:#0c0e14;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px}
+.btn-s{padding:10px 20px;background:transparent;color:#e8eaf2;border:1px solid #2e3450;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}
+.gc{background:#13161f;border:1px solid #252a3a;border-radius:12px;padding:18px;cursor:pointer;margin:8px;display:inline-block;width:240px;vertical-align:top;position:relative;overflow:hidden}
+.gc:hover{border-color:#2e3450}
+.gc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.gc.blue::before{background:#4d8fff}.gc.teal::before{background:#2dd4bf}.gc.amber::before{background:#f59e0b}.gc.violet::before{background:#a78bfa}.gc.rose::before{background:#f87171}
+.gc-icon{font-size:28px;margin-bottom:10px}
+.gc-title{font-size:15px;font-weight:700;margin-bottom:5px}
+.gc-desc{font-size:12.5px;color:#6b7294;margin-bottom:12px}
+.gtag{font-size:11px;padding:2px 8px;border-radius:99px;margin-right:4px}
+.gtag.xp{background:rgba(245,158,11,.15);color:#f59e0b}
+.gtag.tema{background:rgba(45,212,191,.12);color:#2dd4bf}
+.gtag.diff{background:rgba(167,139,250,.12);color:#a78bfa}
+.av-opt{width:42px;height:42px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer;border:2px solid #252a3a;background:#1a1e2b;margin:4px}
+.av-opt.sel,.av-opt:hover{border-color:#2dd4bf}
+.setup-inp{width:100%;padding:10px;background:#1a1e2b;border:2px solid #252a3a;border-radius:8px;color:#e8eaf2;font-size:14px;outline:none;margin-bottom:14px;font-family:sans-serif}
+.setup-inp:focus{border-color:#2dd4bf}
+.bone-q{font-size:17px;font-weight:600;margin-bottom:18px;min-height:56px;display:flex;align-items:center;justify-content:center;text-align:center}
+.bone-opts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:18px}
+.bone-btn{padding:11px;background:#1a1e2b;border:2px solid #252a3a;border-radius:8px;color:#e8eaf2;font-size:13px;cursor:pointer;font-family:sans-serif}
+.bone-btn.correct{border-color:#4ade80;background:rgba(74,222,128,.1);color:#4ade80}
+.bone-btn.wrong{border-color:#f87171;background:rgba(248,113,113,.1);color:#f87171}
+.match-cols{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px}
+.match-col{display:flex;flex-direction:column;gap:7px}
+.match-item{padding:10px;background:#1a1e2b;border:2px solid #252a3a;border-radius:8px;font-size:13px;cursor:pointer;min-height:42px;display:flex;align-items:center}
+.match-item.sel{border-color:#2dd4bf;background:rgba(45,212,191,.08)}
+.match-item.ok{border-color:#4ade80;background:rgba(74,222,128,.08);color:#4ade80;pointer-events:none}
+.match-item.ko{border-color:#f87171;animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.pp-circle{position:relative;width:210px;height:210px;margin:0 auto 20px}
+.pp-lt{position:absolute;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid #252a3a;background:#1a1e2b}
+.pp-lt.cur{border-color:#4d8fff;background:rgba(77,143,255,.15);color:#4d8fff;transform:scale(1.2)}
+.pp-lt.ok{border-color:#4ade80;background:rgba(74,222,128,.2);color:#4ade80}
+.pp-lt.ko{border-color:#f87171;color:#f87171}
+.pp-lt.sk{border-color:#f59e0b;color:#f59e0b}
+.pp-clue{background:#1a1e2b;border:1px solid #252a3a;border-radius:8px;padding:13px;margin-bottom:14px;font-size:14px}
+.pp-row{display:flex;gap:7px}
+.pp-inp{flex:1;padding:9px;background:#1a1e2b;border:2px solid #252a3a;border-radius:8px;color:#e8eaf2;font-size:14px;outline:none;font-family:sans-serif}
+.pp-inp:focus{border-color:#4d8fff}
+.result{text-align:center;padding:18px 0}
+.res-score{font-size:62px;font-weight:700;color:#2dd4bf;line-height:1;margin-bottom:7px}
+.res-label{font-size:14px;color:#6b7294;margin-bottom:16px}
+.res-xp{font-size:17px;font-weight:700;color:#f59e0b;margin-bottom:22px}
+.res-btns{display:flex;gap:9px;justify-content:center}
+
+/* MARKDOWN RENDERIZADO */
+.md-content{font-size:15px;color:#9fa3b8;line-height:1.8}
+.md-content h1{font-size:22px;font-weight:700;color:#e8eaf2;margin:0 0 24px}
+.md-content h2{font-size:16px;font-weight:700;color:#e8eaf2;margin:28px 0 12px;padding-bottom:8px;border-bottom:1px solid #252a3a}
+.md-content h3{font-size:14px;font-weight:700;color:#4d8fff;margin:20px 0 8px}
+.md-content p{margin-bottom:14px}
+.md-content strong{color:#e8eaf2}
+.md-content em{color:#a78bfa}
+.md-content ul,.md-content ol{padding-left:20px;margin-bottom:14px}
+.md-content li{margin-bottom:6px}
+.md-content table{width:100%;border-collapse:collapse;background:#1a1e2b;border-radius:8px;overflow:hidden;margin-bottom:20px;font-size:13px}
+.md-content th{padding:10px 14px;text-align:left;color:#6b7294;background:#13161f;border-bottom:2px solid #252a3a;font-weight:600}
+.md-content td{padding:10px 14px;color:#9fa3b8;border-bottom:1px solid #252a3a}
+.md-content tr:last-child td{border-bottom:none}
+.md-content hr{border:none;border-top:1px solid #252a3a;margin:24px 0}
+.md-content blockquote{border-left:3px solid #2dd4bf;padding:10px 16px;background:#0a1f2a;border-radius:0 6px 6px 0;margin-bottom:14px}
+/* Cajas especiales por emoji en H2 */
+.md-content h2:has(+ *):nth-of-type(1){color:#4ade80}
+.caja-esencial{background:#0a1f0a;border:1px solid #1a3a1a;border-left:4px solid #4ade80;border-radius:8px;padding:16px 20px;margin-bottom:20px}
+.caja-esencial h2{color:#4ade80;border:none;margin:0 0 8px;padding:0;font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+.caja-10s{background:#0a1f2a;border:1px solid #1a3a4a;border-left:4px solid #2dd4bf;border-radius:8px;padding:16px 20px;margin-top:20px}
+.caja-10s h2{color:#2dd4bf;border:none;margin:0 0 8px;padding:0;font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+.caja-truco{background:#1a1500;border:1px solid #2a2500;border-left:4px solid #f59e0b;border-radius:8px;padding:16px 20px;margin-top:20px}
+.caja-truco h2{color:#f59e0b;border:none;margin:0 0 8px;padding:0;font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+.caja-ojo{background:#1f0a0a;border:1px solid #3a1a1a;border-left:4px solid #f87171;border-radius:8px;padding:16px 20px;margin-top:20px}
+.caja-ojo h2{color:#f87171;border:none;margin:0 0 8px;padding:0;font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+
+/* LOGIN SCREEN */
+.login-screen {
+  position: fixed;
+  inset: 0;
+  background: #0c0e14;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 24px;
+}
+.login-screen.hidden { display: none; }
+.login-logo {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+.login-logo span { color: #2dd4bf; }
+.login-sub {
+  font-size: 14px;
+  color: #6b7294;
+  margin-bottom: 48px;
+  text-align: center;
+  max-width: 300px;
+}
+.login-card {
+  background: #13161f;
+  border: 1px solid #252a3a;
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 360px;
+}
+.login-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.login-desc {
+  font-size: 13px;
+  color: #6b7294;
+  margin-bottom: 28px;
+}
+.btn-google {
+  width: 100%;
+  padding: 13px 20px;
+  background: #fff;
+  color: #1f1f1f;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: opacity 0.15s;
+  font-family: sans-serif;
+}
+.btn-google:hover { opacity: 0.92; }
+.btn-google img { width: 20px; height: 20px; }
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: #3d4460;
+  font-size: 12px;
+}
+.login-divider::before, .login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #252a3a;
+}
+.login-avatar-section { margin-bottom: 20px; }
+.login-avatar-label {
+  font-size: 12px;
+  color: #6b7294;
+  margin-bottom: 10px;
+  display: block;
+}
+.login-avatars {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.login-av {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  border: 2px solid #252a3a;
+  background: #1a1e2b;
+  transition: all 0.15s;
+}
+.login-av:hover, .login-av.sel { border-color: #2dd4bf; transform: scale(1.1); }
+.login-name-input {
+  width: 100%;
+  padding: 11px 14px;
+  background: #1a1e2b;
+  border: 2px solid #252a3a;
+  border-radius: 8px;
+  color: #e8eaf2;
+  font-size: 14px;
+  outline: none;
+  margin-bottom: 16px;
+  font-family: sans-serif;
+  transition: border-color 0.15s;
+}
+.login-name-input:focus { border-color: #2dd4bf; }
+.login-error {
+  color: #f87171;
+  font-size: 12px;
+  text-align: center;
+  margin-top: 10px;
+  min-height: 18px;
+}
+
+/* USER BADGE en topbar */
+.user-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid #252a3a;
+  background: #1a1e2b;
+  transition: border-color 0.15s;
+}
+.user-badge:hover { border-color: #2e3450; }
+.user-photo {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a78bfa, #4d8fff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.user-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+/* RANKING en tiempo real */
+.lb-row.online::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  background: #4ade80;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 4px;
+}
+
+/* JUEGOS INLINE T1 */
+.jgame {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--amber);
+  border-radius: 10px;
+  padding: 20px 22px;
+  margin: 20px 0;
+}
+.jgame-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--amber);
+  font-family: 'Space Mono', monospace;
+  margin-bottom: 6px;
+}
+.jgame-sub {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.jgame-xp {
+  font-size: 11px;
+  color: var(--amber);
+  font-family: 'Space Mono', monospace;
+  background: rgba(245,158,11,.12);
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-left: 8px;
+}
+/* Conecta (click pairs) */
+.conecta-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.conecta-col { display: flex; flex-direction: column; gap: 7px; }
+.conecta-item {
+  padding: 10px 13px;
+  background: var(--bg3);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+  user-select: none;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  line-height: 1.4;
+}
+.conecta-item:hover { border-color: var(--border2); }
+.conecta-item.sel { border-color: var(--teal); background: rgba(45,212,191,.08); }
+.conecta-item.ok { border-color: var(--green); background: rgba(74,222,128,.08); color: var(--green); pointer-events: none; }
+.conecta-item.ko { border-color: var(--rose); background: rgba(248,113,113,.08); animation: shake .3s; }
+/* Clasifica (drag & drop) */
+.clasifica-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px;
+  background: var(--bg3);
+  border: 2px dashed var(--border2);
+  border-radius: 8px;
+  min-height: 60px;
+  margin-bottom: 14px;
+}
+.clasifica-targets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.clasifica-zone {
+  border: 2px dashed var(--border2);
+  border-radius: 8px;
+  padding: 12px;
+  min-height: 120px;
+  transition: border-color .15s, background .15s;
+}
+.clasifica-zone.drag-over {
+  border-color: var(--teal);
+  background: rgba(45,212,191,.05);
+}
+.clasifica-zone.correct { border-color: var(--green); }
+.clasifica-zone-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 700;
+  margin-bottom: 10px;
+  font-family: 'Space Mono', monospace;
+}
+.clasifica-chip {
+  display: inline-block;
+  padding: 6px 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  font-size: 12.5px;
+  cursor: grab;
+  transition: all .15s;
+  user-select: none;
+  margin: 3px;
+}
+.clasifica-chip:hover { border-color: var(--teal); }
+.clasifica-chip.dragging { opacity: .5; }
+.clasifica-chip.correct { background: rgba(74,222,128,.1); border-color: var(--green); color: var(--green); cursor: default; }
+.clasifica-chip.wrong-place { border-color: var(--rose); animation: shake .3s; }
+.jgame-btn {
+  margin-top: 12px;
+  padding: 9px 18px;
+  background: var(--amber);
+  color: #0c0e14;
+  border: none;
+  border-radius: 7px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.jgame-btn:hover { opacity: .85; }
+.jgame-result {
+  font-size: 13px;
+  margin-top: 10px;
+  min-height: 18px;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<!-- PANTALLA DE LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-logo">Apuntes<span>Larry</span></div>
+  <p class="login-sub">La plataforma de estudio para Recepcionista en Centros Sanitarios</p>
+  
+  <div class="login-card">
+    <div class="login-title">Bienvenido</div>
+    <p class="login-desc">Inicia sesion para guardar tu progreso y aparecer en el ranking.</p>
+    
+    <button class="btn-google" onclick="loginGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+      Continuar con Google
+    </button>
+    
+    <div class="login-divider">o</div>
+    
+    <div class="login-avatar-section">
+      <span class="login-avatar-label">Elige tu avatar</span>
+      <div class="login-avatars">
+        <div class="login-av sel" data-av="🦁" onclick="selLoginAv(this)">🦁</div>
+        <div class="login-av" data-av="🦊" onclick="selLoginAv(this)">🦊</div>
+        <div class="login-av" data-av="🐺" onclick="selLoginAv(this)">🐺</div>
+        <div class="login-av" data-av="🦅" onclick="selLoginAv(this)">🦅</div>
+        <div class="login-av" data-av="🐉" onclick="selLoginAv(this)">🐉</div>
+        <div class="login-av" data-av="🌙" onclick="selLoginAv(this)">🌙</div>
+        <div class="login-av" data-av="⚡" onclick="selLoginAv(this)">⚡</div>
+        <div class="login-av" data-av="🎭" onclick="selLoginAv(this)">🎭</div>
+      </div>
+    </div>
+    
+    <input class="login-name-input" id="login-name" placeholder="Tu nombre (como aparecer en el ranking)..." maxlength="20">
+    
+    <button class="btn-p" style="width:100%" onclick="loginGuest()">Entrar sin cuenta</button>
+    
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+
+<div class="topbar">
+  <div class="logo" onclick="nav('home')">Apuntes<span>Larry</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="tab-home" onclick="nav('home')">Inicio</button>
+    <button class="nav-tab" id="tab-apuntes" onclick="nav('apuntes')">Apuntes</button>
+    <button class="nav-tab" id="tab-juegos" onclick="nav('juegos')">Juegos</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <button id="btn-modo" onclick="toggleModo()" title="Cambiar modo" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;font-size:18px;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:sans-serif">☀️</button>
+    <div class="user-badge" onclick="togglePP()">
+      <div class="user-photo" id="tb-av">🦁</div>
+      <div>
+        <div class="tb-name" id="tb-name">Larry</div>
+        <div class="tb-level" id="tb-lv">Nv.1</div>
+      </div>
+      <div class="tb-xpbar"><div class="tb-xpfill" id="tb-xpf" style="width:20%"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="pp" id="pp">
+  <div style="text-align:right;margin-bottom:14px">
+    <button onclick="togglePP()" style="background:none;border:none;color:#6b7294;cursor:pointer;font-size:17px">x</button>
+  </div>
+  <div class="pp-av" id="pp-av">🦁</div>
+  <div class="pp-name" id="pp-name">Larry</div>
+  <div class="pp-title" id="pp-title">Nv.1 - Estudiante de Guardia</div>
+  <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px">
+    <span style="color:#6b7294">XP</span>
+    <span style="color:#f59e0b" id="pp-xplbl">120 / 500</span>
+  </div>
+  <div class="pp-xpbar"><div class="pp-xpfill" id="pp-xpf" style="width:24%"></div></div>
+  <div class="lv-badge">
+    <div class="lv-num" id="lv-num">1</div>
+    <div>
+      <div style="font-weight:700;font-size:13px" id="lv-name">Estudiante de Guardia</div>
+      <div style="font-size:11px;color:#6b7294" id="lv-next">Sig: Residente Nato</div>
+    </div>
+  </div>
+  <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#3d4460;margin-bottom:8px">Clasificacion</div>
+  <div id="lb"></div>
+  <div style="margin-top:16px">
+    <button class="btn-p" style="width:100%;font-size:13px;margin-bottom:8px" onclick="openSetup()">Editar perfil</button>
+    <!-- SELECTOR DE TEMA -->
+    <div style="margin-bottom:8px">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:8px">Apariencia</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div onclick="setTema('cafe')" id="tema-cafe" style="padding:8px 10px;border-radius:8px;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:8px;transition:border-color .15s">
+          <div style="width:14px;height:14px;border-radius:50%;background:#c8854a;flex-shrink:0"></div>
+          <span style="font-size:12px;color:var(--text-secondary)">☕ Café</span>
+        </div>
+        <div onclick="setTema('te')" id="tema-te" style="padding:8px 10px;border-radius:8px;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:8px;transition:border-color .15s">
+          <div style="width:14px;height:14px;border-radius:50%;background:#7eb86a;flex-shrink:0"></div>
+          <span style="font-size:12px;color:var(--text-secondary)">🍵 Té verde</span>
+        </div>
+        <div onclick="setTema('lavanda')" id="tema-lavanda" style="padding:8px 10px;border-radius:8px;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:8px;transition:border-color .15s">
+          <div style="width:14px;height:14px;border-radius:50%;background:#b89af0;flex-shrink:0"></div>
+          <span style="font-size:12px;color:var(--text-secondary)">🌸 Lavanda</span>
+        </div>
+        <div onclick="setTema('oceano')" id="tema-oceano" style="padding:8px 10px;border-radius:8px;border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:8px;transition:border-color .15s">
+          <div style="width:14px;height:14px;border-radius:50%;background:#4db8d4;flex-shrink:0"></div>
+          <span style="font-size:12px;color:var(--text-secondary)">🌊 Océano</span>
+        </div>
+      </div>
+    </div>
+    <button onclick="window.logOut&&window.logOut()" style="width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:sans-serif">Cerrar sesion</button>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div style="padding:72px 40px 48px;max-width:860px;margin:0 auto">
+    <div style="font-size:11px;letter-spacing:.15em;color:#2dd4bf;text-transform:uppercase;margin-bottom:14px">Recepcion Sanitaria - Ciclo Formativo</div>
+    <h1 style="font-size:clamp(32px,5vw,60px);font-weight:700;line-height:1.08;margin-bottom:18px">Estudia.<br><span style="color:#2dd4bf">Juega.</span><br>Aprueba.</h1>
+    <p style="font-size:16px;color:#6b7294;max-width:460px;margin-bottom:36px">Apuntes con imagenes reales, ejercicios integrados y minijuegos para Recepcionista en Centros Sanitarios.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn-p" onclick="nav('apuntes')">Ver apuntes</button>
+      <button class="btn-s" onclick="nav('juegos')">Jugar ahora</button>
+    </div>
+  </div>
+  <div style="padding:0 40px 48px;max-width:860px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+    <div class="stat-card"><div class="stat-n" style="color:#2dd4bf">2</div><div class="stat-l">Temas</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:#a78bfa">5</div><div class="stat-l">Minijuegos</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:#f59e0b" id="home-xp">120</div><div class="stat-l">Tu XP</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:#f87171" id="home-rank">#4</div><div class="stat-l">Posicion</div></div>
+  </div>
+</div>
+
+<!-- APUNTES — LOBBY PRINCIPAL -->
+<div class="page" id="page-apuntes">
+<div style="max-width:900px;margin:0 auto;padding:32px 40px 80px">
+  <h2 style="font-size:28px;font-weight:700;margin-bottom:8px">Apuntes</h2>
+  <p style="color:#6b7294;margin-bottom:32px">Selecciona tu profesora para acceder a sus módulos.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+    <!-- ISABEL -->
+    <div onclick="navProf('isabel')" style="background:#13161f;border:1px solid #252a3a;border-radius:12px;padding:24px;cursor:pointer;transition:border-color .15s;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#a78bfa,#60a5fa)"></div>
+      <div style="font-size:26px;margin-bottom:10px">👩‍🏫</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px">Isabel</div>
+      <div style="font-size:13px;color:#6b7294">Habilidades Sociales · Atención al Usuario · Comunicación</div>
+      <div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap">
+        <span style="background:rgba(167,139,250,.12);color:#a78bfa;font-size:11px;padding:2px 8px;border-radius:99px">Módulo 1</span>
+        <span style="background:rgba(167,139,250,.12);color:#a78bfa;font-size:11px;padding:2px 8px;border-radius:99px">Módulo 2</span>
+        <span style="background:rgba(167,139,250,.12);color:#a78bfa;font-size:11px;padding:2px 8px;border-radius:99px">Módulo 3</span>
+      </div>
+    </div>
+
+    <!-- JUDITH -->
+    <div onclick="navProf('judith')" style="background:#13161f;border:1px solid #252a3a;border-radius:12px;padding:24px;cursor:pointer;transition:border-color .15s;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#2dd4bf,#4ade80)"></div>
+      <div style="font-size:26px;margin-bottom:10px">👩‍⚕️</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px">Judith</div>
+      <div style="font-size:13px;color:#6b7294">Sistema de Salud · Cuerpo Humano · Patologías · Pruebas</div>
+      <div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap">
+        <span style="background:rgba(45,212,191,.12);color:#2dd4bf;font-size:11px;padding:2px 8px;border-radius:99px">Módulo 1</span>
+        <span style="background:rgba(45,212,191,.12);color:#2dd4bf;font-size:11px;padding:2px 8px;border-radius:99px">Módulo 2</span>
+        <span style="background:rgba(74,222,128,.12);color:#4ade80;font-size:11px;padding:2px 8px;border-radius:99px">Módulo 3</span>
+        <span style="background:rgba(74,222,128,.12);color:#4ade80;font-size:11px;padding:2px 8px;border-radius:99px">Módulo 4</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ══ LOBBY ISABEL ══ -->
+<div class="page" id="page-prof-isabel">
+<div style="max-width:900px;margin:0 auto;padding:32px 40px 80px">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px">
+    <button onclick="nav('apuntes')" style="background:#1a1e2b;border:1px solid #252a3a;color:#6b7294;cursor:pointer;font-size:14px;padding:6px 12px;border-radius:8px;font-family:sans-serif">← Volver</button>
+    <div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#a78bfa;margin-bottom:2px">Isabel</div>
+      <div style="font-size:20px;font-weight:700">Módulos disponibles</div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div onclick="navTema('isabel','m1')" style="background:#13161f;border:1px solid #252a3a;border-radius:10px;padding:20px 24px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .15s">
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#a78bfa;margin-bottom:5px">Módulo 1</div>
+        <div style="font-size:17px;font-weight:700">Habilidades Sociales</div>
+      </div>
+      <div style="font-size:18px;color:#3d4460">›</div>
+    </div>
+    <div onclick="navTema('isabel','m2')" style="background:#13161f;border:1px solid #252a3a;border-radius:10px;padding:20px 24px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .15s">
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#a78bfa;margin-bottom:5px">Módulo 2</div>
+        <div style="font-size:17px;font-weight:700">Atención al Usuario</div>
+      </div>
+      <div style="font-size:18px;color:#3d4460">›</div>
+    </div>
+    <div onclick="navTema('isabel','m3')" style="background:#13161f;border:1px solid #252a3a;border-radius:10px;padding:20px 24px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .15s">
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#a78bfa;margin-bottom:5px">Módulo 3</div>
+        <div style="font-size:17px;font-weight:700">Comunicación Oral y Escrita</div>
+      </div>
+      <div style="font-size:18px;color:#3d4460">›</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- LOBBY JUDITH -->
+<div class="page" id="page-prof-judith">
+<div style="max-width:900px;margin:0 auto;padding:32px 40px 80px">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px">
+    <button onclick="nav('apuntes')" style="background:#1a1e2b;border:1px solid #252a3a;color:#6b7294;cursor:pointer;font-size:14px;padding:6px 12px;border-radius:8px;font-family:sans-serif">← Volver</button>
+    <div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#2dd4bf;margin-bottom:2px">Judith</div>
+      <div style="font-size:20px;font-weight:700">Módulos disponibles</div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div onclick="navModulo('judith','m1')" style="background:#13161f;border:1px solid #252a3a;border-radius:10px;padding:20px 24px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#2dd4bf;margin-bottom:5px">Módulo 1</div>
+        <div style="font-size:17px;font-weight:700">Sistema de Salud</div>
+      </div>
+      <div style="font-size:18px;color:#3d4460">›</div>
+    </div>
+    <div onclick="navModulo('judith','m2')" style="background:#13161f;border:1px solid #252a3a;border-radius:10px;padding:20px 24px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#2dd4bf;margin-bottom:5px">Módulo 2</div>
+        <div style="font-size:17px;font-weight:700">El Cuerpo Humano y su Anatomía</div>
+        <div style="font-size:12px;color:#6b7294;margin-top:3px">Conceptos · Huesos · Sistemas · Aparatos</div>
+      </div>
+      <div style="font-size:18px;color:#3d4460">›</div>
+    </div>
+    <div onclick="navModulo('judith','m3')" style="background:#13161f;border:1px solid #252a3a;border-radius:10px;padding:20px 24px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;opacity:.5">
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#2dd4bf;margin-bottom:5px">Módulo 3</div>
+        <div style="font-size:17px;font-weight:700">Patologías más Frecuentes</div>
+        <div style="font-size:12px;color:#6b7294;margin-top:3px">Pendiente</div>
+      </div>
+      <div style="font-size:18px;color:#3d4460">›</div>
+    </div>
+    <div onclick="navModulo('judith','m4')" style="background:#13161f;border:1px solid #252a3a;border-radius:10px;padding:20px 24px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;opacity:.5">
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#2dd4bf;margin-bottom:5px">Módulo 4</div>
+        <div style="font-size:17px;font-weight:700">Pruebas Médicas</div>
+        <div style="font-size:12px;color:#6b7294;margin-top:3px">Pendiente</div>
+      </div>
+      <div style="font-size:18px;color:#3d4460">›</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- LOBBY BLOQUES (Módulo 2 Judith) -->
+<div class="page" id="page-modulo-bloques">
+<div style="max-width:900px;margin:0 auto;padding:24px 40px 120px">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px">
+    <button id="lobby-bloques-back" style="background:#1a1e2b;border:1px solid #252a3a;color:#6b7294;cursor:pointer;font-size:14px;padding:6px 12px;border-radius:8px;font-family:sans-serif">← Volver</button>
+    <div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#2dd4bf;margin-bottom:2px">Módulo 2 · Judith</div>
+      <div id="lobby-bloques-titulo" style="font-size:20px;font-weight:700"></div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px" id="lobby-bloques-lista"></div>
+</div>
+<!-- Nav inferior bloques -->
+<div style="position:fixed;bottom:0;left:0;right:0;background:#13161f;border-top:1px solid #252a3a;padding:12px 40px;display:flex;align-items:center;justify-content:space-between;z-index:100">
+  <button id="bloque-prev" style="display:none;align-items:center;gap:8px;background:#1a1e2b;border:1px solid #252a3a;color:#e8eaf2;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:sans-serif">← Anterior</button>
+  <div style="flex:1;text-align:center"><span id="bloque-num" style="font-size:12px;color:#3d4460"></span></div>
+  <button id="bloque-next" style="display:none;align-items:center;gap:8px;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:sans-serif;border:none">Siguiente →</button>
+</div>
+</div>
+
+<!-- LOBBY SISTEMAS (dentro de un bloque) -->
+<div class="page" id="page-lobby-sistemas">
+<div style="max-width:900px;margin:0 auto;padding:24px 40px 120px">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px">
+    <button id="lobby-sistemas-back" style="background:#1a1e2b;border:1px solid #252a3a;color:#6b7294;cursor:pointer;font-size:14px;padding:6px 12px;border-radius:8px;font-family:sans-serif">← Volver</button>
+    <div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#2dd4bf;margin-bottom:2px">El Cuerpo Humano</div>
+      <div id="lobby-sistemas-titulo" style="font-size:20px;font-weight:700"></div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px" id="lobby-sistemas-lista"></div>
+</div>
+<!-- Nav inferior sistemas -->
+<div style="position:fixed;bottom:0;left:0;right:0;background:#13161f;border-top:1px solid #252a3a;padding:12px 40px;display:flex;align-items:center;justify-content:space-between;z-index:100">
+  <button id="sistema-prev" style="display:none;align-items:center;gap:8px;background:#1a1e2b;border:1px solid #252a3a;color:#e8eaf2;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:sans-serif">← Anterior</button>
+  <div style="flex:1;text-align:center"><span id="sistema-num" style="font-size:12px;color:#3d4460"></span></div>
+  <button id="sistema-next" style="display:none;align-items:center;gap:8px;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:sans-serif;border:none">Siguiente →</button>
+</div>
+</div>
+
+<!-- LOBBY PUNTOS (dentro de un sistema) -->
+<div class="page" id="page-lobby-puntos">
+<div style="max-width:900px;margin:0 auto;padding:24px 40px 120px">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px">
+    <button id="lobby-puntos-back" style="background:#1a1e2b;border:1px solid #252a3a;color:#6b7294;cursor:pointer;font-size:14px;padding:6px 12px;border-radius:8px;font-family:sans-serif">← Volver</button>
+    <div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#2dd4bf;margin-bottom:2px">Puntos</div>
+      <div id="lobby-puntos-titulo" style="font-size:20px;font-weight:700"></div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px" id="lobby-puntos-lista"></div>
+</div>
+<!-- Nav inferior lobby puntos -->
+<div style="position:fixed;bottom:0;left:0;right:0;background:#13161f;border-top:1px solid #252a3a;padding:12px 40px;display:flex;align-items:center;justify-content:space-between;z-index:100">
+  <button id="lobby-puntos-prev" style="display:none;align-items:center;gap:8px;background:#1a1e2b;border:1px solid #252a3a;color:#e8eaf2;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:sans-serif">← Anterior</button>
+  <div style="flex:1;text-align:center"><span id="lobby-puntos-num" style="font-size:12px;color:#3d4460"></span></div>
+  <button id="lobby-puntos-next" style="display:none;align-items:center;gap:8px;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:sans-serif;border:none">Siguiente →</button>
+</div>
+</div>
+
+<!-- ══ VISTA DE PUNTO ══ -->
+<div class="page" id="page-punto">
+<div style="max-width:860px;margin:0 auto;padding:24px 40px 120px">
+
+  <!-- Breadcrumb -->
+  <div id="punto-breadcrumb" style="font-size:12px;color:#6b7294;margin-bottom:20px;display:flex;align-items:center;flex-wrap:wrap;gap:2px"></div>
+
+  <!-- Título -->
+  <h1 id="punto-titulo" style="font-size:26px;font-weight:700;margin-bottom:28px;line-height:1.2"></h1>
+
+  <!-- Contenido -->
+  <div id="punto-contenido"></div>
+
+  <!-- Navegación inferior -->
+  <div style="position:fixed;bottom:0;left:0;right:0;background:#13161f;border-top:1px solid #252a3a;padding:12px 40px;display:flex;align-items:center;justify-content:space-between;z-index:100">
+    <button id="punto-prev" onclick="" style="display:none;align-items:center;gap:8px;background:#1a1e2b;border:1px solid #252a3a;color:#e8eaf2;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:sans-serif">← Anterior</button>
+    <div style="flex:1;text-align:center">
+      <span id="punto-num" style="font-size:12px;color:#3d4460"></span>
+    </div>
+    <button id="punto-next" onclick="" style="display:none;align-items:center;gap:8px;background:#2dd4bf;border:none;color:#0c0e14;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:sans-serif">Siguiente →</button>
+  </div>
+
+</div>
+</div>
+
+
+
+<div class="page" id="page-juegos">
+  <div style="max-width:860px;margin:0 auto;padding:36px 40px 80px">
+    <h2 style="font-size:30px;font-weight:700;margin-bottom:8px">Sala de juegos</h2>
+    <p style="color:#6b7294;margin-bottom:32px">Cada partida da XP y sube tu nivel.</p>
+    <div style="margin-bottom:12px;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#3d4460">Sistema Sanitario - Tema 1</div>
+    <div style="display:flex;flex-wrap:wrap;gap:0">
+      <div class="gc teal" onclick="openGame('relacionar')">
+        <div class="gc-icon">🔗</div>
+        <div class="gc-title">Relacionar organismos</div>
+        <div class="gc-desc">Une cada organismo sanitario con su funcion.</div>
+        <span class="gtag xp">+60 XP</span><span class="gtag tema">Tema 1</span>
+      </div>
+      <div class="gc amber" onclick="openGame('pasapalabra')">
+        <div class="gc-icon">🅰️</div>
+        <div class="gc-title">Pasapalabra sanitario</div>
+        <div class="gc-desc">El rosco clasico con vocabulario sanitario.</div>
+        <span class="gtag xp">+150 XP</span><span class="gtag tema">T1+T2</span>
+      </div>
+    </div>
+    <div style="margin:20px 0 12px;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#3d4460">Anatomia - Tema 2</div>
+    <div style="display:flex;flex-wrap:wrap;gap:0">
+      <div class="gc blue" onclick="openGame('huesos')">
+        <div class="gc-icon">💀</div>
+        <div class="gc-title">Huesos contrarreloj</div>
+        <div class="gc-desc">60 segundos. Preguntas sobre huesos y columna.</div>
+        <span class="gtag xp">+80 XP</span><span class="gtag tema">Tema 2</span>
+      </div>
+      <div class="gc violet" onclick="openGame('planos')">
+        <div class="gc-icon">🏃</div>
+        <div class="gc-title">Planos y movimientos</div>
+        <div class="gc-desc">Identifica el plano anatomico del movimiento.</div>
+        <span class="gtag xp">+60 XP</span><span class="gtag tema">Tema 2</span>
+      </div>
+      <div class="gc rose" onclick="openGame('nervioso-quiz')">
+        <div class="gc-icon">🧠</div>
+        <div class="gc-title">Quiz sistema nervioso</div>
+        <div class="gc-desc">10 preguntas sobre encefalo y pares craneales.</div>
+        <span class="gtag xp">+100 XP</span><span class="gtag tema">Tema 2</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL JUEGO -->
+<div class="modal-ov" id="modal-ov">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">x</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- MODAL SETUP -->
+<div class="modal-ov" id="setup-ov">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeSetup()">x</button>
+    <div style="font-size:21px;font-weight:700;margin-bottom:5px">Tu perfil</div>
+    <div style="font-size:13px;color:#6b7294;margin-bottom:24px">Personaliza como te ven tus companeros.</div>
+    <label style="font-size:13px;color:#6b7294;display:block;margin-bottom:6px">Nombre</label>
+    <input class="setup-inp" id="setup-name" placeholder="Tu nombre..." value="Larry">
+    <label style="font-size:13px;color:#6b7294;display:block;margin-bottom:6px">Avatar</label>
+    <div style="margin-bottom:18px">
+      <div class="av-opt sel" data-av="🦁" onclick="selAv(this)">🦁</div>
+      <div class="av-opt" data-av="🦊" onclick="selAv(this)">🦊</div>
+      <div class="av-opt" data-av="🐺" onclick="selAv(this)">🐺</div>
+      <div class="av-opt" data-av="🦅" onclick="selAv(this)">🦅</div>
+      <div class="av-opt" data-av="🐉" onclick="selAv(this)">🐉</div>
+      <div class="av-opt" data-av="🌙" onclick="selAv(this)">🌙</div>
+      <div class="av-opt" data-av="⚡" onclick="selAv(this)">⚡</div>
+      <div class="av-opt" data-av="🎭" onclick="selAv(this)">🎭</div>
+    </div>
+    <button class="btn-p" style="width:100%" onclick="saveProfile()">Guardar perfil</button>
+  </div>
+</div>
+
+<!-- XP TOAST -->
+<div class="xp-toast" id="xp-toast">
+  <div style="font-size:22px">⭐</div>
+  <div>
+    <div style="font-weight:700;font-size:14px" id="toast-t">Correcto!</div>
+    <div style="font-size:12px;color:#6b7294" id="toast-s">Sigue asi</div>
+  </div>
+  <div style="font-size:19px;font-weight:700;color:#f59e0b;margin-left:auto" id="toast-x">+10 XP</div>
+</div>
+
+<!-- LEVEL UP -->
+<div class="lu-ov" id="lu-ov">
+  <div style="font-size:12px;letter-spacing:.2em;color:#a78bfa;text-transform:uppercase;margin-bottom:6px">Subida de nivel!</div>
+  <div class="lu-num" id="lu-num">2</div>
+  <div style="font-size:22px;font-weight:700;margin-top:8px" id="lu-title">Residente Nato</div>
+  <div style="font-size:13px;color:#6b7294;margin-top:5px">Has desbloqueado un nuevo rango</div>
+  <button class="lu-btn" onclick="closeLU()">A seguir estudiando!</button>
+</div>
+
+
+</div>
+
+
+<!-- FIREBASE SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyBjccQFS1eBZc-MLz0aSD0Dgq1L3L4dFN0",
+  authDomain: "apunteslarry.firebaseapp.com",
+  projectId: "apunteslarry",
+  storageBucket: "apunteslarry.firebasestorage.app",
+  messagingSenderId: "770354838402",
+  appId: "1:770354838402:web:6367bba3ca73ae968aad9b"
+});
+
+var auth = firebase.auth();
+var db = firebase.firestore();
+
+// ── LOGIN CON GOOGLE ───────────────────────────
+window.loginGoogle = async function() {
+  document.getElementById('login-error').textContent = '';
+  try {
+    var provider = new firebase.auth.GoogleAuthProvider();
+    var result = await auth.signInWithPopup(provider);
+    var user = result.user;
+    var userRef = db.collection('users').doc(user.uid);
+    var snap = await userRef.get();
+    if (!snap.exists) {
+      var av = document.querySelector('.login-av.sel') ? document.querySelector('.login-av.sel').dataset.av : '🦁';
+      var name = document.getElementById('login-name').value.trim() || user.displayName || 'Usuario';
+      await userRef.set({
+        name: name,
+        avatar: av,
+        xp: 0,
+        level: 1,
+        photoURL: user.photoURL || '',
+        createdAt: new Date().toISOString()
+      });
+    }
+  } catch(e) {
+    document.getElementById('login-error').textContent = 'Error: ' + e.message;
+  }
+};
+
+// ── LOGIN SIN CUENTA ───────────────────────────
+window.loginGuest = function() {
+  var name = document.getElementById('login-name').value.trim();
+  if (!name) {
+    document.getElementById('login-error').textContent = 'Escribe tu nombre para continuar';
+    return;
+  }
+  var av = document.querySelector('.login-av.sel') ? document.querySelector('.login-av.sel').dataset.av : '🦁';
+  var guestData = { uid: 'guest_' + Date.now(), name: name, avatar: av, xp: 0, isGuest: true };
+  localStorage.setItem('al_guest', JSON.stringify(guestData));
+  enterApp(name, av, 0, false, null, null);
+};
+
+window.selLoginAv = function(el) {
+  document.querySelectorAll('.login-av').forEach(function(a){ a.classList.remove('sel'); });
+  el.classList.add('sel');
+};
+
+window.logOut = async function() {
+  await auth.signOut();
+  localStorage.removeItem('al_guest');
+  document.getElementById('login-screen').classList.remove('hidden');
+};
+
+// ── ENTRAR A LA APP ────────────────────────────
+function enterApp(name, avatar, xp, isFirebase, uid, photoURL) {
+  document.getElementById('login-screen').classList.add('hidden');
+  window.S = { name: name, av: avatar, xp: xp || 0, uid: uid || null, isFirebase: !!isFirebase };
+
+  if (photoURL) {
+    var tbAv = document.getElementById('tb-av');
+    if (tbAv) tbAv.innerHTML = '<img src="' + photoURL + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    var ppAv = document.getElementById('pp-av');
+    if (ppAv) ppAv.innerHTML = '<img src="' + photoURL + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  }
+
+  if (typeof updateUI === 'function') updateUI();
+  if (typeof nav === 'function') nav('home');
+
+  if (isFirebase && uid) {
+    listenRanking();
+    listenMyProfile(uid);
+  }
+}
+
+// ── GUARDAR XP ─────────────────────────────────
+window.saveXPToFirebase = function(xp) {
+  if (!window.S || !window.S.uid || !window.S.isFirebase) return;
+  var lv = typeof getLV === 'function' ? getLV(xp) : 0;
+  db.collection('users').doc(window.S.uid).update({ xp: xp, level: lv + 1 }).catch(function(e){ console.log('XP save error:', e); });
+};
+
+// ── RANKING EN TIEMPO REAL ─────────────────────
+function listenRanking() {
+  db.collection('users').orderBy('xp', 'desc').limit(20).onSnapshot(function(snapshot) {
+    window._liveRanking = [];
+    snapshot.forEach(function(doc) {
+      window._liveRanking.push(Object.assign({ uid: doc.id }, doc.data()));
+    });
+    if (typeof renderLB === 'function') renderLB();
+  });
+}
+
+// ── ESCUCHAR MI PERFIL ─────────────────────────
+function listenMyProfile(uid) {
+  db.collection('users').doc(uid).onSnapshot(function(snap) {
+    if (snap.exists) {
+      var data = snap.data();
+      if (window.S) {
+        window.S.xp = data.xp || 0;
+        window.S.name = data.name || window.S.name;
+        window.S.av = data.avatar || window.S.av;
+      }
+      // Cargar tema y modo
+      if(data.tema || data.modo) {
+        aplicarTema(data.tema || 'default', data.modo || 'dark');
+      }
+      if (typeof updateUI === 'function') updateUI();
+    }
+  });
+}
+
+// ── OBSERVER DE AUTH ───────────────────────────
+auth.onAuthStateChanged(async function(user) {
+  if (user) {
+    var snap = await db.collection('users').doc(user.uid).get();
+    if (snap.exists) {
+      var data = snap.data();
+      enterApp(data.name, data.avatar, data.xp, true, user.uid, user.photoURL);
+    }
+    // Si no existe, espera a que complete el perfil en loginGoogle
+  } else {
+    var guest = localStorage.getItem('al_guest');
+    if (guest) {
+      var g = JSON.parse(guest);
+      enterApp(g.name, g.avatar, g.xp || 0, false, null, null);
+    } else {
+      document.getElementById('login-screen').classList.remove('hidden');
+    }
+  }
+});
+</script>
+
+
+<script>
+const LEVELS=[
+  {min:0,name:'Estudiante de Guardia'},
+  {min:500,name:'Residente Nato'},
+  {min:1200,name:'Especialista en Practicas'},
+  {min:2500,name:'Medico de Urgencias'},
+  {min:4500,name:'Jefe de Planta'},
+  {min:7000,name:'Director Medico'},
+  {min:10000,name:'Leyenda Sanitaria'}
+];
+const LB=[
+  {name:'Larry',xp:120,av:'🦁',col:'#7c3aed',me:true},
+  {name:'Marta',xp:340,av:'🦊',col:'#0891b2',me:false},
+  {name:'Rafa',xp:290,av:'⚡',col:'#d97706',me:false},
+  {name:'Alba',xp:210,av:'🌙',col:'#059669',me:false},
+  {name:'Cristian',xp:85,av:'🐺',col:'#dc2626',me:false}
+];
+window.S={name:'Larry',av:'🦁',xp:0};
+
+function getLV(xp){for(let i=LEVELS.length-1;i>=0;i--){if(xp>=LEVELS[i].min)return i;}return 0;}
+function getLVName(l){return LEVELS[l]?LEVELS[l].name:LEVELS[LEVELS.length-1].name;}
+function getXPMin(l){return LEVELS[l]?LEVELS[l].min:0;}
+function getXPMax(l){return LEVELS[l+1]?LEVELS[l+1].min:LEVELS[l].min+1000;}
+
+function updateUI(){
+  var lv=getLV(S.xp),xmin=getXPMin(lv),xmax=getXPMax(lv);
+  var pct=((S.xp-xmin)/(xmax-xmin)*100).toFixed(1);
+  var lvn=getLVName(lv);
+  document.getElementById('tb-av').textContent=S.av;
+  document.getElementById('tb-name').textContent=S.name;
+  document.getElementById('tb-lv').textContent='Nv.'+(lv+1);
+  document.getElementById('tb-xpf').style.width=pct+'%';
+  document.getElementById('pp-av').textContent=S.av;
+  document.getElementById('pp-name').textContent=S.name;
+  document.getElementById('pp-title').textContent='Nv.'+(lv+1)+' - '+lvn;
+  document.getElementById('pp-xplbl').textContent=S.xp+' / '+xmax;
+  document.getElementById('pp-xpf').style.width=pct+'%';
+  document.getElementById('lv-num').textContent=lv+1;
+  document.getElementById('lv-name').textContent=lvn;
+  document.getElementById('lv-next').textContent=LEVELS[lv+1]?'Sig: '+LEVELS[lv+1].name:'Nivel maximo!';
+  document.getElementById('home-xp').textContent=S.xp;
+  renderLB();
+}
+
+function renderLB(){
+  var players;
+  // Usar ranking en tiempo real de Firebase si está disponible
+  if(window._liveRanking && window._liveRanking.length > 0) {
+    players = window._liveRanking.map(function(p) {
+      return {
+        name: p.name || 'Usuario',
+        xp: p.xp || 0,
+        av: p.avatar || '🦁',
+        col: '#7c3aed',
+        me: window.S && p.uid === window.S.uid
+      };
+    });
+  } else {
+    // Fallback: datos locales
+    players = LB.slice().sort(function(a,b){return b.xp-a.xp;});
+    var me=null;
+    for(var i=0;i<players.length;i++){if(players[i].me){me=players[i];break;}}
+    if(me){me.xp=S.xp;me.name=S.name;me.av=S.av;}
+    players.sort(function(a,b){return b.xp-a.xp;});
+  }
+  var mr=0;
+  for(var i=0;i<players.length;i++){if(players[i].me){mr=i+1;break;}}
+  if(mr>0)document.getElementById('home-rank').textContent='#'+mr;
+  var colors=['#fbbf24','#9ca3af','#b45309'];
+  var html='';
+  for(var i=0;i<players.length;i++){
+    var p=players[i];
+    var col=i<3?colors[i]:'#3d4460';
+    html+='<div class="lb-row'+(p.me?' me':'')+'">' +
+      '<div style="width:18px;font-size:10px;color:'+col+';font-weight:700">'+(i+1)+'</div>'+
+      '<div class="lb-av2" style="background:'+(p.col||'#7c3aed')+'">'+p.av+'</div>'+
+      '<div style="flex:1;font-weight:500">'+p.name+(p.me?' (tu)':'')+'</div>'+
+      '<div style="font-size:11px;color:#f59e0b">'+p.xp+'XP</div>'+
+      '<div style="font-size:10px;background:rgba(167,139,250,.15);color:#a78bfa;padding:1px 6px;border-radius:99px">Nv.'+(getLV(p.xp)+1)+'</div>'+
+    '</div>';
+  }
+  document.getElementById('lb').innerHTML=html;
+}
+
+function addXP(amt,title,sub){
+  var oldLv=getLV(S.xp);
+  S.xp+=amt;
+  var newLv=getLV(S.xp);
+  updateUI();
+  showToast(title||'Correcto!',sub||'',amt);
+  if(newLv>oldLv)setTimeout(function(){showLU(newLv);},1200);
+  // Guardar en Firebase si está disponible
+  if(typeof window.saveXPToFirebase==='function') {
+    window.saveXPToFirebase(S.xp);
+  }
+  // Guardar en localStorage como backup
+  try { localStorage.setItem('al_xp', S.xp); } catch(e) {}
+}
+
+function toggleTema(id){
+  var content=document.getElementById(id+'-content');
+  var arrow=document.getElementById(id+'-arrow');
+  if(!content)return;
+  var open=content.style.display==='block';
+  content.style.display=open?'none':'block';
+  if(arrow)arrow.style.transform=open?'':'rotate(90deg)';
+}
+
+// ── NAVEGACIÓN PRINCIPAL ───────────────────────
+// Páginas principales del nav tab
+var NAV_MAIN = ['home','apuntes','juegos'];
+
+function nav(id){
+  // Ocultar todas las páginas
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  // Actualizar tabs (solo si es página principal)
+  document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
+  var tab = document.getElementById('tab-'+id);
+  if(tab) tab.classList.add('active');
+  else {
+    // Páginas secundarias: mantener el tab de apuntes activo
+    var tabApuntes = document.getElementById('tab-apuntes');
+    if(tabApuntes) tabApuntes.classList.add('active');
+  }
+  var page = document.getElementById('page-'+id);
+  if(page) page.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── NAVEGACIÓN DE APUNTES ─────────────────────
+function navProf(prof){
+  nav('prof-'+prof);
+}
+
+function capitalizeFirst(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : ''; }
+
+function mdToHtml(mdText) {
+  if(typeof marked === 'undefined') return '<p style="color:#f87171">Error: marked.js no cargado.</p>';
+  var sections = mdText.split(/\n(?=## )/);
+  var html = '';
+  sections.forEach(function(section) {
+    var firstLine = section.split('\n')[0];
+    if(firstLine.indexOf('✅') !== -1) {
+      var body = section.replace(firstLine, '').trim();
+      html += '<div class="caja-esencial"><div style="font-size:10px;font-weight:700;color:#4ade80;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">✅ Lo esencial</div><div style="color:#9fcf9f;line-height:1.7">'+marked.parse(body)+'</div></div>';
+    } else if(firstLine.indexOf('⚡') !== -1) {
+      var body = section.replace(firstLine, '').trim();
+      html += '<div class="caja-10s"><div style="font-size:10px;font-weight:700;color:#2dd4bf;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">⚡ En 10 segundos</div><div style="color:#9fdfcf;line-height:1.7">'+marked.parse(body)+'</div></div>';
+    } else if(firstLine.indexOf('🧠') !== -1) {
+      var body = section.replace(firstLine, '').trim();
+      html += '<div class="caja-truco"><div style="font-size:10px;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">🧠 Truco para recordar</div><div style="color:#cfaf6f;line-height:1.7">'+marked.parse(body)+'</div></div>';
+    } else if(firstLine.indexOf('👁') !== -1) {
+      var body = section.replace(firstLine, '').trim();
+      html += '<div class="caja-ojo"><div style="font-size:10px;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">👁 Ojo — Corrección</div><div style="color:#cf9f9f;line-height:1.7">'+marked.parse(body)+'</div></div>';
+    } else if(firstLine.indexOf('## Desarrollo') !== -1) {
+      var body = section.replace(firstLine, '').trim();
+      html += '<div class="md-content" style="margin:20px 0">'+marked.parse(body)+'</div>';
+    } else {
+      html += '<div class="md-content">'+marked.parse(section)+'</div>';
+    }
+  });
+  return html;
+}
+
+var ppOpen=false;
+function togglePP(){
+  ppOpen=!ppOpen;
+  document.getElementById('pp').classList.toggle('open',ppOpen);
+  if(ppOpen) actualizarSelectorTema();
+}
+
+// ── TEMAS Y MODO ──────────────────────────────
+var _tema = 'default';
+var _modo = 'dark';
+
+function aplicarTema(tema, modo) {
+  _tema = tema || 'default';
+  _modo = modo || 'dark';
+  var el = document.documentElement;
+  el.setAttribute('data-tema', _tema);
+  el.setAttribute('data-modo', _modo);
+  // Botón sol/luna
+  var btn = document.getElementById('btn-modo');
+  if(btn) btn.textContent = _modo === 'dark' ? '☀️' : '🌙';
+}
+
+function toggleModo() {
+  var nuevoModo = _modo === 'dark' ? 'light' : 'dark';
+  aplicarTema(_tema, nuevoModo);
+  guardarApariencia(_tema, nuevoModo);
+}
+
+function setTema(tema) {
+  aplicarTema(tema, _modo);
+  guardarApariencia(tema, _modo);
+  actualizarSelectorTema();
+}
+
+function actualizarSelectorTema() {
+  var temas = ['cafe','te','lavanda','oceano'];
+  temas.forEach(function(t) {
+    var el = document.getElementById('tema-'+t);
+    if(el) {
+      el.style.borderColor = (t === _tema) ? 'var(--accent)' : 'var(--border)';
+      el.style.background = (t === _tema) ? 'var(--bg-card2)' : 'transparent';
+    }
+  });
+}
+
+function guardarApariencia(tema, modo) {
+  if(!window.S || !window.S.uid) return;
+  db.collection('users').doc(window.S.uid).update({
+    tema: tema,
+    modo: modo
+  }).catch(function(e){ console.log('Error guardando apariencia:', e); });
+}
+function openSetup(){
+  document.getElementById('setup-ov').style.display='flex';
+  document.getElementById('setup-name').value=S.name;
+}
+function closeSetup(){document.getElementById('setup-ov').style.display='none';}
+function selAv(el){
+  document.querySelectorAll('.av-opt').forEach(function(a){a.classList.remove('sel');});
+  el.classList.add('sel');
+}
+function saveProfile(){
+  S.name=document.getElementById('setup-name').value.trim()||'Larry';
+  var avEl=document.querySelector('.av-opt.sel');
+  S.av=avEl?avEl.dataset.av:'🦁';
+  updateUI();closeSetup();showToast('Perfil guardado','Listo',0);
+}
+
+var toastT;
+function showToast(t,s,xp){
+  var el=document.getElementById('xp-toast');
+  document.getElementById('toast-t').textContent=t;
+  document.getElementById('toast-s').textContent=s;
+  document.getElementById('toast-x').textContent=xp>0?'+'+xp+' XP':'';
+  el.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(function(){el.classList.remove('show');},2500);
+}
+function showLU(lv){
+  document.getElementById('lu-num').textContent=lv+1;
+  document.getElementById('lu-title').textContent=getLVName(lv);
+  document.getElementById('lu-ov').classList.add('show');
+}
+function closeLU(){document.getElementById('lu-ov').classList.remove('show');}
+
+function openModal(html){
+  document.getElementById('modal-content').innerHTML=html;
+  document.getElementById('modal-ov').style.display='flex';
+}
+function closeModal(){document.getElementById('modal-ov').style.display='none';}
+document.getElementById('modal-ov').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.getElementById('setup-ov').addEventListener('click',function(e){if(e.target===this)closeSetup();});
+
+function testAns(el,correct){
+  var btns=el.closest('.test-opt').querySelectorAll('.test-btn');
+  btns.forEach(function(b){b.disabled=true;});
+  if(correct){
+    el.classList.add('correct');
+    addXP(10,'Correcto!','Test integrado');
+  } else {
+    el.classList.add('wrong');
+    btns.forEach(function(b){
+      if(b.getAttribute('onclick')&&b.getAttribute('onclick').indexOf(',true')>-1)
+        b.classList.add('reveal');
+    });
+  }
+}
+
+var _mSel={l:null,r:null};
+window.mL=function(el){
+  if(el.classList.contains('ok'))return;
+  el.closest('.match-cols').querySelectorAll('[data-left]').forEach(function(e){e.classList.remove('sel');});
+  el.classList.add('sel');_mSel.l=el;_checkM();
+};
+window.mR=function(el){
+  if(el.classList.contains('ok'))return;
+  el.closest('.match-cols').querySelectorAll('[data-right]').forEach(function(e){e.classList.remove('sel');});
+  el.classList.add('sel');_mSel.r=el;_checkM();
+};
+function _checkM(){
+  if(!_mSel.l||!_mSel.r)return;
+  if(_mSel.l.dataset.left===_mSel.r.dataset.right){
+    _mSel.l.classList.replace('sel','ok');_mSel.r.classList.replace('sel','ok');
+    addXP(15,'Correcto!','Relacion encontrada');
+  } else {
+    _mSel.l.classList.add('ko');_mSel.r.classList.add('ko');
+    setTimeout(function(){
+      if(_mSel.l)_mSel.l.classList.remove('ko','sel');
+      if(_mSel.r)_mSel.r.classList.remove('ko','sel');
+    },600);
+  }
+  _mSel={l:null,r:null};
+}
+
+function checkFib(id){
+  var inputs=document.getElementById(id).querySelectorAll('.fib-input');
+  var allOk=true;
+  inputs.forEach(function(inp){
+    var val=inp.value.trim().toLowerCase();
+    var ans=inp.dataset.ans.toLowerCase();
+    if(val===ans||(ans.indexOf(val)>-1&&val.length>=3)){
+      inp.classList.add('ok');inp.classList.remove('ko');
+    } else {
+      inp.classList.add('ko');inp.classList.remove('ok');allOk=false;
+    }
+  });
+  if(allOk)addXP(20,'Todo correcto!','Rellena huecos');
+}
+
+function openGame(id){
+  if(id==='relacionar')gameRelacionar();
+  else if(id==='huesos')gameHuesos();
+  else if(id==='pasapalabra')gamePasapalabra();
+  else if(id==='planos')gamePlanos();
+  else if(id==='nervioso-quiz')gameNervioso();
+}
+
+function gameRelacionar(){
+  var pairs=[
+    {l:'CatSalut',r:'0',def:'Gestiona el dinero y paga los servicios'},
+    {l:'Departament de Salut',r:'1',def:'Define la estrategia sanitaria'},
+    {l:'SISCAT',r:'2',def:'Red de centros publicos y concertados'},
+    {l:'ICS',r:'3',def:'Principal proveedor, centros propios del gobierno'}
+  ];
+  var defs=pairs.map(function(p){return p.def;});
+  var order=[0,1,2,3].sort(function(){return Math.random()-.5;});
+  var mc=0;var ms={l:null,r:null};
+  var leftHTML=pairs.map(function(p){
+    return '<div class="match-item" data-left="'+p.r+'" onclick="window._gML(this)">'+p.l+'</div>';
+  }).join('');
+  var rightHTML=order.map(function(i){
+    return '<div class="match-item" data-right="'+i+'" onclick="window._gMR(this)">'+defs[i]+'</div>';
+  }).join('');
+  openModal(
+    '<div style="font-size:21px;font-weight:700;margin-bottom:5px">Relacionar organismos</div>'+
+    '<div style="font-size:13px;color:#6b7294;margin-bottom:24px">Toca un termino y luego su definicion.</div>'+
+    '<div class="match-cols"><div class="match-col">'+leftHTML+'</div><div class="match-col">'+rightHTML+'</div></div>'+
+    '<div id="mfb" style="text-align:center;font-size:13px;color:#6b7294;min-height:20px"></div>'
+  );
+  window._gML=function(el){
+    if(el.classList.contains('ok'))return;
+    document.querySelectorAll('#modal-content [data-left]').forEach(function(e){e.classList.remove('sel');});
+    el.classList.add('sel');ms.l=el;
+    if(ms.l&&ms.r)checkMatch();
+  };
+  window._gMR=function(el){
+    if(el.classList.contains('ok'))return;
+    document.querySelectorAll('#modal-content [data-right]').forEach(function(e){e.classList.remove('sel');});
+    el.classList.add('sel');ms.r=el;
+    if(ms.l&&ms.r)checkMatch();
+  };
+  function checkMatch(){
+    if(ms.l.dataset.left===ms.r.dataset.right){
+      ms.l.classList.replace('sel','ok');ms.r.classList.replace('sel','ok');
+      mc++;addXP(15,'Correcto!',mc+'/4');
+      if(mc===4){
+        setTimeout(function(){
+          var f=document.getElementById('mfb');
+          if(f)f.innerHTML='<span style="color:#4ade80;font-weight:700">Completado! +50 XP extra</span>';
+          addXP(50,'Completado!','Relacionar');
+        },400);
+      }
+    } else {
+      ms.l.classList.add('ko');ms.r.classList.add('ko');
+      setTimeout(function(){ms.l.classList.remove('ko','sel');ms.r.classList.remove('ko','sel');},600);
+    }
+    ms={l:null,r:null};
+  }
+}
+
+function gameHuesos(){
+  var qs=[
+    {q:'Cuantos huesos tiene el CRANEO SUPERIOR?',opts:['6','7','8','9'],ans:'8'},
+    {q:'Cuantos huesos tiene la CARA?',opts:['10','12','14','8'],ans:'12'},
+    {q:'Cuantos huesos tiene la ORBITA OCULAR?',opts:['5','6','7','8'],ans:'7'},
+    {q:'Como se llama la primera vertebra cervical?',opts:['Axis','Atlas','Clivus','Sacro'],ans:'Atlas'},
+    {q:'Cuantas vertebras tiene la region TORACICA?',opts:['7','10','12','5'],ans:'12'},
+    {q:'Cuantos huesos tiene el canal auditivo?',opts:['2','3','4','5'],ans:'3'},
+    {q:'Como se llama la segunda vertebra cervical?',opts:['Atlas','Axis','Sacro','Coccix'],ans:'Axis'},
+    {q:'Cual NO es hueso del craneo superior?',opts:['Frontal','Vomer','Parietal','Occipital'],ans:'Vomer'}
+  ];
+  var cur=0,score=0,tl=60,timer;
+  function render(){
+    if(cur>=qs.length){
+      clearInterval(timer);
+      var e=score*10+(tl>0?10:0);
+      openModal('<div class="result"><div class="res-score">'+score+'/'+qs.length+'</div><div class="res-label">respuestas correctas</div><div class="res-xp">+'+e+' XP</div><div class="res-btns"><button class="btn-s" onclick="closeModal()">Cerrar</button><button class="btn-p" onclick="gameHuesos()">Repetir</button></div></div>');
+      addXP(e,'Completado!',score+'/'+qs.length);
+      return;
+    }
+    var q=qs[cur];
+    var sh=q.opts.slice().sort(function(){return Math.random()-.5;});
+    var btns=sh.map(function(o){
+      return '<button class="bone-btn" data-opt="'+o+'" data-ans="'+q.ans+'" onclick="window.ansH(this)">'+o+'</button>';
+    }).join('');
+    openModal(
+      '<div style="font-size:21px;font-weight:700;margin-bottom:5px">Huesos - Contrarreloj</div>'+
+      '<div style="display:flex;justify-content:space-between;font-size:13px;color:#6b7294;margin-bottom:24px">'+
+        '<span>Pregunta '+(cur+1)+'/'+qs.length+'</span>'+
+        '<span style="color:#f59e0b" id="tmr">'+tl+'s</span>'+
+      '</div>'+
+      '<div class="bone-q">'+q.q+'</div>'+
+      '<div class="bone-opts">'+btns+'</div>'+
+      '<div style="height:4px;background:#252a3a;border-radius:99px;overflow:hidden">'+
+        '<div id="tbar" style="height:100%;background:#f59e0b;border-radius:99px;width:'+(tl/60*100)+'%;transition:width 1s linear"></div>'+
+      '</div>'
+    );
+  }
+  render();
+  timer=setInterval(function(){
+    tl--;
+    var td=document.getElementById('tmr');
+    var tb=document.getElementById('tbar');
+    if(td)td.textContent=tl+'s';
+    if(tb)tb.style.width=(tl/60*100)+'%';
+    if(tl<=0){clearInterval(timer);cur=qs.length;render();}
+  },1000);
+  window.ansH=function(el){
+    var ans=el.dataset.opt, cor=el.dataset.ans;
+    document.querySelectorAll('.bone-btn').forEach(function(b){b.disabled=true;});
+    if(ans===cor){el.classList.add('correct');score++;}
+    else{
+      el.classList.add('wrong');
+      document.querySelectorAll('.bone-btn').forEach(function(b){if(b.dataset.opt===cor)b.classList.add('correct');});
+    }
+    cur++;setTimeout(render,700);
+  };
+}
+
+function gamePasapalabra(){
+  var words=[
+    {l:'A',c:'Ciencia que estudia la estructura y forma de los seres vivos',a:'ANATOMIA'},
+    {l:'C',c:'Gestora sanitaria de Cataluna que paga los servicios',a:'CATSALUT'},
+    {l:'F',c:'Ciencia que estudia la funcion y los procesos vitales',a:'FISIOLOGIA'},
+    {l:'I',c:'Organismo que gestiona pensiones y bajas en Espana',a:'INSS'},
+    {l:'M',c:'Organizacion que agrupa trabajadores para cubrir riesgos laborales',a:'MUTUA'},
+    {l:'N',c:'Celula fundamental del sistema nervioso',a:'NEURONA'},
+    {l:'P',c:'Glandula que segrega lipasa, proteasa y amilasa',a:'PANCREAS'},
+    {l:'S',c:'Red de centros publicos y concertados gestionados por CatSalut',a:'SISCAT'},
+    {l:'V',c:'Par craneal numero X, el mas largo de todos',a:'VAGO'},
+    {l:'B',c:'Musculo que empuja la comida desde las mejillas hacia los dientes',a:'BUCCINADOR'},
+    {l:'E',c:'Proceso de enviar informacion desde el cerebro a los musculos',a:'EFERENCIA'},
+    {l:'T',c:'Primera vertebra cervical, nexo entre craneo y columna',a:'ATLAS'}
+  ];
+  var cur=0,ok=0,ko=0,sk=0,results=new Array(words.length).fill(null),pass=0;
+  function pos(i,t){
+    var a=(i/t)*2*Math.PI-Math.PI/2,r=82,cx=105,cy=105;
+    return {l:(cx+r*Math.cos(a)-14)+'px',t:(cy+r*Math.sin(a)-14)+'px'};
+  }
+  function circle(){
+    return words.map(function(w,i){
+      var p=pos(i,words.length);
+      var cls=results[i]===true?'ok':results[i]===false?'ko':i===cur?'cur':results[i]==='sk'?'sk':'';
+      return '<div class="pp-lt '+cls+'" style="left:'+p.l+';top:'+p.t+'">'+w.l+'</div>';
+    }).join('');
+  }
+  function render(){
+    if(pass>=words.length+1){
+      var e=ok*15;
+      openModal('<div class="result"><div class="res-score">'+ok+'</div><div class="res-label">letras de '+words.length+'</div><div class="res-xp">+'+e+' XP</div><div class="res-btns"><button class="btn-s" onclick="closeModal()">Cerrar</button><button class="btn-p" onclick="gamePasapalabra()">Repetir</button></div></div>');
+      addXP(e,'Pasapalabra!',ok+' letras');
+      return;
+    }
+    openModal(
+      '<div style="font-size:21px;font-weight:700;margin-bottom:5px">Pasapalabra</div>'+
+      '<div style="display:flex;justify-content:space-between;margin-bottom:20px">'+
+        '<span style="color:#4ade80">OK: '+ok+'</span>'+
+        '<span style="color:#f87171">Fail: '+ko+'</span>'+
+        '<span style="color:#f59e0b">Skip: '+sk+'</span>'+
+      '</div>'+
+      '<div style="display:flex;justify-content:center;margin-bottom:20px">'+
+        '<div class="pp-circle">'+circle()+'</div>'+
+      '</div>'+
+      '<div class="pp-clue"><span style="font-weight:700;color:#4d8fff;margin-right:8px">'+words[cur].l+'</span>'+words[cur].c+'</div>'+
+      '<div class="pp-row">'+
+        '<input class="pp-inp" id="pp-inp" placeholder="Tu respuesta...">'+
+        '<button style="padding:9px 14px;background:#4d8fff;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600" onclick="window._ppOk()">OK</button>'+
+        '<button style="padding:9px 14px;background:#1a1e2b;color:#f59e0b;border:1px solid #252a3a;border-radius:8px;cursor:pointer;font-weight:600" onclick="window._ppSk()">Pasa</button>'+
+      '</div>'
+    );
+    setTimeout(function(){
+      var i=document.getElementById('pp-inp');
+      if(i){
+        i.focus();
+        i.onkeydown=function(e){if(e.key==='Enter')window._ppOk();};
+      }
+    },50);
+  }
+  window._ppOk=function(){
+    var inp=document.getElementById('pp-inp');
+    if(!inp)return;
+    var val=inp.value.trim().toUpperCase();
+    if(val===words[cur].a||(words[cur].a.indexOf(val)===0&&val.length>=3)){
+      results[cur]=true;ok++;addXP(15,'Correcto!',words[cur].l+' OK');
+    } else {results[cur]=false;ko++;}
+    nextWord();
+  };
+  window._ppSk=function(){if(results[cur]===null)results[cur]='sk';sk++;pass++;nextWord();};
+  function nextWord(){
+    cur=(cur+1)%words.length;
+    var loops=0;
+    while(results[cur]!==null&&results[cur]!=='sk'&&loops<words.length){
+      cur=(cur+1)%words.length;loops++;
+    }
+    if(loops>=words.length)pass=words.length+1;
+    render();
+  }
+  render();
+}
+
+function gamePlanos(){
+  var qs=[
+    {q:'Separas los brazos del cuerpo como si volaras',a:'Frontal',opts:['Sagital','Frontal','Transversal']},
+    {q:'Doblas la rodilla para subir un escalon',a:'Sagital',opts:['Sagital','Frontal','Transversal']},
+    {q:'Giras la cabeza para mirar por encima del hombro',a:'Transversal',opts:['Sagital','Frontal','Transversal']},
+    {q:'Inclinas el cuello hacia el hombro',a:'Frontal',opts:['Sagital','Frontal','Transversal']},
+    {q:'Estiras el brazo hacia arriba (extension)',a:'Sagital',opts:['Sagital','Frontal','Transversal']},
+    {q:'Giras el hombro sobre su propio eje',a:'Transversal',opts:['Sagital','Frontal','Transversal']}
+  ];
+  var cur=0,score=0;
+  function render(){
+    if(cur>=qs.length){
+      var e=score*12;
+      openModal('<div class="result"><div class="res-score">'+score+'/'+qs.length+'</div><div class="res-label">correctas</div><div class="res-xp">+'+e+' XP</div><div class="res-btns"><button class="btn-s" onclick="closeModal()">Cerrar</button><button class="btn-p" onclick="gamePlanos()">Repetir</button></div></div>');
+      addXP(e,'Planos completado',score+'/'+qs.length);
+      return;
+    }
+    var q=qs[cur];
+    var btns=q.opts.map(function(o){
+      return '<button class="bone-btn" data-opt="'+o+'" data-ans="'+q.a+'" onclick="window._ansP(this)">'+o+'</button>';
+    }).join('');
+    openModal(
+      '<div style="font-size:21px;font-weight:700;margin-bottom:5px">Planos anatomicos</div>'+
+      '<div style="font-size:13px;color:#6b7294;margin-bottom:24px">Pregunta '+(cur+1)+' de '+qs.length+'</div>'+
+      '<div class="bone-q">'+q.q+'</div>'+
+      '<div class="bone-opts" style="grid-template-columns:1fr 1fr 1fr">'+btns+'</div>'
+    );
+  }
+  window._ansP=function(el){
+    var a=el.dataset.opt, c=el.dataset.ans;
+    document.querySelectorAll('.bone-btn').forEach(function(b){b.disabled=true;});
+    if(a===c){el.classList.add('correct');score++;}
+    else{el.classList.add('wrong');document.querySelectorAll('.bone-btn').forEach(function(b){if(b.dataset.opt===c)b.classList.add('correct');});}
+    cur++;setTimeout(render,700);
+  };
+  render();
+}
+
+function gameNervioso(){
+  var qs=[
+    {q:'Que parte del encefalo mantiene la respiracion y los latidos?',a:'Bulbo raquideo',opts:['Cerebelo','Mesencefalo','Bulbo raquideo','Talamo']},
+    {q:'Que area cerebral PRODUCE el lenguaje?',a:'Area de Broca',opts:['Area de Wernicke','Area de Broca','Corteza premotora','Hipocampo']},
+    {q:'Que area COMPRENDE el lenguaje escrito y hablado?',a:'Area de Wernicke',opts:['Area de Broca','Area de Wernicke','Lobulo occipital','Amigdala']},
+    {q:'Donde se almacena la memoria a CORTO PLAZO?',a:'Hipocampo',opts:['Amigdala','Corteza prefrontal','Hipocampo','Cerebelo']},
+    {q:'Que lobulo construye la imagen visual?',a:'Occipital',opts:['Frontal','Parietal','Temporal','Occipital']},
+    {q:'Cuantos pares craneales hay?',a:'12',opts:['8','10','12','14']},
+    {q:'Que par craneal es el Nervio Vago?',a:'X',opts:['VII','IX','X','XI']},
+    {q:'Que estructura activa la fase REM del sueno?',a:'Protuberancia',opts:['Bulbo raquideo','Protuberancia','Mesencefalo','Hipotalamo']},
+    {q:'Que sistema se activa ante el peligro?',a:'Simpatico',opts:['Parasimpatico','Simpatico','Somatico','Autonomo']},
+    {q:'Que estructura tiene 69.000 millones de neuronas?',a:'Cerebelo',opts:['Corteza cerebral','Tronco encefalico','Cerebelo','Hipocampo']}
+  ];
+  var cur=0,score=0;
+  function render(){
+    if(cur>=qs.length){
+      var e=score*10+(score===qs.length?50:0);
+      openModal('<div class="result"><div class="res-score">'+score+'/'+qs.length+'</div><div class="res-label">correctas'+(score===qs.length?' - Perfecto!':'')+'</div><div class="res-xp">+'+e+' XP</div><div class="res-btns"><button class="btn-s" onclick="closeModal()">Cerrar</button><button class="btn-p" onclick="gameNervioso()">Repetir</button></div></div>');
+      addXP(e,score===qs.length?'Perfecto!':'Quiz completado',score+'/'+qs.length);
+      return;
+    }
+    var q=qs[cur];
+    var sh=q.opts.slice().sort(function(){return Math.random()-.5;});
+    var btns=sh.map(function(o){
+      return '<button class="bone-btn" data-opt="'+o+'" data-ans="'+q.a+'" onclick="window._ansN(this)">'+o+'</button>';
+    }).join('');
+    openModal(
+      '<div style="font-size:21px;font-weight:700;margin-bottom:5px">Sistema Nervioso</div>'+
+      '<div style="font-size:13px;color:#6b7294;margin-bottom:24px">Pregunta '+(cur+1)+' de '+qs.length+' - '+score+' correctas</div>'+
+      '<div class="bone-q">'+q.q+'</div>'+
+      '<div class="bone-opts">'+btns+'</div>'
+    );
+  }
+  window._ansN=function(el){
+    var a=el.dataset.opt, c=el.dataset.ans;
+    document.querySelectorAll('.bone-btn').forEach(function(b){b.disabled=true;});
+    if(a===c){el.classList.add('correct');score++;}
+    else{el.classList.add('wrong');document.querySelectorAll('.bone-btn').forEach(function(b){if(b.dataset.opt===c)b.classList.add('correct');});}
+    cur++;setTimeout(render,700);
+  };
+  render();
+}
+
+
+
+// ── CONECTA (click pairs) ──────────────────────────
+var _cState = {};
+
+function cClick(el, game) {
+  if (el.classList.contains('ok')) return;
+  var state = _cState[game] || { sel: null, count: 0, total: 0 };
+  _cState[game] = state;
+
+  // contar total de pares
+  if (!state.total) {
+    state.total = document.querySelectorAll('[data-id^="'+game+'l"]').length;
+  }
+
+  if (!state.sel) {
+    // primera selección
+    el.classList.add('sel');
+    state.sel = el;
+  } else {
+    // segunda selección
+    var first = state.sel;
+    var second = el;
+    first.classList.remove('sel');
+
+    if (first.dataset.pair === second.dataset.pair && first !== second) {
+      // correcto
+      first.classList.add('ok');
+      second.classList.add('ok');
+      state.count++;
+      addXP(10, '¡Correcto!', game + ' ' + state.count + '/' + state.total);
+      if (state.count === state.total) {
+        var res = document.getElementById(game + '-result');
+        if (res) {
+          res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Completado! +20 XP extra</span>';
+        }
+        addXP(20, '¡Completado!', 'Conecta');
+      }
+    } else {
+      // incorrecto
+      first.classList.add('ko');
+      second.classList.add('ko');
+      setTimeout(function() {
+        first.classList.remove('ko');
+        second.classList.remove('ko');
+      }, 600);
+    }
+    state.sel = null;
+  }
+  _cState[game] = state;
+}
+
+// ── DRAG & DROP (derechos y deberes) ──────────────
+var _ddDragging = null;
+var _ddTouch = { el: null, clone: null };
+
+function ddDragStart(e) {
+  _ddDragging = e.target;
+  e.target.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function ddDragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+
+function ddDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function ddDrop(e, cat) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (_ddDragging && !_ddDragging.classList.contains('correct')) {
+    e.currentTarget.appendChild(_ddDragging);
+    _ddDragging.classList.remove('dragging');
+    _ddDragging = null;
+  }
+}
+
+// Touch support para móvil
+function ddTouchStart(e) {
+  var el = e.target.closest('.clasifica-chip');
+  if (!el || el.classList.contains('correct')) return;
+  _ddTouch.el = el;
+  var clone = el.cloneNode(true);
+  clone.style.position = 'fixed';
+  clone.style.opacity = '0.8';
+  clone.style.pointerEvents = 'none';
+  clone.style.zIndex = '9999';
+  clone.style.width = el.offsetWidth + 'px';
+  document.body.appendChild(clone);
+  _ddTouch.clone = clone;
+  el.classList.add('dragging');
+}
+
+function ddTouchMove(e) {
+  e.preventDefault();
+  if (!_ddTouch.clone) return;
+  var touch = e.touches[0];
+  _ddTouch.clone.style.left = (touch.clientX - 40) + 'px';
+  _ddTouch.clone.style.top = (touch.clientY - 20) + 'px';
+}
+
+function ddTouchEnd(e) {
+  if (!_ddTouch.el || !_ddTouch.clone) return;
+  var touch = e.changedTouches[0];
+  var el = document.elementFromPoint(touch.clientX, touch.clientY);
+  var zone = el ? el.closest('.clasifica-zone') : null;
+  
+  _ddTouch.clone.remove();
+  _ddTouch.el.classList.remove('dragging');
+  
+  if (zone) {
+    zone.appendChild(_ddTouch.el);
+  }
+  
+  _ddTouch = { el: null, clone: null };
+}
+
+function ddCheck() {
+  var chips = document.querySelectorAll('.clasifica-chip');
+  var correct = 0;
+  var total = chips.length;
+  
+  chips.forEach(function(chip) {
+    var zone = chip.closest('.clasifica-zone');
+    if (!zone) return; // en el pool, no comprobamos
+    var expected = chip.dataset.cat;
+    var placed = zone.id.replace('zone-', '');
+    if (placed === expected) {
+      chip.classList.add('correct');
+      chip.draggable = false;
+      correct++;
+    } else {
+      chip.classList.add('wrong-place');
+      setTimeout(function() { chip.classList.remove('wrong-place'); }, 600);
+    }
+  });
+  
+  var inPool = document.querySelectorAll('#dd-pool .clasifica-chip').length;
+  var res = document.getElementById('dd-result');
+  
+  if (correct === total && inPool === 0) {
+    res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Perfecto! +80 XP</span>';
+    addXP(80, '¡Perfecto!', 'Derechos y deberes');
+  } else {
+    var msg = correct + '/' + total + ' correctos. ';
+    if (inPool > 0) msg += inPool + ' sin clasificar. ';
+    msg += 'Sigue intentándolo.';
+    res.innerHTML = '<span style="color:var(--amber)">' + msg + '</span>';
+    if (correct > 0) addXP(correct * 5, correct + ' correctos', 'Sigue clasificando');
+  }
+}
+
+// ── DATOS DE TEMAS Y PUNTOS ───────────────────
+// ── ESTRUCTURA DE CONTENIDO ───────────────────
+// Cada sistema/bloque tiene: titulo, firestoreCol (colección en Firestore), puntos[]
+// Los puntos con firestoreId cargan desde Firestore; los sin él muestran placeholder
+
+var PLACEHOLDER = '<div style="color:#3d4460;text-align:center;padding:60px 20px"><div style="font-size:36px;margin-bottom:12px">🏗️</div><div style="font-size:15px">Apuntes pendientes</div></div>';
+
+window._TEMAS = {
+  judith: {
+    m1: {
+      titulo: 'Sistema de Salud',
+      tipo: 'modulo-simple',
+      puntos: [
+        { titulo: 'Contenido pendiente', html: PLACEHOLDER }
+      ]
+    },
+    m2: {
+      titulo: 'El Cuerpo Humano y su Anatomía',
+      tipo: 'modulo-bloques',
+      bloques: {
+        'conceptos-basicos': {
+          titulo: 'Conceptos Básicos',
+          emoji: '📖',
+          sistemas: {
+            'anatomia-fisiologia': {
+              titulo: 'Anatomía y Fisiología',
+              firestoreCol: 'judith-t2',
+              puntos: [
+                { titulo: 'Anatomía y Fisiología', firestoreId: '01-anatomia-y-fisiologia' }
+              ]
+            },
+            'tejidos': {
+              titulo: 'Tejidos del Cuerpo Humano',
+              firestoreCol: 'judith-t2',
+              puntos: [
+                { titulo: 'Tejidos del Cuerpo Humano', firestoreId: '02-los-tejidos-del-cuerpo-humano' }
+              ]
+            },
+            'planos': {
+              titulo: 'Planos Anatómicos',
+              firestoreCol: 'judith-t2',
+              puntos: [
+                { titulo: 'Planos Anatómicos y Movimientos', firestoreId: '08-planos-anatomicos-y-movimientos' }
+              ]
+            },
+            'organo-sistema': {
+              titulo: 'Órgano, Sistema y Aparato',
+              firestoreCol: 'judith-t2',
+              puntos: [
+                { titulo: 'Órgano, Sistema y Aparato', firestoreId: '03-organo-sistema-y-aparato' }
+              ]
+            }
+          }
+        },
+        'huesos': {
+          titulo: 'Los Huesos del Cuerpo Humano',
+          emoji: '🦴',
+          sistemas: {
+            'craneo': {
+              titulo: 'Los Huesos del Cráneo',
+              firestoreCol: 'judith-t2',
+              puntos: [
+                { titulo: 'Los Huesos del Cráneo', firestoreId: '05-los-huesos-del-craneo' }
+              ]
+            },
+            'columna': {
+              titulo: 'La Columna Vertebral',
+              firestoreCol: 'judith-t2',
+              puntos: [
+                { titulo: 'La Columna Vertebral', firestoreId: '07-la-columna-vertebral' }
+              ]
+            },
+            'caja-toracica': {
+              titulo: 'La Caja Torácica',
+              firestoreCol: 'judith-t2',
+              puntos: [
+                { titulo: 'La Caja Torácica', firestoreId: '06-la-caja-toracica' }
+              ]
+            }
+          }
+        },
+        'sistemas': {
+          titulo: 'Sistemas',
+          emoji: '⚙️',
+          sistemas: {
+            'nervioso': {
+              titulo: 'Sistema Nervioso',
+              firestoreCol: 'judith-m2-sistema-nervioso',
+              puntos: [
+                { titulo: 'Organización General', firestoreId: '01-organizacion-general' },
+                { titulo: 'La Neurona', firestoreId: '02-la-neurona' },
+                { titulo: 'El Encéfalo', firestoreId: '03-el-encefalo' },
+                { titulo: 'La Médula Espinal', firestoreId: '04-la-medula-espinal' },
+                { titulo: 'Meninges y LCR', firestoreId: '05-meninges-y-lcr' },
+                { titulo: 'El Sistema Nervioso Periférico', firestoreId: '06-sistema-nervioso-periferico' }
+              ]
+            },
+            'ocular': {
+              titulo: 'Sistema Ocular',
+              firestoreCol: 'judith-m2-sistema-ocular',
+              puntos: [
+                { titulo: 'Función General', firestoreId: '01-funcion-general' },
+                { titulo: 'Estructuras Externas', firestoreId: '02-estructuras-externas' },
+                { titulo: 'Aparato Lagrimal', firestoreId: '03-aparato-lagrimal' },
+                { titulo: 'Estructuras Medias', firestoreId: '04-estructuras-medias' },
+                { titulo: 'Estructuras Internas', firestoreId: '05-estructuras-internas' },
+                { titulo: 'El Proceso de la Visión', firestoreId: '06-el-proceso-de-la-vision' }
+              ]
+            },
+            'respiratorio': {
+              titulo: 'Sistema Respiratorio',
+              firestoreCol: 'judith-m2-sistema-respiratorio',
+              puntos: [
+                { titulo: 'Función General y Estructura', firestoreId: '01-funcion-general-y-estructura' },
+                { titulo: 'El Área Superior', firestoreId: '02-area-superior' },
+                { titulo: 'El Área Inferior', firestoreId: '03-area-inferior' },
+                { titulo: 'La Mecánica Respiratoria', firestoreId: '04-mecanica-respiratoria' }
+              ]
+            },
+            'endocrino': {
+              titulo: 'Sistema Endocrino',
+              firestoreCol: 'judith-m2-sistema-endocrino',
+              puntos: [
+                { titulo: '¿Qué es?', firestoreId: '01-que-es' },
+                { titulo: 'Hormonas y Glándulas', firestoreId: '02-hormonas-y-glandulas' },
+                { titulo: 'Las Nueve Glándulas', firestoreId: '03-las-nueve-glandulas' },
+                { titulo: 'La Jerarquía del Sistema', firestoreId: '04-la-jerarquia-del-sistema' }
+              ]
+            },
+            'circulatorio': {
+              titulo: 'Sistema Circulatorio',
+              firestoreCol: null,
+              puntos: [
+                { titulo: 'Contenido pendiente', html: PLACEHOLDER },
+                { titulo: 'Contenido pendiente', html: PLACEHOLDER },
+                { titulo: 'Contenido pendiente', html: PLACEHOLDER }
+              ]
+            },
+            'propioceptivo': {
+              titulo: 'Sistema Propioceptivo',
+              firestoreCol: 'judith-m2-sistema-propioceptivo',
+              puntos: [
+                { titulo: 'La Somatosensación', firestoreId: '01-la-somatosensacion' },
+                { titulo: 'La Propiocepción', firestoreId: '02-la-propiocepcion' },
+                { titulo: 'Los Cinco Receptores', firestoreId: '03-los-cinco-receptores' },
+                { titulo: 'Cómo se Procesa la Información', firestoreId: '04-como-se-procesa-la-informacion' },
+                { titulo: 'División Clínica', firestoreId: '05-division-clinica' },
+                { titulo: 'La Fusión del Ojo y el Oído', firestoreId: '06-la-fusion-del-ojo-y-el-oido' }
+              ]
+            },
+            'oseo': {
+              titulo: 'Sistema Óseo',
+              firestoreCol: 'judith-t2',
+              puntos: [
+                { titulo: 'Funciones del Sistema Óseo', firestoreId: '04-el-sistema-oseo' }
+              ]
+            }
+          }
+        },
+        'aparatos': {
+          titulo: 'Aparatos',
+          emoji: '🫀',
+          sistemas: {
+            'digestivo': {
+              titulo: 'Aparato Digestivo',
+              firestoreCol: 'judith-t2',
+              puntos: [
+                { titulo: 'El Aparato Digestivo', firestoreId: '09-el-aparato-digestivo' }
+              ]
+            },
+            'reproductor': {
+              titulo: 'Aparato Reproductor',
+              firestoreCol: null,
+              puntos: [
+                { titulo: 'Contenido pendiente', html: PLACEHOLDER }
+              ]
+            },
+            'excretor': {
+              titulo: 'Aparato Excretor',
+              firestoreCol: null,
+              puntos: [
+                { titulo: 'Contenido pendiente', html: PLACEHOLDER }
+              ]
+            }
+          }
+        }
+      }
+    },
+    m3: {
+      titulo: 'Patologías más Frecuentes',
+      tipo: 'modulo-simple',
+      puntos: [{ titulo: 'Contenido pendiente', html: PLACEHOLDER }]
+    },
+    m4: {
+      titulo: 'Pruebas Médicas',
+      tipo: 'modulo-simple',
+      puntos: [{ titulo: 'Contenido pendiente', html: PLACEHOLDER }]
+    }
+  },
+  isabel: {
+    m1: { titulo: 'Habilidades Sociales', tipo: 'modulo-simple', puntos: [{ titulo: 'Contenido pendiente', html: PLACEHOLDER }] },
+    m2: { titulo: 'Atención al Usuario', tipo: 'modulo-simple', puntos: [{ titulo: 'Contenido pendiente', html: PLACEHOLDER }] },
+    m3: { titulo: 'Comunicación Oral y Escrita', tipo: 'modulo-simple', puntos: [{ titulo: 'Contenido pendiente', html: PLACEHOLDER }] }
+  }
+};
+
+// ── NAVEGACIÓN DE MÓDULOS ─────────────────────
+
+// Ir a lobby de módulo (si es modulo-bloques, muestra los 4 bloques)
+function navModulo(prof, moduloId) {
+  window._currentProf = prof;
+  window._currentModulo = moduloId;
+  var modulo = window._TEMAS[prof][moduloId];
+  if(!modulo) return;
+  if(modulo.tipo === 'modulo-bloques') {
+    renderLobbyBloques(prof, moduloId);
+    nav('modulo-bloques');
+  } else {
+    // modulo simple — ir directo al punto
+    window._currentSistema = null;
+    window._currentBloque = null;
+    renderLobbyPuntos(prof, moduloId, null, null);
+    nav('lobby-puntos');
+  }
+}
+
+// Ir a lobby de bloque (ej: Sistemas, Huesos)
+function navBloque(prof, moduloId, bloqueId) {
+  window._currentBloque = bloqueId;
+  renderLobbySistemas(prof, moduloId, bloqueId);
+  nav('lobby-sistemas');
+}
+
+// Ir a lobby de puntos de un sistema
+function navSistema(prof, moduloId, bloqueId, sistemaId) {
+  window._currentSistema = sistemaId;
+  var modulo = window._TEMAS[prof][moduloId];
+  var sistema = modulo.bloques[bloqueId].sistemas[sistemaId];
+  renderLobbyPuntos(prof, moduloId, bloqueId, sistemaId);
+  nav('lobby-puntos');
+}
+
+// Ir a un punto concreto
+function navPunto(prof, moduloId, bloqueId, sistemaId, puntoIdx) {
+  window._currentProf = prof;
+  window._currentModulo = moduloId;
+  window._currentBloque = bloqueId;
+  window._currentSistema = sistemaId;
+  window._currentPunto = puntoIdx;
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
+  var tabApuntes = document.getElementById('tab-apuntes');
+  if(tabApuntes) tabApuntes.classList.add('active');
+  var page = document.getElementById('page-punto');
+  if(page) page.classList.add('active');
+  window.scrollTo(0,0);
+  renderPunto(prof, moduloId, bloqueId, sistemaId, puntoIdx);
+}
+
+// ── RENDERERS DE LOBBY ────────────────────────
+
+function renderLobbyBloques(prof, moduloId) {
+  var modulo = window._TEMAS[prof][moduloId];
+  var el = document.getElementById('lobby-bloques-lista');
+  if(!el || !modulo.bloques) return;
+
+  var title = document.getElementById('lobby-bloques-titulo');
+  if(title) title.textContent = modulo.titulo;
+  var back = document.getElementById('lobby-bloques-back');
+  if(back) back.onclick = function(){ navProf(prof); };
+
+  var bloqueIds = Object.keys(modulo.bloques);
+  var html = '';
+  bloqueIds.forEach(function(bloqueId) {
+    var bloque = modulo.bloques[bloqueId];
+    var nsistemas = Object.keys(bloque.sistemas).length;
+    html += '<div onclick="navBloque(\''+prof+'\',\''+moduloId+'\',\''+bloqueId+'\')" style="background:#13161f;border:1px solid #252a3a;border-radius:10px;padding:20px 24px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">' +
+      '<div style="display:flex;align-items:center;gap:14px">' +
+        '<div style="font-size:24px">'+bloque.emoji+'</div>' +
+        '<div><div style="font-size:16px;font-weight:700">'+bloque.titulo+'</div>' +
+        '<div style="font-size:12px;color:#6b7294;margin-top:2px">'+nsistemas+' '+(nsistemas===1?'sección':'secciones')+'</div></div>' +
+      '</div><div style="font-size:18px;color:#3d4460">›</div></div>';
+  });
+  el.innerHTML = html;
+
+  // Flechas — navegan entre MÓDULOS de Judith (m1, m2, m3, m4)
+  var moduloIds = Object.keys(window._TEMAS[prof]);
+  var modIdx = moduloIds.indexOf(moduloId);
+  var prev = document.getElementById('bloque-prev');
+  var next = document.getElementById('bloque-next');
+  var num = document.getElementById('bloque-num');
+  if(num) num.textContent = (modIdx+1) + ' / ' + moduloIds.length;
+
+  if(prev) {
+    if(modIdx > 0) {
+      prev.style.display = 'flex';
+      prev.onclick = function(){ navModulo(prof, moduloIds[modIdx-1]); };
+    } else { prev.style.display = 'none'; }
+  }
+  if(next) {
+    if(modIdx < moduloIds.length-1) {
+      next.style.display = 'flex';
+      next.style.background = '#2dd4bf';
+      next.style.color = '#0c0e14';
+      next.textContent = 'Siguiente →';
+      next.onclick = function(){ navModulo(prof, moduloIds[modIdx+1]); };
+    } else {
+      next.style.display = 'flex';
+      next.style.background = '#f97316';
+      next.style.color = '#fff';
+      next.textContent = '✕ SALIR';
+      next.onclick = function(){ navProf(prof); };
+    }
+  }
+}
+
+function renderLobbySistemas(prof, moduloId, bloqueId) {
+  var bloque = window._TEMAS[prof][moduloId].bloques[bloqueId];
+  var el = document.getElementById('lobby-sistemas-lista');
+  if(!el) return;
+
+  var title = document.getElementById('lobby-sistemas-titulo');
+  if(title) title.textContent = bloque.titulo;
+  var back = document.getElementById('lobby-sistemas-back');
+  if(back) back.onclick = function(){ navModulo(prof, moduloId); };
+
+  var sistemaIds = Object.keys(bloque.sistemas);
+  var html = '';
+  sistemaIds.forEach(function(sistemaId) {
+    var sistema = bloque.sistemas[sistemaId];
+    var np = sistema.puntos.length;
+    var pendiente = !sistema.firestoreCol && sistema.puntos.every(function(p){ return !p.firestoreId; });
+    html += '<div onclick="navSistema(\''+prof+'\',\''+moduloId+'\',\''+bloqueId+'\',\''+sistemaId+'\')" style="background:#13161f;border:1px solid #252a3a;border-radius:10px;padding:18px 22px;cursor:pointer;display:flex;align-items:center;justify-content:space-between'+(pendiente?';opacity:.5':'')+';">' +
+      '<div><div style="font-size:15px;font-weight:700">'+sistema.titulo+'</div>' +
+      '<div style="font-size:12px;color:#6b7294;margin-top:2px">'+(pendiente?'Pendiente':np+' '+(np===1?'punto':'puntos'))+'</div></div>' +
+      '<div style="font-size:18px;color:#3d4460">›</div></div>';
+  });
+  el.innerHTML = html;
+
+  // Flechas — navegan entre BLOQUES (Conceptos, Huesos, Sistemas, Aparatos)
+  var bloqueIds = Object.keys(window._TEMAS[prof][moduloId].bloques);
+  var bloqueIdx = bloqueIds.indexOf(bloqueId);
+  var prev = document.getElementById('sistema-prev');
+  var next = document.getElementById('sistema-next');
+  var num = document.getElementById('sistema-num');
+  if(num) num.textContent = (bloqueIdx+1) + ' / ' + bloqueIds.length;
+
+  if(prev) {
+    if(bloqueIdx > 0) {
+      prev.style.display = 'flex';
+      prev.onclick = function(){ navBloque(prof, moduloId, bloqueIds[bloqueIdx-1]); };
+    } else { prev.style.display = 'none'; }
+  }
+  if(next) {
+    if(bloqueIdx < bloqueIds.length-1) {
+      next.style.display = 'flex';
+      next.style.background = '#2dd4bf';
+      next.style.color = '#0c0e14';
+      next.textContent = 'Siguiente →';
+      next.onclick = function(){ navBloque(prof, moduloId, bloqueIds[bloqueIdx+1]); };
+    } else {
+      next.style.display = 'flex';
+      next.style.background = '#f97316';
+      next.style.color = '#fff';
+      next.textContent = '✕ SALIR';
+      next.onclick = function(){ navModulo(prof, moduloId); };
+    }
+  }
+}
+
+function renderLobbyPuntos(prof, moduloId, bloqueId, sistemaId) {
+  var puntos;
+  var tituloSistema = '';
+  var modulo = window._TEMAS[prof][moduloId];
+  if(modulo.tipo === 'modulo-bloques' && bloqueId && sistemaId) {
+    var sistema = modulo.bloques[bloqueId].sistemas[sistemaId];
+    puntos = sistema.puntos;
+    tituloSistema = sistema.titulo;
+  } else {
+    puntos = modulo.puntos;
+    tituloSistema = modulo.titulo;
+  }
+  var el = document.getElementById('lobby-puntos-lista');
+  if(!el) return;
+  var title = document.getElementById('lobby-puntos-titulo');
+  if(title) title.textContent = tituloSistema;
+  var back = document.getElementById('lobby-puntos-back');
+  if(back) back.onclick = function(){
+    if(bloqueId && sistemaId) navBloque(prof, moduloId, bloqueId);
+    else navProf(prof);
+  };
+  var html = '';
+  puntos.forEach(function(punto, i) {
+    html += '<div onclick="navPunto(\''+prof+'\',\''+moduloId+'\',\''+bloqueId+'\',\''+sistemaId+'\','+i+')" style="background:#13161f;border:1px solid #252a3a;border-radius:10px;padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">' +
+      '<div style="display:flex;align-items:center;gap:14px">' +
+        '<div style="width:28px;height:28px;border-radius:50%;background:#1a1e2b;border:1px solid #252a3a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#6b7294;flex-shrink:0">'+(i+1)+'</div>' +
+        '<div style="font-size:15px;font-weight:600">'+punto.titulo+'</div>' +
+      '</div>' +
+      '<div style="font-size:16px;color:#3d4460">›</div>' +
+    '</div>';
+  });
+  el.innerHTML = html;
+
+  // Flechas de navegación en lobby de puntos
+  // Si es módulo simple → navega entre sistemas (módulos de la prof)
+  // Si está dentro de un sistema → navega entre sistemas del bloque
+  var lpPrev = document.getElementById('lobby-puntos-prev');
+  var lpNext = document.getElementById('lobby-puntos-next');
+  var lpNum = document.getElementById('lobby-puntos-num');
+
+  if(!bloqueId || !sistemaId) {
+    // Módulo simple — flechas entre módulos de la profesora
+    var moduloIds = Object.keys(window._TEMAS[prof]);
+    var modIdx = moduloIds.indexOf(moduloId);
+    if(lpNum) lpNum.textContent = (modIdx+1) + ' / ' + moduloIds.length;
+    if(lpPrev) {
+      if(modIdx > 0) {
+        lpPrev.style.display = 'flex';
+        lpPrev.onclick = function(){ navModulo(prof, moduloIds[modIdx-1]); };
+      } else { lpPrev.style.display = 'none'; }
+    }
+    if(lpNext) {
+      if(modIdx < moduloIds.length-1) {
+        lpNext.style.display = 'flex';
+        lpNext.style.background = '#2dd4bf';
+        lpNext.style.color = '#0c0e14';
+        lpNext.textContent = 'Siguiente →';
+        lpNext.onclick = function(){ navModulo(prof, moduloIds[modIdx+1]); };
+      } else {
+        lpNext.style.display = 'flex';
+        lpNext.style.background = '#f97316';
+        lpNext.style.color = '#fff';
+        lpNext.textContent = '✕ SALIR';
+        lpNext.onclick = function(){ navProf(prof); };
+      }
+    }
+  } else {
+    // Dentro de un sistema — flechas entre sistemas del bloque
+    var sistemaIds = Object.keys(window._TEMAS[prof][moduloId].bloques[bloqueId].sistemas);
+    var sIdx = sistemaIds.indexOf(sistemaId);
+    if(lpNum) lpNum.textContent = (sIdx+1) + ' / ' + sistemaIds.length;
+    if(lpPrev) {
+      if(sIdx > 0) {
+        lpPrev.style.display = 'flex';
+        lpPrev.onclick = function(){ navSistema(prof, moduloId, bloqueId, sistemaIds[sIdx-1]); };
+      } else { lpPrev.style.display = 'none'; }
+    }
+    if(lpNext) {
+      if(sIdx < sistemaIds.length-1) {
+        lpNext.style.display = 'flex';
+        lpNext.style.background = '#2dd4bf';
+        lpNext.style.color = '#0c0e14';
+        lpNext.textContent = 'Siguiente →';
+        lpNext.onclick = function(){ navSistema(prof, moduloId, bloqueId, sistemaIds[sIdx+1]); };
+      } else {
+        lpNext.style.display = 'flex';
+        lpNext.style.background = '#f97316';
+        lpNext.style.color = '#fff';
+        lpNext.textContent = '✕ SALIR';
+        lpNext.onclick = function(){ navBloque(prof, moduloId, bloqueId); };
+      }
+    }
+  }
+}
+function renderPunto(prof, moduloId, bloqueId, sistemaId, puntoIdx) {
+  var modulo = window._TEMAS[prof][moduloId];
+  var puntos, sistema, bloque;
+  if(modulo.tipo === 'modulo-bloques' && bloqueId && sistemaId) {
+    bloque = modulo.bloques[bloqueId];
+    sistema = bloque.sistemas[sistemaId];
+    puntos = sistema.puntos;
+  } else {
+    puntos = modulo.puntos;
+    sistema = { titulo: modulo.titulo, firestoreCol: null };
+    bloque = null;
+  }
+  var punto = puntos[puntoIdx] || {};
+
+  // Breadcrumb
+  var bc = document.getElementById('punto-breadcrumb');
+  if(bc) {
+    var parts = '<span onclick="nav(\'apuntes\')" style="cursor:pointer;color:#6b7294">Apuntes</span>' +
+      '<span style="color:#3d4460;margin:0 6px">›</span>' +
+      '<span onclick="navProf(\''+prof+'\')" style="cursor:pointer;color:#6b7294">'+capitalizeFirst(prof)+'</span>' +
+      '<span style="color:#3d4460;margin:0 6px">›</span>' +
+      '<span onclick="navModulo(\''+prof+'\',\''+moduloId+'\')" style="cursor:pointer;color:#6b7294">'+modulo.titulo+'</span>';
+    if(bloque) {
+      parts += '<span style="color:#3d4460;margin:0 6px">›</span>' +
+        '<span onclick="navBloque(\''+prof+'\',\''+moduloId+'\',\''+bloqueId+'\')" style="cursor:pointer;color:#6b7294">'+bloque.titulo+'</span>' +
+        '<span style="color:#3d4460;margin:0 6px">›</span>' +
+        '<span onclick="navSistema(\''+prof+'\',\''+moduloId+'\',\''+bloqueId+'\',\''+sistemaId+'\')" style="cursor:pointer;color:#6b7294">'+sistema.titulo+'</span>';
+    }
+    parts += '<span style="color:#3d4460;margin:0 6px">›</span><span style="color:#e8eaf2">'+punto.titulo+'</span>';
+    bc.innerHTML = parts;
+  }
+
+  // Título
+  var tit = document.getElementById('punto-titulo');
+  if(tit) tit.textContent = punto.titulo || '';
+
+  // Contenido
+  var cont = document.getElementById('punto-contenido');
+  if(!cont) return;
+
+  if(punto.firestoreId && sistema.firestoreCol && typeof db !== 'undefined') {
+    cont.innerHTML = '<div style="color:#3d4460;text-align:center;padding:40px 0"><div style="font-size:24px;margin-bottom:10px">⏳</div></div>';
+    db.collection('temas').doc(sistema.firestoreCol)
+      .collection('puntos').doc(punto.firestoreId)
+      .get()
+      .then(function(doc) {
+        if(doc.exists) {
+          cont.innerHTML = mdToHtml(doc.data().content);
+        } else {
+          cont.innerHTML = '<div style="color:#f87171;text-align:center;padding:40px 0">Contenido no encontrado en Firestore.</div>';
+        }
+      })
+      .catch(function(e) {
+        cont.innerHTML = '<div style="color:#f87171;text-align:center;padding:40px 0">Error: '+e.message+'</div>';
+      });
+  } else {
+    cont.innerHTML = punto.html || PLACEHOLDER;
+  }
+
+  // Flechas
+  var prev = document.getElementById('punto-prev');
+  var next = document.getElementById('punto-next');
+  if(prev) {
+    if(puntoIdx > 0) {
+      prev.style.display = 'flex';
+      prev.onclick = function(){ navPunto(prof, moduloId, bloqueId, sistemaId, puntoIdx-1); };
+    } else { prev.style.display = 'none'; }
+  }
+  if(next) {
+    if(puntoIdx < puntos.length-1) {
+      next.style.display = 'flex';
+      next.style.background = '#2dd4bf';
+      next.style.color = '#0c0e14';
+      next.textContent = 'Siguiente →';
+      next.onclick = function(){ navPunto(prof, moduloId, bloqueId, sistemaId, puntoIdx+1); };
+    } else {
+      // Último punto — botón SALIR naranja
+      next.style.display = 'flex';
+      next.style.background = '#f97316';
+      next.style.color = '#fff';
+      next.textContent = '✕ SALIR';
+      next.onclick = function(){
+        if(bloqueId && sistemaId) navSistema(prof, moduloId, bloqueId, sistemaId);
+        else navProf(prof);
+      };
+    }
+  }
+  var num = document.getElementById('punto-num');
+  if(num) num.textContent = (puntoIdx+1)+' / '+puntos.length;
+}
+
+updateUI();
+nav('home');
+</script>
+</body>
+</html>
