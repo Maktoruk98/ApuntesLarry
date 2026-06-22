@@ -921,6 +921,25 @@ html,body{height:100%;overflow:hidden}
   font-family:sans-serif;letter-spacing:.02em;box-shadow:0 0 30px rgba(45,212,191,.3);transition:transform .15s}
 .gaming-intro-btn:hover{transform:scale(1.03)}
 .gaming-session{display:none;flex-direction:column;flex:1}
+
+/* ── ADMIN PANEL ─────────────────────────── */
+#page-admin select{cursor:pointer}
+#page-admin select:disabled{opacity:.4;cursor:not-allowed}
+.adm-game-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative}
+.adm-game-card .adm-game-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.adm-game-card .adm-game-type{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.adm-game-card .adm-game-del{background:none;border:1px solid var(--border);color:var(--text-muted);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.adm-game-card .adm-game-del:hover{border-color:#f87171;color:#f87171}
+.adm-field{margin-bottom:10px}
+.adm-field label{display:block;font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.adm-field input,.adm-field textarea{width:100%;padding:8px 10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-size:13px;font-family:sans-serif;outline:none;box-sizing:border-box}
+.adm-field input:focus,.adm-field textarea:focus{border-color:var(--accent)}
+.adm-pair-row{display:flex;gap:8px;margin-bottom:6px;align-items:center}
+.adm-pair-row input{flex:1}
+.adm-pair-del{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:16px;padding:0 4px}
+.adm-pair-del:hover{color:#f87171}
+.adm-add-btn{background:none;border:1px dashed var(--border);color:var(--text-muted);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-family:sans-serif;margin-top:4px}
+.adm-add-btn:hover{border-color:var(--accent);color:var(--accent)}
 </style>
 </head>
 <body>
@@ -999,6 +1018,7 @@ html,body{height:100%;overflow:hidden}
         <option value="oceano">🌊 Océano</option>
       </select>
     </div>
+    <button id="btn-admin" onclick="nav('admin')" style="display:none;width:100%;padding:9px;background:rgba(45,212,191,.08);border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;font-family:sans-serif;margin-bottom:8px">⚙️ Panel Admin</button>
     <button onclick="window.logOut&&window.logOut()" style="width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:sans-serif">Cerrar sesion</button>
   </div>
 </div>
@@ -1183,6 +1203,73 @@ html,body{height:100%;overflow:hidden}
     </div>
     <div style="margin:24px 0 12px;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-faint)">Minijuegos por punto</div>
     <div id="cajon-minijuegos"><div style="color:var(--text-muted);font-size:13px">Cargando minijuegos…</div></div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="page" id="page-admin">
+  <div style="max-width:1000px;margin:0 auto;padding:24px 24px 80px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-faint)">⚙️ Administración</div>
+        <h2 style="font-size:26px;font-weight:700;margin:4px 0 0">Panel Admin</h2>
+      </div>
+      <button onclick="nav('home')" class="btn-s" style="font-size:12px">← Volver</button>
+    </div>
+
+    <!-- Selector jerárquico -->
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px" id="admin-selectors">
+      <select id="adm-prof" onchange="_admOnProf()" style="padding:8px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:sans-serif">
+        <option value="">— Profesora —</option>
+      </select>
+      <select id="adm-mod" onchange="_admOnMod()" style="padding:8px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:sans-serif" disabled>
+        <option value="">— Módulo —</option>
+      </select>
+      <select id="adm-blq" onchange="_admOnBlq()" style="padding:8px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:sans-serif" disabled>
+        <option value="">— Bloque —</option>
+      </select>
+      <select id="adm-sis" onchange="_admOnSis()" style="padding:8px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:sans-serif" disabled>
+        <option value="">— Sistema —</option>
+      </select>
+      <select id="adm-pto" onchange="_admOnPto()" style="padding:8px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:sans-serif" disabled>
+        <option value="">— Punto —</option>
+      </select>
+    </div>
+
+    <!-- Tabs: Apuntes / Juegos -->
+    <div style="display:flex;gap:4px;margin-bottom:16px" id="admin-tabs" class="nav-tabs">
+      <button class="nav-tab active" onclick="_admTab('apuntes')">📝 Apuntes</button>
+      <button class="nav-tab" onclick="_admTab('juegos')">🎮 Juegos</button>
+    </div>
+
+    <!-- Editor de apuntes -->
+    <div id="adm-editor-apuntes">
+      <div style="display:flex;gap:16px;align-items:stretch">
+        <div style="flex:1;display:flex;flex-direction:column">
+          <div style="font-size:11px;color:var(--text-faint);margin-bottom:6px;text-transform:uppercase;letter-spacing:.1em">Markdown</div>
+          <textarea id="adm-md" style="flex:1;min-height:420px;padding:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-size:13px;font-family:'Courier New',monospace;line-height:1.7;resize:vertical;outline:none" placeholder="Selecciona un punto para editar..."></textarea>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column">
+          <div style="font-size:11px;color:var(--text-faint);margin-bottom:6px;text-transform:uppercase;letter-spacing:.1em">Vista previa</div>
+          <div id="adm-preview" class="md-content" style="flex:1;min-height:420px;padding:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow-y:auto;font-size:13px"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button onclick="_admSaveApuntes()" class="btn-p" style="font-size:13px">💾 Guardar apuntes</button>
+        <button onclick="_admPreview()" class="btn-s" style="font-size:13px">👁 Actualizar vista previa</button>
+      </div>
+      <div id="adm-apuntes-status" style="margin-top:8px;font-size:12px;min-height:18px"></div>
+    </div>
+
+    <!-- Editor de juegos -->
+    <div id="adm-editor-juegos" style="display:none">
+      <div id="adm-juegos-list" style="display:flex;flex-direction:column;gap:16px"></div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button onclick="_admSaveJuegos()" class="btn-p" style="font-size:13px">💾 Guardar juegos</button>
+        <button onclick="_admAddJuego()" class="btn-s" style="font-size:13px">➕ Añadir juego</button>
+      </div>
+      <div id="adm-juegos-status" style="margin-top:8px;font-size:12px;min-height:18px"></div>
+    </div>
   </div>
 </div>
 
@@ -1388,9 +1475,10 @@ window.logOut = async function() {
 };
 
 // ── ENTRAR A LA APP ────────────────────────────
-function enterApp(name, avatar, xp, isFirebase, uid, photoURL) {
+function enterApp(name, avatar, xp, isFirebase, uid, photoURL, email) {
   document.getElementById('login-screen').classList.add('hidden');
-  window.S = { name: name, av: avatar, xp: xp || 0, uid: uid || null, isFirebase: !!isFirebase };
+  window.S = { name: name, av: avatar, xp: xp || 0, uid: uid || null, isFirebase: !!isFirebase, email: email || '' };
+  if (typeof _admCheckAccess === 'function') _admCheckAccess();
 
   if (photoURL) {
     var tbAv = document.getElementById('tb-av');
@@ -1453,7 +1541,7 @@ auth.onAuthStateChanged(async function(user) {
     var snap = await db.collection('users').doc(user.uid).get();
     if (snap.exists) {
       var data = snap.data();
-      enterApp(data.name, data.avatar, data.xp, true, user.uid, user.photoURL);
+      enterApp(data.name, data.avatar, data.xp, true, user.uid, user.photoURL, user.email);
     }
     // Si no existe, espera a que complete el perfil en loginGoogle
   } else {
@@ -1601,6 +1689,7 @@ var _currentPageId = 'home';
 function nav(id, skipAnim){
   if(id === 'apuntes' && typeof renderLobbyProfesoras === 'function') renderLobbyProfesoras();
   if(id === 'juegos' && typeof cargarCajonMinijuegos === 'function') cargarCajonMinijuegos();
+  if(id === 'admin' && typeof _admInit === 'function') _admInit();
   var fromId = _currentPageId;
   var fromPage = document.getElementById('page-'+fromId);
   var toPage = document.getElementById('page-'+id);
@@ -3998,6 +4087,266 @@ function gamingExit() {
   _gaming.active = false;
   if (_gaming.observer) _gaming.observer.disconnect();
   document.getElementById('gaming-overlay').classList.remove('active');
+}
+
+/* ══════════════════════════════════════════════════════
+   PANEL ADMIN
+   ══════════════════════════════════════════════════════ */
+var _ADMIN_EMAIL = 'larry.dimpiz98@gmail.com';
+var _adm = { prof:null, mod:null, blq:null, sis:null, pto:null, firestoreCol:null, firestoreId:null, juegos:null };
+
+function _admCheckAccess() {
+  var btn = document.getElementById('btn-admin');
+  if (!btn) return;
+  var email = (window.S && window.S.email) || '';
+  btn.style.display = (email === _ADMIN_EMAIL) ? 'block' : 'none';
+}
+
+function _admInit() {
+  var sel = document.getElementById('adm-prof');
+  if (!sel || !window._TEMAS) return;
+  sel.innerHTML = '<option value="">— Profesora —</option>';
+  for (var prof in window._TEMAS) {
+    sel.innerHTML += '<option value="' + prof + '">' + prof.charAt(0).toUpperCase() + prof.slice(1) + '</option>';
+  }
+  _admReset('mod');
+}
+
+function _admReset(from) {
+  var order = ['mod','blq','sis','pto'];
+  var idx = order.indexOf(from);
+  for (var i = idx; i < order.length; i++) {
+    var s = document.getElementById('adm-' + order[i]);
+    if (s) { s.innerHTML = '<option value="">— ' + ({'mod':'Módulo','blq':'Bloque','sis':'Sistema','pto':'Punto'}[order[i]]) + ' —</option>'; s.disabled = true; }
+  }
+  _adm.firestoreCol = null; _adm.firestoreId = null; _adm.juegos = null;
+  document.getElementById('adm-md').value = '';
+  document.getElementById('adm-preview').innerHTML = '';
+  document.getElementById('adm-juegos-list').innerHTML = '<div style="color:var(--text-muted);font-size:13px">Selecciona un punto para editar sus juegos.</div>';
+}
+
+function _admOnProf() {
+  var prof = document.getElementById('adm-prof').value;
+  _adm.prof = prof;
+  _admReset('mod');
+  if (!prof || !window._TEMAS[prof]) return;
+  var sel = document.getElementById('adm-mod');
+  sel.disabled = false;
+  for (var modId in window._TEMAS[prof]) {
+    var mod = window._TEMAS[prof][modId];
+    sel.innerHTML += '<option value="' + modId + '">' + (mod.titulo || modId) + '</option>';
+  }
+}
+
+function _admOnMod() {
+  var modId = document.getElementById('adm-mod').value;
+  _adm.mod = modId;
+  _admReset('blq');
+  if (!modId || !_adm.prof) return;
+  var mod = window._TEMAS[_adm.prof][modId];
+  if (!mod) return;
+  if (mod.tipo === 'modulo-firestore') {
+    var selP = document.getElementById('adm-pto');
+    selP.disabled = false;
+    (mod.puntos || []).forEach(function(p, i) {
+      selP.innerHTML += '<option value="' + i + '">' + p.titulo + '</option>';
+    });
+    _adm.firestoreCol = mod.firestoreCol;
+    return;
+  }
+  if (mod.bloques) {
+    var sel = document.getElementById('adm-blq');
+    sel.disabled = false;
+    for (var blqId in mod.bloques) {
+      var blq = mod.bloques[blqId];
+      sel.innerHTML += '<option value="' + blqId + '">' + (blq.titulo || blqId) + '</option>';
+    }
+  }
+}
+
+function _admOnBlq() {
+  var blqId = document.getElementById('adm-blq').value;
+  _adm.blq = blqId;
+  _admReset('sis');
+  if (!blqId) return;
+  var mod = window._TEMAS[_adm.prof][_adm.mod];
+  var blq = mod && mod.bloques && mod.bloques[blqId];
+  if (!blq || !blq.sistemas) return;
+  var sel = document.getElementById('adm-sis');
+  sel.disabled = false;
+  for (var sisId in blq.sistemas) {
+    sel.innerHTML += '<option value="' + sisId + '">' + blq.sistemas[sisId].titulo + '</option>';
+  }
+}
+
+function _admOnSis() {
+  var sisId = document.getElementById('adm-sis').value;
+  _adm.sis = sisId;
+  _admReset('pto');
+  if (!sisId) return;
+  var sis = window._TEMAS[_adm.prof][_adm.mod].bloques[_adm.blq].sistemas[sisId];
+  if (!sis) return;
+  _adm.firestoreCol = sis.firestoreCol;
+  var sel = document.getElementById('adm-pto');
+  sel.disabled = false;
+  (sis.puntos || []).forEach(function(p, i) {
+    sel.innerHTML += '<option value="' + i + '">' + p.titulo + '</option>';
+  });
+}
+
+function _admOnPto() {
+  var ptoIdx = parseInt(document.getElementById('adm-pto').value);
+  if (isNaN(ptoIdx)) return;
+  _adm.pto = ptoIdx;
+
+  var punto;
+  var mod = window._TEMAS[_adm.prof][_adm.mod];
+  if (mod.tipo === 'modulo-firestore') {
+    punto = mod.puntos[ptoIdx];
+  } else {
+    var sis = mod.bloques[_adm.blq].sistemas[_adm.sis];
+    punto = sis.puntos[ptoIdx];
+    _adm.firestoreCol = sis.firestoreCol;
+  }
+  _adm.firestoreId = punto.firestoreId;
+
+  if (!_adm.firestoreCol || !_adm.firestoreId || typeof db === 'undefined') {
+    document.getElementById('adm-md').value = 'Este punto no tiene contenido en Firestore.';
+    return;
+  }
+
+  document.getElementById('adm-md').value = 'Cargando...';
+  document.getElementById('adm-juegos-list').innerHTML = '<div style="color:var(--text-muted);font-size:13px">Cargando...</div>';
+
+  db.collection('temas').doc(_adm.firestoreCol).collection('puntos').doc(_adm.firestoreId).get().then(function(doc) {
+    if (!doc.exists) { document.getElementById('adm-md').value = 'Documento no encontrado.'; return; }
+    var d = doc.data();
+    var md = d.contenido || d.content || '';
+    document.getElementById('adm-md').value = md;
+    _admPreview();
+    _adm.juegos = d.juegos || [];
+    _admRenderJuegos();
+  }).catch(function(e) {
+    document.getElementById('adm-md').value = 'Error: ' + e.message;
+  });
+}
+
+function _admPreview() {
+  var md = document.getElementById('adm-md').value;
+  var html = typeof mdToHtml === 'function' ? mdToHtml(md) : (typeof marked !== 'undefined' ? marked.parse(md) : md);
+  document.getElementById('adm-preview').innerHTML = html;
+}
+
+function _admTab(tab) {
+  var tabs = document.querySelectorAll('#admin-tabs .nav-tab');
+  tabs.forEach(function(t, i) { t.classList.toggle('active', i === (tab === 'apuntes' ? 0 : 1)); });
+  document.getElementById('adm-editor-apuntes').style.display = tab === 'apuntes' ? 'block' : 'none';
+  document.getElementById('adm-editor-juegos').style.display = tab === 'juegos' ? 'block' : 'none';
+}
+
+function _admSaveApuntes() {
+  if (!_adm.firestoreCol || !_adm.firestoreId) { _admStatus('apuntes', 'Selecciona un punto primero.', 'var(--rose)'); return; }
+  var md = document.getElementById('adm-md').value;
+  _admStatus('apuntes', 'Guardando...', 'var(--amber)');
+  db.collection('temas').doc(_adm.firestoreCol).collection('puntos').doc(_adm.firestoreId)
+    .update({ contenido: md }).then(function() {
+      _admStatus('apuntes', '✅ Apuntes guardados correctamente.', 'var(--green)');
+    }).catch(function(e) {
+      _admStatus('apuntes', '❌ Error: ' + e.message, 'var(--rose)');
+    });
+}
+
+function _admStatus(area, msg, color) {
+  var el = document.getElementById('adm-' + area + '-status');
+  if (el) { el.innerHTML = '<span style="color:' + color + '">' + msg + '</span>'; }
+}
+
+/* ── Editor de juegos ── */
+function _admRenderJuegos() {
+  var list = document.getElementById('adm-juegos-list');
+  if (!_adm.juegos || !_adm.juegos.length) {
+    list.innerHTML = '<div style="color:var(--text-muted);font-size:13px">Este punto no tiene juegos. Usa "Añadir juego" para crear uno.</div>';
+    return;
+  }
+  var html = '';
+  _adm.juegos.forEach(function(g, idx) {
+    html += '<div class="adm-game-card" id="adm-g-' + idx + '">';
+    html += '<div class="adm-game-head"><span class="adm-game-type">' + (g.tipo || 'desconocido') + '</span><button class="adm-game-del" onclick="_admDelJuego(' + idx + ')" title="Eliminar">✕</button></div>';
+    html += '<div class="adm-field"><label>Título</label><input value="' + _jEsc(g.titulo || '') + '" onchange="_adm.juegos[' + idx + '].titulo=this.value"></div>';
+    html += '<div class="adm-field"><label>Instrucción</label><input value="' + _jEsc(g.instruccion || '') + '" onchange="_adm.juegos[' + idx + '].instruccion=this.value"></div>';
+
+    if (g.tipo === 'conecta') {
+      html += '<div class="adm-field"><label>Pares (izquierda → derecha)</label>';
+      (g.pares || []).forEach(function(p, pi) {
+        html += '<div class="adm-pair-row"><input value="' + _jEsc(p.a) + '" onchange="_adm.juegos[' + idx + '].pares[' + pi + '].a=this.value" placeholder="Término">';
+        html += '<span style="color:var(--text-faint)">→</span>';
+        html += '<input value="' + _jEsc(p.b) + '" onchange="_adm.juegos[' + idx + '].pares[' + pi + '].b=this.value" placeholder="Definición">';
+        html += '<button class="adm-pair-del" onclick="_admDelPar(' + idx + ',' + pi + ')">✕</button></div>';
+      });
+      html += '<button class="adm-add-btn" onclick="_admAddPar(' + idx + ')">+ Añadir par</button></div>';
+    }
+
+    if (g.tipo === 'clasifica') {
+      html += '<div class="adm-field"><label>Categorías (separadas por coma)</label>';
+      html += '<input value="' + _jEsc((g.categorias || []).join(', ')) + '" onchange="_adm.juegos[' + idx + '].categorias=this.value.split(\',\').map(function(s){return s.trim()}).filter(Boolean)"></div>';
+      html += '<div class="adm-field"><label>Items (texto → categoría)</label>';
+      (g.items || []).forEach(function(it, ii) {
+        html += '<div class="adm-pair-row"><input value="' + _jEsc(it.texto) + '" onchange="_adm.juegos[' + idx + '].items[' + ii + '].texto=this.value" placeholder="Texto">';
+        html += '<span style="color:var(--text-faint)">→</span>';
+        html += '<input value="' + _jEsc(it.cat) + '" onchange="_adm.juegos[' + idx + '].items[' + ii + '].cat=this.value" placeholder="Categoría">';
+        html += '<button class="adm-pair-del" onclick="_admDelItem(' + idx + ',' + ii + ')">✕</button></div>';
+      });
+      html += '<button class="adm-add-btn" onclick="_admAddItem(' + idx + ')">+ Añadir item</button></div>';
+    }
+
+    if (g.tipo === 'rellena') {
+      html += '<div class="adm-field"><label>Banco de palabras (separadas por coma)</label>';
+      html += '<input value="' + _jEsc((g.banco || []).join(', ')) + '" onchange="_adm.juegos[' + idx + '].banco=this.value.split(\',\').map(function(s){return s.trim()}).filter(Boolean)"></div>';
+      html += '<div class="adm-field"><label>Frases (usa ___ para los huecos)</label>';
+      (g.frases || []).forEach(function(f, fi) {
+        html += '<div style="margin-bottom:8px;padding:8px;background:var(--bg-surface);border-radius:6px">';
+        html += '<input value="' + _jEsc(f.texto) + '" onchange="_adm.juegos[' + idx + '].frases[' + fi + '].texto=this.value" placeholder="Frase con ___" style="margin-bottom:4px">';
+        html += '<input value="' + _jEsc((f.respuestas || []).join(', ')) + '" onchange="_adm.juegos[' + idx + '].frases[' + fi + '].respuestas=this.value.split(\',\').map(function(s){return s.trim()}).filter(Boolean)" placeholder="Respuestas (coma)" style="font-size:12px;color:var(--accent)">';
+        html += '<button class="adm-pair-del" onclick="_admDelFrase(' + idx + ',' + fi + ')" style="float:right;margin-top:-30px">✕</button></div>';
+      });
+      html += '<button class="adm-add-btn" onclick="_admAddFrase(' + idx + ')">+ Añadir frase</button></div>';
+    }
+
+    html += '</div>';
+  });
+  list.innerHTML = html;
+}
+
+function _admAddPar(gi) { _adm.juegos[gi].pares = _adm.juegos[gi].pares || []; _adm.juegos[gi].pares.push({a:'',b:''}); _admRenderJuegos(); }
+function _admDelPar(gi, pi) { _adm.juegos[gi].pares.splice(pi, 1); _admRenderJuegos(); }
+function _admAddItem(gi) { _adm.juegos[gi].items = _adm.juegos[gi].items || []; _adm.juegos[gi].items.push({texto:'',cat:''}); _admRenderJuegos(); }
+function _admDelItem(gi, ii) { _adm.juegos[gi].items.splice(ii, 1); _admRenderJuegos(); }
+function _admAddFrase(gi) { _adm.juegos[gi].frases = _adm.juegos[gi].frases || []; _adm.juegos[gi].frases.push({texto:'',respuestas:[]}); _admRenderJuegos(); }
+function _admDelFrase(gi, fi) { _adm.juegos[gi].frases.splice(fi, 1); _admRenderJuegos(); }
+function _admDelJuego(gi) { _adm.juegos.splice(gi, 1); _admRenderJuegos(); }
+
+function _admAddJuego() {
+  if (!_adm.firestoreCol || !_adm.firestoreId) { _admStatus('juegos', 'Selecciona un punto primero.', 'var(--rose)'); return; }
+  _adm.juegos = _adm.juegos || [];
+  var tipo = prompt('Tipo de juego: conecta, clasifica o rellena');
+  if (!tipo || ['conecta','clasifica','rellena'].indexOf(tipo) === -1) return;
+  var g = { tipo: tipo, titulo: '', instruccion: '' };
+  if (tipo === 'conecta') g.pares = [{a:'',b:''}];
+  if (tipo === 'clasifica') { g.categorias = []; g.items = [{texto:'',cat:''}]; }
+  if (tipo === 'rellena') { g.banco = []; g.frases = [{texto:'',respuestas:[]}]; }
+  _adm.juegos.push(g);
+  _admRenderJuegos();
+}
+
+function _admSaveJuegos() {
+  if (!_adm.firestoreCol || !_adm.firestoreId) { _admStatus('juegos', 'Selecciona un punto primero.', 'var(--rose)'); return; }
+  _admStatus('juegos', 'Guardando...', 'var(--amber)');
+  db.collection('temas').doc(_adm.firestoreCol).collection('puntos').doc(_adm.firestoreId)
+    .update({ juegos: _adm.juegos }).then(function() {
+      _admStatus('juegos', '✅ Juegos guardados correctamente.', 'var(--green)');
+    }).catch(function(e) {
+      _admStatus('juegos', '❌ Error: ' + e.message, 'var(--rose)');
+    });
 }
 </script>
 
