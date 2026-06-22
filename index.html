@@ -1288,7 +1288,19 @@ html,body{height:100%;overflow:hidden}
     <div id="adm-editor-stats" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div style="font-size:14px;font-weight:700;color:var(--text-primary)">Estadísticas de uso</div>
-        <button onclick="_admLoadStats()" class="btn-s" style="font-size:12px">🔄 Calcular</button>
+        <div style="display:flex;gap:8px">
+          <button onclick="document.getElementById('adm-stats-help').style.display=document.getElementById('adm-stats-help').style.display==='none'?'block':'none'" class="btn-s" style="font-size:12px">❓ Cómo interpretar</button>
+          <button onclick="_admLoadStats()" class="btn-s" style="font-size:12px">🔄 Calcular</button>
+        </div>
+      </div>
+      <div id="adm-stats-help" style="display:none;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:18px;font-size:12.5px;color:var(--text-secondary);line-height:1.8">
+        <div style="font-weight:700;color:var(--text-primary);margin-bottom:8px;font-size:13px">📖 Guía de interpretación</div>
+        <p><b style="color:var(--accent)">Usuarios</b> — Total de cuentas registradas. No distingue activos de inactivos.</p>
+        <p><b style="color:#f59e0b">XP total</b> — Suma de toda la experiencia acumulada por todos los usuarios. Si crece poco, los alumnos no están jugando. Si crece mucho, el sistema funciona.</p>
+        <p><b style="color:#a78bfa">Minijuegos</b> — Número total de minijuegos en Firestore (conecta + clasifica + rellena). Útil para saber la cobertura de contenido.</p>
+        <p><b style="color:#4ade80">Nuevos (7 días)</b> — Usuarios que se registraron en la última semana. Indica si la plataforma está captando gente.</p>
+        <p><b style="color:var(--text-primary)">Contenido más visitado</b> — Ranking de puntos, sistemas y bloques más accedidos por los usuarios. La barra indica el porcentaje respecto al total de usuarios. Si un punto tiene el 100%, todos lo han visitado. Si está bajo, o el contenido no interesa o los alumnos no han llegado ahí. Los que no aparecen, nadie los ha abierto.</p>
+        <p><b style="color:var(--text-primary)">Juegos por colección</b> — Distribución de minijuegos por cada colección de Firestore. Si una colección tiene pocos juegos, es candidata a crear más.</p>
       </div>
       <div id="adm-stats-content" style="font-size:13px">
         <div style="color:var(--text-muted)">Pulsa "Calcular" para generar las estadísticas.</div>
@@ -4418,7 +4430,8 @@ function _admRenderUsers() {
     html += '<td style="padding:10px 8px;color:var(--text-muted)">' + visitCount + '</td>';
     html += '<td style="padding:10px 8px">';
     html += '<button onclick="_admResetXP('+i+')" style="padding:4px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--amber);font-size:11px;cursor:pointer;font-family:sans-serif;margin-right:4px" title="Resetear XP">↻ XP</button>';
-    html += '<button onclick="_admToggleBlock('+i+')" style="padding:4px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:'+(u.blocked?'var(--green)':'var(--rose)')+';font-size:11px;cursor:pointer;font-family:sans-serif" title="'+(u.blocked?'Desbloquear':'Bloquear')+'">'+(u.blocked?'✓ Desbloquear':'✕ Bloquear')+'</button>';
+    html += '<button onclick="_admToggleBlock('+i+')" style="padding:4px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:'+(u.blocked?'var(--green)':'var(--rose)')+';font-size:11px;cursor:pointer;font-family:sans-serif;margin-right:4px" title="'+(u.blocked?'Desbloquear':'Bloquear')+'">'+(u.blocked?'✓ Desbloquear':'✕ Bloquear')+'</button>';
+    html += '<button onclick="_admDeleteUser('+i+')" style="padding:4px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-faint);font-size:11px;cursor:pointer;font-family:sans-serif" title="Eliminar usuario">🗑</button>';
     html += '</td></tr>';
   });
   html += '</table>';
@@ -4433,6 +4446,17 @@ function _admResetXP(idx) {
     _admUsers[idx].xp = 0; _admUsers[idx].level = 1;
     _admRenderUsers();
   });
+}
+
+function _admDeleteUser(idx) {
+  var u = _admUsers[idx];
+  if (!u) return;
+  if (!confirm('⚠️ ¿ELIMINAR a ' + u.name + '?\n\nEsto borrará su cuenta, XP y todo su progreso de forma permanente. Esta acción NO se puede deshacer.')) return;
+  if (!confirm('Segunda confirmación: ¿Realmente quieres eliminar a ' + u.name + '?')) return;
+  db.collection('users').doc(u.uid).delete().then(function() {
+    _admUsers.splice(idx, 1);
+    _admRenderUsers();
+  }).catch(function(e) { alert('Error al eliminar: ' + e.message); });
 }
 
 function _admToggleBlock(idx) {
