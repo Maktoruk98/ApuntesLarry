@@ -940,6 +940,35 @@ html,body{height:100%;overflow:hidden}
 .adm-pair-del:hover{color:#f87171}
 .adm-add-btn{background:none;border:1px dashed var(--border);color:var(--text-muted);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-family:sans-serif;margin-top:4px}
 .adm-add-btn:hover{border-color:var(--accent);color:var(--accent)}
+.adm-type-card{cursor:pointer;padding:16px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;text-align:center;transition:border-color .15s,background .15s}
+.adm-type-card:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,var(--bg-surface))}
+
+/* Ordenar: drag list */
+.orden-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.orden-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-card2);border:1.5px solid var(--border2);border-radius:8px;cursor:grab;user-select:none;font-size:13px;color:var(--text-primary);transition:all .15s}
+.orden-item:hover{border-color:var(--accent)}
+.orden-item.dragging{opacity:.4}
+.orden-item.drag-over{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--bg-card2))}
+.orden-item .orden-num{width:22px;height:22px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text-faint);flex-shrink:0}
+.orden-item.ok{border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,var(--bg-card2))}
+.orden-item.ok .orden-num{background:var(--green);color:#0a0c12;border-color:var(--green)}
+.orden-item.ko{border-color:var(--rose);animation:shake .3s}
+/* V/F cards */
+.vf-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.vf-item{padding:12px 16px;background:var(--bg-card2);border:1.5px solid var(--border2);border-radius:8px;font-size:13px;color:var(--text-primary)}
+.vf-btns{display:flex;gap:8px;margin-top:8px}
+.vf-btn{padding:6px 16px;border-radius:6px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-size:12px;font-weight:600;cursor:pointer;font-family:sans-serif;transition:all .15s}
+.vf-btn:hover{border-color:var(--accent)}
+.vf-btn.sel-v{border-color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--bg-card));color:var(--green)}
+.vf-btn.sel-f{border-color:var(--rose);background:color-mix(in srgb,var(--rose) 10%,var(--bg-card));color:var(--rose)}
+.vf-item.ok{border-color:var(--green)}
+.vf-item.ko{border-color:var(--rose);animation:shake .3s}
+/* Descarte */
+.desc-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.desc-opt{padding:11px;background:var(--bg-card2);border:1.5px solid var(--border2);border-radius:8px;font-size:13px;color:var(--text-primary);cursor:pointer;text-align:center;transition:all .15s}
+.desc-opt:hover{border-color:var(--accent)}
+.desc-opt.ok{border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,var(--bg-card2));color:var(--green)}
+.desc-opt.ko{border-color:var(--rose);background:color-mix(in srgb,var(--rose) 8%,var(--bg-card2));color:var(--rose);animation:shake .3s}
 </style>
 </head>
 <body>
@@ -1267,12 +1296,65 @@ html,body{height:100%;overflow:hidden}
 
     <!-- Editor de juegos -->
     <div id="adm-editor-juegos" style="display:none">
-      <div id="adm-juegos-list" style="display:flex;flex-direction:column;gap:16px"></div>
-      <div style="display:flex;gap:10px;margin-top:14px">
+      <!-- Barra de acciones arriba -->
+      <div style="display:flex;gap:10px;margin-bottom:14px">
         <button onclick="_admSaveJuegos()" class="btn-p" style="font-size:13px">💾 Guardar juegos</button>
-        <button onclick="_admAddJuego()" class="btn-s" style="font-size:13px">➕ Añadir juego</button>
+        <button onclick="document.getElementById('adm-add-panel').style.display=document.getElementById('adm-add-panel').style.display==='none'?'block':'none'" class="btn-s" style="font-size:13px">➕ Añadir juego</button>
+        <button onclick="_admPreviewJuegos()" class="btn-s" style="font-size:13px">👁 Vista previa</button>
       </div>
-      <div id="adm-juegos-status" style="margin-top:8px;font-size:12px;min-height:18px"></div>
+      <div id="adm-juegos-status" style="margin-bottom:10px;font-size:12px;min-height:18px"></div>
+
+      <!-- Selector visual para añadir juego -->
+      <div id="adm-add-panel" style="display:none;margin-bottom:18px;background:var(--bg-card);border:1px solid var(--accent);border-radius:12px;padding:20px">
+        <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:12px">Elige el tipo de juego:</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px">
+          <div onclick="_admCreateJuego('conecta')" class="adm-type-card">
+            <div style="font-size:28px;margin-bottom:6px">🔗</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Conecta</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Emparejar términos con definiciones</div>
+          </div>
+          <div onclick="_admCreateJuego('clasifica')" class="adm-type-card">
+            <div style="font-size:28px;margin-bottom:6px">🗂️</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Clasifica</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Arrastrar elementos a categorías</div>
+          </div>
+          <div onclick="_admCreateJuego('rellena')" class="adm-type-card">
+            <div style="font-size:28px;margin-bottom:6px">✏️</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Rellena</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Completar frases con palabras del banco</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+          <div onclick="_admCreateJuego('ordenar')" class="adm-type-card">
+            <div style="font-size:28px;margin-bottom:6px">🔢</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Ordenar</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Poner pasos o fases en secuencia</div>
+          </div>
+          <div onclick="_admCreateJuego('vf')" class="adm-type-card">
+            <div style="font-size:28px;margin-bottom:6px">✅</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Verdadero / Falso</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Juzgar si la afirmación es correcta</div>
+          </div>
+          <div onclick="_admCreateJuego('descarte')" class="adm-type-card">
+            <div style="font-size:28px;margin-bottom:6px">❌</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Descarte</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Eliminar el elemento que NO pertenece</div>
+          </div>
+        </div>
+        <button onclick="document.getElementById('adm-add-panel').style.display='none'" style="margin-top:12px;background:none;border:none;color:var(--text-faint);font-size:12px;cursor:pointer;font-family:sans-serif">Cancelar</button>
+      </div>
+
+      <!-- Lista de juegos existentes -->
+      <div id="adm-juegos-list" style="display:flex;flex-direction:column;gap:16px"></div>
+
+      <!-- Vista previa de juegos -->
+      <div id="adm-juegos-preview" style="display:none;margin-top:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-size:13px;font-weight:700;color:var(--text-primary)">👁 Vista previa</div>
+          <button onclick="document.getElementById('adm-juegos-preview').style.display='none'" style="background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:14px">✕</button>
+        </div>
+        <div id="adm-juegos-preview-content"></div>
+      </div>
     </div>
 
     <!-- Gestión de usuarios -->
@@ -3881,16 +3963,179 @@ function gRellCheck(gid) {
   }
 }
 
-/* ---------- RENDERIZADOR: pinta los 3 juegos de un punto ---------- */
+/* ---------- ORDENAR (drag to reorder) ---------- */
+function _jOrdenar(gid, g) {
+  var items = _jShuffle((g.pasos || []).map(function(p, i) { return { texto: p, correctIdx: i }; }));
+  window['_ord_' + gid] = items;
+  var html = '<div class="orden-list" id="' + gid + '-list">';
+  items.forEach(function(it, i) {
+    html += '<div class="orden-item" draggable="true" data-game="' + gid + '" data-idx="' + i + '"' +
+      ' ondragstart="ordDragStart(event)" ondragover="ordDragOver(event)" ondragleave="ordDragLeave(event)" ondrop="ordDrop(event)">' +
+      '<div class="orden-num">' + (i + 1) + '</div><div>' + _jEsc(it.texto) + '</div></div>';
+  });
+  html += '</div>';
+  html += '<button class="jgame-btn" onclick="gOrdCheck(\'' + gid + '\')">Comprobar</button>';
+  html += '<div id="' + gid + '-result" class="jgame-result"></div>';
+  return html;
+}
+var _ordDrag = {};
+function ordDragStart(e) { _ordDrag.idx = parseInt(e.currentTarget.dataset.idx); e.currentTarget.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
+function ordDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function ordDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function ordDrop(e) {
+  e.preventDefault();
+  var target = e.currentTarget;
+  target.classList.remove('drag-over');
+  var gid = target.dataset.game;
+  var fromIdx = _ordDrag.idx;
+  var toIdx = parseInt(target.dataset.idx);
+  if (fromIdx === toIdx) return;
+  var items = window['_ord_' + gid];
+  var moved = items.splice(fromIdx, 1)[0];
+  items.splice(toIdx, 0, moved);
+  var list = document.getElementById(gid + '-list');
+  var els = Array.from(list.querySelectorAll('.orden-item'));
+  els.forEach(function(el) { el.classList.remove('dragging'); });
+  _ordRender(gid);
+}
+function _ordRender(gid) {
+  var items = window['_ord_' + gid];
+  var list = document.getElementById(gid + '-list');
+  var html = '';
+  items.forEach(function(it, i) {
+    html += '<div class="orden-item" draggable="true" data-game="' + gid + '" data-idx="' + i + '"' +
+      ' ondragstart="ordDragStart(event)" ondragover="ordDragOver(event)" ondragleave="ordDragLeave(event)" ondrop="ordDrop(event)">' +
+      '<div class="orden-num">' + (i + 1) + '</div><div>' + _jEsc(it.texto) + '</div></div>';
+  });
+  list.innerHTML = html;
+}
+function gOrdCheck(gid) {
+  var items = window['_ord_' + gid];
+  var list = document.getElementById(gid + '-list');
+  var els = Array.from(list.querySelectorAll('.orden-item'));
+  var ok = 0;
+  items.forEach(function(it, i) {
+    els[i].classList.remove('ok', 'ko');
+    if (it.correctIdx === i) { els[i].classList.add('ok'); ok++; _jAcierto('Ordenar ' + ok); }
+    else { els[i].classList.add('ko'); _jFallo(); }
+  });
+  var res = document.getElementById(gid + '-result');
+  if (ok === items.length) {
+    res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Perfecto!</span>';
+    _jCompletar('Ordenar');
+  } else {
+    res.innerHTML = '<span style="color:var(--amber)">' + ok + '/' + items.length + ' en su sitio. ¡Reordena!</span>';
+  }
+}
+
+/* ---------- VERDADERO / FALSO ---------- */
+function _jVF(gid, g) {
+  var items = _jShuffle(g.frases || []);
+  window['_vf_' + gid] = items;
+  var html = '<div class="vf-list" id="' + gid + '-list">';
+  items.forEach(function(f, i) {
+    html += '<div class="vf-item" id="' + gid + '-vf' + i + '">';
+    html += '<div style="margin-bottom:6px">' + _jEsc(f.texto) + '</div>';
+    html += '<div class="vf-btns">';
+    html += '<button class="vf-btn" onclick="vfAnswer(\'' + gid + '\',' + i + ',true)">✅ Verdadero</button>';
+    html += '<button class="vf-btn" onclick="vfAnswer(\'' + gid + '\',' + i + ',false)">❌ Falso</button>';
+    html += '</div></div>';
+  });
+  html += '</div>';
+  html += '<div id="' + gid + '-result" class="jgame-result"></div>';
+  return html;
+}
+function vfAnswer(gid, idx, answer) {
+  var items = window['_vf_' + gid];
+  var item = items[idx];
+  if (item._done) return;
+  item._done = true;
+  var el = document.getElementById(gid + '-vf' + idx);
+  var btns = el.querySelectorAll('.vf-btn');
+  if (answer === item.esVerdadero) {
+    el.classList.add('ok');
+    if (answer) btns[0].classList.add('sel-v'); else btns[1].classList.add('sel-f');
+    _jAcierto('V/F');
+  } else {
+    el.classList.add('ko');
+    if (answer) btns[0].classList.add('sel-f'); else btns[1].classList.add('sel-v');
+    _jFallo();
+    setTimeout(function() { el.classList.remove('ko'); }, 600);
+  }
+  var done = items.filter(function(f) { return f._done; }).length;
+  var correct = 0;
+  items.forEach(function(f, i) {
+    if (f._done && document.getElementById(gid + '-vf' + i).classList.contains('ok')) correct++;
+  });
+  if (done === items.length) {
+    var res = document.getElementById(gid + '-result');
+    if (correct === items.length) {
+      res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Perfecto!</span>';
+      _jCompletar('V/F');
+    } else {
+      res.innerHTML = '<span style="color:var(--amber)">' + correct + '/' + items.length + ' correctas.</span>';
+    }
+  }
+}
+
+/* ---------- DESCARTE (¿cuál NO pertenece?) ---------- */
+function _jDescarte(gid, g) {
+  var preguntas = g.preguntas || [];
+  window['_desc_' + gid] = { preguntas: preguntas, current: 0, ok: 0 };
+  return '<div id="' + gid + '-content">' + _descRender(gid, 0) + '</div>' +
+    '<div id="' + gid + '-result" class="jgame-result"></div>';
+}
+function _descRender(gid, idx) {
+  var state = window['_desc_' + gid];
+  var p = state.preguntas[idx];
+  if (!p) return '';
+  var opts = _jShuffle(p.opciones || []);
+  var html = '<div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">' + (idx + 1) + '/' + state.preguntas.length + ' — <b style="color:var(--text-primary)">' + _jEsc(p.grupo || 'Encuentra el intruso') + '</b></div>';
+  html += '<div class="desc-options">';
+  opts.forEach(function(o) {
+    html += '<div class="desc-opt" onclick="descClick(\'' + gid + '\',this,' + (o.intruso ? 'true' : 'false') + ')">' + _jEsc(o.texto) + '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+function descClick(gid, el, isIntruso) {
+  var state = window['_desc_' + gid];
+  if (el.classList.contains('ok') || el.classList.contains('ko')) return;
+  if (isIntruso) {
+    el.classList.add('ok');
+    state.ok++;
+    _jAcierto('Descarte');
+    setTimeout(function() {
+      state.current++;
+      if (state.current >= state.preguntas.length) {
+        var res = document.getElementById(gid + '-result');
+        res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Perfecto!</span>';
+        _jCompletar('Descarte');
+      } else {
+        document.getElementById(gid + '-content').innerHTML = _descRender(gid, state.current);
+      }
+    }, 500);
+  } else {
+    el.classList.add('ko');
+    _jFallo();
+    setTimeout(function() { el.classList.remove('ko'); }, 600);
+  }
+}
+
+/* ---------- RENDERIZADOR: pinta los juegos de un punto ---------- */
+var _JTYPE_ICONS = { conecta:'🔗', clasifica:'🗂️', rellena:'✏️', ordenar:'🔢', vf:'✅', descarte:'❌' };
 function renderJuegos(juegos, firestoreId, noSep) {
   if (!juegos || !juegos.length) return '';
   var base = 'j' + String(firestoreId).replace(/[^a-zA-Z0-9]/g, '');
   var html = noSep ? '' : '<div class="juegos-sep">🎮 Practica lo aprendido</div>';
   juegos.forEach(function (g, idx) {
-    var gid = base + '_g' + idx, body = '', icon = '🎮';
-    if (g.tipo === 'conecta') { body = _jConecta(gid, g); icon = '🔗'; }
-    else if (g.tipo === 'clasifica') { body = _jClasifica(gid, g); icon = '🗂️'; }
-    else if (g.tipo === 'rellena') { body = _jRellena(gid, g); icon = '✏️'; }
+    var gid = base + '_g' + idx, body = '', icon = _JTYPE_ICONS[g.tipo] || '🎮';
+    if (g.tipo === 'conecta') { body = _jConecta(gid, g); }
+    else if (g.tipo === 'clasifica') { body = _jClasifica(gid, g); }
+    else if (g.tipo === 'rellena') { body = _jRellena(gid, g); }
+    else if (g.tipo === 'ordenar') { body = _jOrdenar(gid, g); }
+    else if (g.tipo === 'vf') { body = _jVF(gid, g); }
+    else if (g.tipo === 'descarte') { body = _jDescarte(gid, g); }
     else return;
     var reportBtn = '<div style="text-align:right;margin-top:8px"><button onclick="_jReportError(\'' + _jEsc(firestoreId) + '\',\'' + _jEsc(g.titulo||'') + '\',this)" style="background:none;border:none;color:var(--text-faint);font-size:11px;cursor:pointer;font-family:sans-serif;padding:2px 6px">⚠ Informar de un error</button></div>';
     html += '<div class="jgame"><div class="jgame-h">' + icon + ' ' + _jEsc(g.titulo || '') + '</div>' +
@@ -4491,6 +4736,44 @@ function _admRenderJuegos() {
       html += '<button class="adm-add-btn" onclick="_admAddFrase(' + idx + ')">+ Añadir frase</button></div>';
     }
 
+    if (g.tipo === 'ordenar') {
+      html += '<div class="adm-field"><label>Pasos (en el orden correcto)</label>';
+      (g.pasos || []).forEach(function(p, pi) {
+        html += '<div class="adm-pair-row"><span style="color:var(--text-faint);font-size:11px;width:20px;text-align:center">' + (pi+1) + '</span>';
+        html += '<input value="' + _jEsc(p) + '" onchange="_adm.juegos[' + idx + '].pasos[' + pi + ']=this.value" placeholder="Paso ' + (pi+1) + '">';
+        html += '<button class="adm-pair-del" onclick="_admDelPaso(' + idx + ',' + pi + ')">✕</button></div>';
+      });
+      html += '<button class="adm-add-btn" onclick="_admAddPaso(' + idx + ')">+ Añadir paso</button></div>';
+    }
+
+    if (g.tipo === 'vf') {
+      html += '<div class="adm-field"><label>Afirmaciones</label>';
+      (g.frases || []).forEach(function(f, fi) {
+        html += '<div style="margin-bottom:8px;padding:8px;background:var(--bg-surface);border-radius:6px;display:flex;gap:8px;align-items:center">';
+        html += '<select onchange="_adm.juegos[' + idx + '].frases[' + fi + '].esVerdadero=(this.value===\'true\')" style="padding:4px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;color:' + (f.esVerdadero ? 'var(--green)' : 'var(--rose)') + ';font-size:11px;font-weight:700;width:50px">';
+        html += '<option value="true"' + (f.esVerdadero ? ' selected' : '') + '>V</option><option value="false"' + (!f.esVerdadero ? ' selected' : '') + '>F</option></select>';
+        html += '<input value="' + _jEsc(f.texto) + '" onchange="_adm.juegos[' + idx + '].frases[' + fi + '].texto=this.value" placeholder="Afirmación" style="flex:1">';
+        html += '<button class="adm-pair-del" onclick="_admDelVF(' + idx + ',' + fi + ')">✕</button></div>';
+      });
+      html += '<button class="adm-add-btn" onclick="_admAddVF(' + idx + ')">+ Añadir afirmación</button></div>';
+    }
+
+    if (g.tipo === 'descarte') {
+      html += '<div class="adm-field"><label>Preguntas</label>';
+      (g.preguntas || []).forEach(function(pr, pi) {
+        html += '<div style="margin-bottom:12px;padding:10px;background:var(--bg-surface);border-radius:8px">';
+        html += '<div class="adm-pair-row"><input value="' + _jEsc(pr.grupo||'') + '" onchange="_adm.juegos[' + idx + '].preguntas[' + pi + '].grupo=this.value" placeholder="Nombre del grupo" style="flex:1"><button class="adm-pair-del" onclick="_admDelDescPregunta(' + idx + ',' + pi + ')">✕</button></div>';
+        (pr.opciones || []).forEach(function(o, oi) {
+          html += '<div class="adm-pair-row" style="margin-left:16px"><input value="' + _jEsc(o.texto) + '" onchange="_adm.juegos[' + idx + '].preguntas[' + pi + '].opciones[' + oi + '].texto=this.value" placeholder="Opción" style="flex:1">';
+          html += '<select onchange="_adm.juegos[' + idx + '].preguntas[' + pi + '].opciones[' + oi + '].intruso=(this.value===\'true\')" style="padding:4px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;font-size:11px;color:' + (o.intruso ? 'var(--rose)' : 'var(--green)') + ';width:70px">';
+          html += '<option value="false"' + (!o.intruso ? ' selected' : '') + '>Válido</option><option value="true"' + (o.intruso ? ' selected' : '') + '>Intruso</option></select>';
+          html += '<button class="adm-pair-del" onclick="_admDelDescOpc(' + idx + ',' + pi + ',' + oi + ')">✕</button></div>';
+        });
+        html += '<button class="adm-add-btn" onclick="_admAddDescOpc(' + idx + ',' + pi + ')" style="margin-left:16px">+ Añadir opción</button></div>';
+      });
+      html += '<button class="adm-add-btn" onclick="_admAddDescPregunta(' + idx + ')">+ Añadir pregunta</button></div>';
+    }
+
     html += '</div>';
   });
   list.innerHTML = html;
@@ -4503,18 +4786,37 @@ function _admDelItem(gi, ii) { _adm.juegos[gi].items.splice(ii, 1); _admRenderJu
 function _admAddFrase(gi) { _adm.juegos[gi].frases = _adm.juegos[gi].frases || []; _adm.juegos[gi].frases.push({texto:'',respuestas:[]}); _admRenderJuegos(); }
 function _admDelFrase(gi, fi) { _adm.juegos[gi].frases.splice(fi, 1); _admRenderJuegos(); }
 function _admDelJuego(gi) { _adm.juegos.splice(gi, 1); _admRenderJuegos(); }
+function _admAddPaso(gi) { _adm.juegos[gi].pasos = _adm.juegos[gi].pasos || []; _adm.juegos[gi].pasos.push(''); _admRenderJuegos(); }
+function _admDelPaso(gi, pi) { _adm.juegos[gi].pasos.splice(pi, 1); _admRenderJuegos(); }
+function _admAddVF(gi) { _adm.juegos[gi].frases = _adm.juegos[gi].frases || []; _adm.juegos[gi].frases.push({texto:'',esVerdadero:true}); _admRenderJuegos(); }
+function _admDelVF(gi, fi) { _adm.juegos[gi].frases.splice(fi, 1); _admRenderJuegos(); }
+function _admAddDescPregunta(gi) { _adm.juegos[gi].preguntas = _adm.juegos[gi].preguntas || []; _adm.juegos[gi].preguntas.push({grupo:'',opciones:[{texto:'',intruso:false}]}); _admRenderJuegos(); }
+function _admDelDescPregunta(gi, pi) { _adm.juegos[gi].preguntas.splice(pi, 1); _admRenderJuegos(); }
+function _admAddDescOpc(gi, pi) { _adm.juegos[gi].preguntas[pi].opciones.push({texto:'',intruso:false}); _admRenderJuegos(); }
+function _admDelDescOpc(gi, pi, oi) { _adm.juegos[gi].preguntas[pi].opciones.splice(oi, 1); _admRenderJuegos(); }
 
-function _admAddJuego() {
+function _admPreviewJuegos() {
+  if (!_adm.juegos || !_adm.juegos.length) { _admStatus('juegos', 'No hay juegos para previsualizar.', 'var(--amber)'); return; }
+  var prev = document.getElementById('adm-juegos-preview');
+  var content = document.getElementById('adm-juegos-preview-content');
+  content.innerHTML = renderJuegos(_adm.juegos, 'adm-preview-' + Date.now(), true);
+  prev.style.display = 'block';
+}
+
+function _admCreateJuego(tipo) {
   if (!_adm.firestoreCol || !_adm.firestoreId) { _admStatus('juegos', 'Selecciona un punto primero.', 'var(--rose)'); return; }
   _adm.juegos = _adm.juegos || [];
-  var tipo = prompt('Tipo de juego: conecta, clasifica o rellena');
-  if (!tipo || ['conecta','clasifica','rellena'].indexOf(tipo) === -1) return;
   var g = { tipo: tipo, titulo: '', instruccion: '' };
-  if (tipo === 'conecta') g.pares = [{a:'',b:''}];
-  if (tipo === 'clasifica') { g.categorias = []; g.items = [{texto:'',cat:''}]; }
-  if (tipo === 'rellena') { g.banco = []; g.frases = [{texto:'',respuestas:[]}]; }
+  if (tipo === 'conecta') { g.titulo = 'Conecta cada concepto'; g.instruccion = 'Toca un elemento y luego la opción que le corresponde.'; g.pares = [{a:'Término 1',b:'Definición 1'},{a:'Término 2',b:'Definición 2'}]; }
+  if (tipo === 'clasifica') { g.titulo = 'Clasifica los elementos'; g.instruccion = 'Arrastra (o toca y coloca) cada elemento en su grupo.'; g.categorias = ['Categoría A','Categoría B']; g.items = [{texto:'Ejemplo 1',cat:'Categoría A'},{texto:'Ejemplo 2',cat:'Categoría B'}]; }
+  if (tipo === 'rellena') { g.titulo = 'Rellena los huecos'; g.instruccion = 'Arrastra (o toca la palabra y luego el hueco) para completar.'; g.banco = ['respuesta1','respuesta2','distractor']; g.frases = [{texto:'La ___ es la respuesta correcta.',respuestas:['respuesta1']}]; }
+  if (tipo === 'ordenar') { g.titulo = 'Ordena los pasos'; g.instruccion = 'Arrastra los elementos para ordenarlos correctamente.'; g.pasos = ['Primer paso','Segundo paso','Tercer paso']; }
+  if (tipo === 'vf') { g.titulo = 'Verdadero o falso'; g.instruccion = 'Indica si cada afirmación es verdadera o falsa.'; g.frases = [{texto:'Esta afirmación es verdadera.',esVerdadero:true},{texto:'Esta afirmación es falsa.',esVerdadero:false}]; }
+  if (tipo === 'descarte') { g.titulo = 'Encuentra el intruso'; g.instruccion = 'Selecciona el elemento que NO pertenece al grupo.'; g.preguntas = [{grupo:'Grupo de ejemplo',opciones:[{texto:'Pertenece',intruso:false},{texto:'Pertenece',intruso:false},{texto:'NO pertenece',intruso:true},{texto:'Pertenece',intruso:false}]}]; }
   _adm.juegos.push(g);
+  document.getElementById('adm-add-panel').style.display = 'none';
   _admRenderJuegos();
+  _admStatus('juegos', '✅ Juego "' + tipo + '" añadido. Edita los campos y guarda.', 'var(--green)');
 }
 
 function _admSaveJuegos() {
