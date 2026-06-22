@@ -908,6 +908,19 @@ html,body{height:100%;overflow:hidden}
   font-size:28px;font-weight:800;color:#4ade80;opacity:0;pointer-events:none;z-index:10;
   text-shadow:0 0 20px rgba(74,222,128,.5);transition:opacity .3s}
 .gaming-splash.show{opacity:1}
+.gaming-intro{position:relative;z-index:2;flex:1;display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+.gaming-intro-card{max-width:480px;width:100%;background:rgba(15,18,28,.9);border:1px solid rgba(45,212,191,.15);
+  border-radius:18px;padding:36px 32px;text-align:center;backdrop-filter:blur(10px)}
+.gaming-intro-section{display:flex;gap:14px;text-align:left;margin-bottom:18px;padding:14px 16px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px}
+.gaming-intro-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.gaming-intro-title{font-size:13px;font-weight:700;color:#e0e8ff;margin-bottom:3px}
+.gaming-intro-text{font-size:12px;color:rgba(255,255,255,.45);line-height:1.6}
+.gaming-intro-btn{margin-top:10px;padding:14px 36px;background:linear-gradient(135deg,#2dd4bf,#a78bfa);
+  color:#0a0c12;border:none;border-radius:10px;font-weight:800;font-size:16px;cursor:pointer;
+  font-family:sans-serif;letter-spacing:.02em;box-shadow:0 0 30px rgba(45,212,191,.3);transition:transform .15s}
+.gaming-intro-btn:hover{transform:scale(1.03)}
+.gaming-session{display:none;flex-direction:column;flex:1}
 </style>
 </head>
 <body>
@@ -1175,25 +1188,70 @@ html,body{height:100%;overflow:hidden}
 
 <!-- GAMING MODE OVERLAY -->
 <div class="gaming-overlay" id="gaming-overlay">
-  <div class="gaming-hud">
-    <div class="gaming-hud-left">
-      <div class="gaming-hud-stat"><div class="val" id="gaming-num">0</div><div class="lbl">Juego</div></div>
-      <div class="gaming-hud-stat gaming-hud-streak"><div class="val" id="gaming-streak">🔥 0</div><div class="lbl">Racha</div></div>
-      <div class="gaming-hud-stat"><div class="val" id="gaming-xp">0</div><div class="lbl">XP</div></div>
-    </div>
-    <div class="gaming-hud-right">
-      <button class="gaming-btn-skip" onclick="gamingSkip()">Saltar ⏭</button>
-      <button class="gaming-btn-exit" onclick="gamingExit()">✕ Salir</button>
+  <!-- INTRO -->
+  <div class="gaming-intro" id="gaming-intro">
+    <div class="gaming-intro-card">
+      <div style="font-size:42px;margin-bottom:12px">🎮</div>
+      <h2 style="font-size:26px;font-weight:800;color:#2dd4bf;margin:0 0 6px;font-family:sans-serif">Gaming Mode</h2>
+      <p style="font-size:13px;color:rgba(255,255,255,.5);margin:0 0 28px">Experiencia inmersiva de estudio interactivo</p>
+
+      <div class="gaming-intro-section">
+        <div class="gaming-intro-icon">🕹️</div>
+        <div>
+          <div class="gaming-intro-title">Cómo funciona</div>
+          <div class="gaming-intro-text">Los minijuegos se presentan uno tras otro de forma automática. Conecta, clasifica y rellena — sin pausas, sin menú. Tú solo juegas.</div>
+        </div>
+      </div>
+
+      <div class="gaming-intro-section">
+        <div class="gaming-intro-icon">⚡</div>
+        <div>
+          <div class="gaming-intro-title">Experiencia (XP)</div>
+          <div class="gaming-intro-text">Cada acierto parcial dentro de un ejercicio te da <b style="color:#2dd4bf">+5 XP</b>. Completar el ejercicio suma <b style="color:#2dd4bf">+10 XP</b> adicionales. Pero si fallas, pierdes <b style="color:#f87171">−5 XP</b>.</div>
+        </div>
+      </div>
+
+      <div class="gaming-intro-section">
+        <div class="gaming-intro-icon">🔥</div>
+        <div>
+          <div class="gaming-intro-title">Racha</div>
+          <div class="gaming-intro-text">Por cada ejercicio completado sin fallos, tu racha sube. El bonus de racha te da <b style="color:#f59e0b">+N XP</b> extra, donde N es tu racha actual. Cuanto más larga, más ganas. Si fallas, la racha vuelve a cero.</div>
+        </div>
+      </div>
+
+      <div class="gaming-intro-section">
+        <div class="gaming-intro-icon">⏭</div>
+        <div>
+          <div class="gaming-intro-title">Saltar y salir</div>
+          <div class="gaming-intro-text">Puedes saltar un ejercicio en cualquier momento, pero perderás tu racha. Pulsa ✕ Salir cuando quieras terminar la sesión.</div>
+        </div>
+      </div>
+
+      <button class="gaming-intro-btn" onclick="gamingLaunch()">Empezar maratón</button>
     </div>
   </div>
-  <div class="gaming-progress">
-    <div class="gaming-progress-bar"><div class="gaming-progress-fill" id="gaming-progress-fill" style="width:0%"></div></div>
-    <div class="gaming-progress-text" id="gaming-progress-text">0 / 0</div>
-  </div>
-  <div class="gaming-body">
-    <div class="gaming-card" id="gaming-card">
-      <div id="gaming-game-container"></div>
-      <div class="gaming-splash" id="gaming-splash">🎉 ¡Perfecto!</div>
+  <!-- HUD + JUEGO -->
+  <div class="gaming-session" id="gaming-session" style="display:none;flex-direction:column;flex:1">
+    <div class="gaming-hud">
+      <div class="gaming-hud-left">
+        <div class="gaming-hud-stat"><div class="val" id="gaming-num">0</div><div class="lbl">Juego</div></div>
+        <div class="gaming-hud-stat gaming-hud-streak"><div class="val" id="gaming-streak">🔥 0</div><div class="lbl">Racha</div></div>
+        <div class="gaming-hud-stat"><div class="val" id="gaming-xp">0</div><div class="lbl">XP</div></div>
+      </div>
+      <div class="gaming-hud-right">
+        <button class="gaming-btn-skip" onclick="gamingSkip()">Saltar ⏭</button>
+        <button class="gaming-btn-exit" onclick="gamingExit()">✕ Salir</button>
+      </div>
+    </div>
+    <div class="gaming-progress">
+      <div class="gaming-progress-bar"><div class="gaming-progress-fill" id="gaming-progress-fill" style="width:0%"></div></div>
+      <div class="gaming-progress-text" id="gaming-progress-text">0 / 0</div>
+    </div>
+    <div class="gaming-body">
+      <div class="gaming-card" id="gaming-card">
+        <div id="gaming-game-container"></div>
+        <div class="gaming-splash" id="gaming-splash">🎉 ¡Perfecto!</div>
+      </div>
     </div>
   </div>
 </div>
@@ -2160,18 +2218,19 @@ function cClick(el, game) {
       first.classList.add('ok');
       second.classList.add('ok');
       state.count++;
-      addXP(10, '¡Correcto!', game + ' ' + state.count + '/' + state.total);
+      _jAcierto(game + ' ' + state.count + '/' + state.total);
       if (state.count === state.total) {
         var res = document.getElementById(game + '-result');
         if (res) {
-          res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Completado! +20 XP extra</span>';
+          res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Completado!</span>';
         }
-        addXP(20, '¡Completado!', 'Conecta');
+        _jCompletar('Conecta');
       }
     } else {
       // incorrecto
       first.classList.add('ko');
       second.classList.add('ko');
+      _jFallo();
       setTimeout(function() {
         first.classList.remove('ko');
         second.classList.remove('ko');
@@ -3534,14 +3593,16 @@ function gClasCheck(gid) {
     if (!zone) { inPool++; return; }
     if (zone.dataset.cat === chip.dataset.cat) {
       chip.classList.add('correct'); chip.draggable = false; ok++;
+      _jAcierto('Clasifica ' + ok + '/' + total);
     } else {
       chip.classList.add('wrong-place');
+      _jFallo();
       setTimeout(function () { chip.classList.remove('wrong-place'); }, 600);
     }
   });
   if (ok === total && total > 0) {
-    res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Perfecto! +60 XP</span>';
-    if (typeof addXP === 'function') addXP(60, '¡Perfecto!', 'Clasifica');
+    res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Perfecto!</span>';
+    _jCompletar('Clasifica');
   } else {
     res.innerHTML = '<span style="color:var(--amber)">' + ok + '/' + total + ' correctos' +
       (inPool ? ', ' + inPool + ' sin clasificar' : '') + '. ¡Sigue!</span>';
@@ -3628,13 +3689,13 @@ function gRellCheck(gid) {
     var val = (s.textContent || '').trim().toLowerCase();
     var ans = (s.dataset.answer || '').trim().toLowerCase();
     s.classList.remove('ok', 'ko');
-    if (val && val === ans) { s.classList.add('ok'); ok++; }
-    else { s.classList.add('ko'); (function (x) { setTimeout(function () { x.classList.remove('ko'); }, 600); })(s); }
+    if (val && val === ans) { s.classList.add('ok'); ok++; _jAcierto('Rellena ' + ok + '/' + total); }
+    else { s.classList.add('ko'); _jFallo(); (function (x) { setTimeout(function () { x.classList.remove('ko'); }, 600); })(s); }
   });
   var res = document.getElementById(gid + '-result');
   if (ok === total && total > 0) {
-    res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Perfecto! +60 XP</span>';
-    if (typeof addXP === 'function') addXP(60, '¡Perfecto!', 'Rellena');
+    res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Perfecto!</span>';
+    _jCompletar('Rellena');
   } else {
     res.innerHTML = '<span style="color:var(--amber)">' + ok + '/' + total + ' correctas. ¡Sigue!</span>';
   }
@@ -3733,6 +3794,35 @@ function abrirMinijuego(pi, gi) {
 }
 
 /* ══════════════════════════════════════════════════════
+   SISTEMA DE XP — modo estudio vs gaming
+   ══════════════════════════════════════════════════════ */
+function _jAcierto(sub) {
+  if (_gaming.active) {
+    _gaming.xp += 5;
+    _gamingUpdateHud();
+  } else {
+    addXP(5, '¡Correcto!', sub);
+  }
+}
+function _jFallo() {
+  if (_gaming.active) {
+    _gaming.xp = Math.max(0, _gaming.xp - 5);
+    _gaming.streak = 0;
+    _gamingUpdateHud();
+  }
+}
+function _jCompletar(sub) {
+  if (_gaming.active) {
+    _gaming.xp += 10;
+    _gaming.streak++;
+    _gaming.xp += _gaming.streak;
+    _gamingUpdateHud();
+  } else {
+    addXP(10, '¡Completado!', sub);
+  }
+}
+
+/* ══════════════════════════════════════════════════════
    MODO GAMING — lógica de maratón
    ══════════════════════════════════════════════════════ */
 var _gaming = { active: false, queue: [], idx: 0, streak: 0, xp: 0, observer: null };
@@ -3741,6 +3831,13 @@ function gamingStart() {
   if (typeof db === 'undefined') { alert('Conecta tu cuenta para usar el Modo Gaming.'); return; }
   var ov = document.getElementById('gaming-overlay');
   ov.classList.add('active');
+  document.getElementById('gaming-intro').style.display = 'flex';
+  document.getElementById('gaming-session').style.display = 'none';
+}
+
+function gamingLaunch() {
+  document.getElementById('gaming-intro').style.display = 'none';
+  document.getElementById('gaming-session').style.display = 'flex';
   _gaming.active = true;
   _gaming.idx = 0;
   _gaming.streak = 0;
@@ -3805,8 +3902,6 @@ function _gamingRender() {
     _gaming.observer = new MutationObserver(function() {
       var txt = resultEl.textContent || '';
       if (txt.indexOf('🎉') !== -1 || txt.indexOf('Perfecto') !== -1 || txt.indexOf('Completado') !== -1) {
-        _gaming.streak++;
-        _gaming.xp += 60;
         _gamingUpdateHud();
         splash.classList.add('show');
         setTimeout(function() {
