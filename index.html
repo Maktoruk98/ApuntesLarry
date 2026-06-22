@@ -3810,14 +3810,48 @@ function _pintarCajon() {
   html += '</div>';
   cont.innerHTML = html;
 }
+function _findPuntoRoute(col, docId) {
+  if (!window._TEMAS) return null;
+  for (var prof in window._TEMAS) {
+    for (var modId in window._TEMAS[prof]) {
+      var mod = window._TEMAS[prof][modId];
+      if (mod.tipo === 'modulo-firestore' && mod.firestoreCol === col) {
+        for (var pi = 0; pi < (mod.puntos || []).length; pi++) {
+          if (mod.puntos[pi].firestoreId === docId) return { prof: prof, mod: modId, bloque: null, sis: null, punto: pi };
+        }
+      }
+      if (!mod.bloques) continue;
+      for (var blqId in mod.bloques) {
+        var blq = mod.bloques[blqId];
+        if (!blq.sistemas) continue;
+        for (var sisId in blq.sistemas) {
+          var sis = blq.sistemas[sisId];
+          if (sis.firestoreCol !== col) continue;
+          for (var pi = 0; pi < (sis.puntos || []).length; pi++) {
+            if (sis.puntos[pi].firestoreId === docId) return { prof: prof, mod: modId, bloque: blqId, sis: sisId, punto: pi };
+          }
+        }
+      }
+    }
+  }
+  return null;
+}
+
 function abrirMinijuego(pi, gi) {
   var p = _cajonData && _cajonData[pi];
   if (!p || !p.juegos || !p.juegos[gi]) return;
   var g = p.juegos[gi];
+  var route = _findPuntoRoute(p.col, p.id);
+  var teoriaBtn = '';
+  if (route) {
+    teoriaBtn = '<div style="margin-top:14px;text-align:center"><button onclick="closeModal();navPunto(\'' +
+      route.prof + "','" + route.mod + "','" + (route.bloque||'') + "','" + (route.sis||'') + "'," + route.punto +
+      ')" style="padding:8px 18px;background:var(--bg-card);border:1px solid var(--accent);color:var(--accent);border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:sans-serif">📖 Ver teoría</button></div>';
+  }
   openModal(
     '<div style="font-size:21px;font-weight:700;margin-bottom:4px">' + _jEsc(g.titulo || 'Minijuego') + '</div>' +
     '<div style="font-size:13px;color:var(--text-muted);margin-bottom:6px">' + _jEsc(p.titulo) + '</div>' +
-    renderJuegos([g], p.id + '-g' + gi, true)
+    renderJuegos([g], p.id + '-g' + gi, true) + teoriaBtn
   );
 }
 
