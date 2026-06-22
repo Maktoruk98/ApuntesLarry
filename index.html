@@ -1236,10 +1236,12 @@ html,body{height:100%;overflow:hidden}
       </select>
     </div>
 
-    <!-- Tabs: Apuntes / Juegos -->
+    <!-- Tabs -->
     <div style="display:flex;gap:4px;margin-bottom:16px" id="admin-tabs" class="nav-tabs">
       <button class="nav-tab active" onclick="_admTab('apuntes')">📝 Apuntes</button>
       <button class="nav-tab" onclick="_admTab('juegos')">🎮 Juegos</button>
+      <button class="nav-tab" onclick="_admTab('usuarios')">👥 Usuarios</button>
+      <button class="nav-tab" onclick="_admTab('stats')">📊 Estadísticas</button>
     </div>
 
     <!-- Editor de apuntes -->
@@ -1269,6 +1271,28 @@ html,body{height:100%;overflow:hidden}
         <button onclick="_admAddJuego()" class="btn-s" style="font-size:13px">➕ Añadir juego</button>
       </div>
       <div id="adm-juegos-status" style="margin-top:8px;font-size:12px;min-height:18px"></div>
+    </div>
+
+    <!-- Gestión de usuarios -->
+    <div id="adm-editor-usuarios" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:14px;font-weight:700;color:var(--text-primary)">Usuarios registrados</div>
+        <button onclick="_admLoadUsers()" class="btn-s" style="font-size:12px">🔄 Refrescar</button>
+      </div>
+      <div id="adm-users-table" style="font-size:13px">
+        <div style="color:var(--text-muted)">Pulsa "Refrescar" para cargar los usuarios.</div>
+      </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div id="adm-editor-stats" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:14px;font-weight:700;color:var(--text-primary)">Estadísticas de uso</div>
+        <button onclick="_admLoadStats()" class="btn-s" style="font-size:12px">🔄 Calcular</button>
+      </div>
+      <div id="adm-stats-content" style="font-size:13px">
+        <div style="color:var(--text-muted)">Pulsa "Calcular" para generar las estadísticas.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -4238,10 +4262,17 @@ function _admPreview() {
 }
 
 function _admTab(tab) {
+  var tabNames = ['apuntes','juegos','usuarios','stats'];
   var tabs = document.querySelectorAll('#admin-tabs .nav-tab');
-  tabs.forEach(function(t, i) { t.classList.toggle('active', i === (tab === 'apuntes' ? 0 : 1)); });
-  document.getElementById('adm-editor-apuntes').style.display = tab === 'apuntes' ? 'block' : 'none';
-  document.getElementById('adm-editor-juegos').style.display = tab === 'juegos' ? 'block' : 'none';
+  tabs.forEach(function(t, i) { t.classList.toggle('active', tabNames[i] === tab); });
+  tabNames.forEach(function(n) {
+    var el = document.getElementById('adm-editor-' + n);
+    if (el) el.style.display = n === tab ? 'block' : 'none';
+  });
+  var selectors = document.getElementById('admin-selectors');
+  selectors.style.display = (tab === 'apuntes' || tab === 'juegos') ? 'flex' : 'none';
+  if (tab === 'usuarios') _admLoadUsers();
+  if (tab === 'stats') _admLoadStats();
 }
 
 function _admSaveApuntes() {
@@ -4347,6 +4378,160 @@ function _admSaveJuegos() {
     }).catch(function(e) {
       _admStatus('juegos', '❌ Error: ' + e.message, 'var(--rose)');
     });
+}
+
+/* ── Gestión de usuarios ── */
+var _admUsers = [];
+function _admLoadUsers() {
+  var cont = document.getElementById('adm-users-table');
+  cont.innerHTML = '<div style="color:var(--text-muted)">Cargando usuarios...</div>';
+  db.collection('users').orderBy('xp','desc').get().then(function(snap) {
+    _admUsers = [];
+    snap.forEach(function(doc) { _admUsers.push(Object.assign({uid:doc.id}, doc.data())); });
+    _admRenderUsers();
+  }).catch(function(e) { cont.innerHTML = '<div style="color:var(--rose)">Error: '+e.message+'</div>'; });
+}
+
+function _admRenderUsers() {
+  var cont = document.getElementById('adm-users-table');
+  if (!_admUsers.length) { cont.innerHTML = '<div style="color:var(--text-muted)">No hay usuarios.</div>'; return; }
+  var html = '<table style="width:100%;border-collapse:collapse">';
+  html += '<tr style="border-bottom:2px solid var(--border);text-align:left">';
+  html += '<th style="padding:10px 8px;color:var(--text-muted);font-size:11px;text-transform:uppercase">Usuario</th>';
+  html += '<th style="padding:10px 8px;color:var(--text-muted);font-size:11px;text-transform:uppercase">XP</th>';
+  html += '<th style="padding:10px 8px;color:var(--text-muted);font-size:11px;text-transform:uppercase">Nivel</th>';
+  html += '<th style="padding:10px 8px;color:var(--text-muted);font-size:11px;text-transform:uppercase">Registro</th>';
+  html += '<th style="padding:10px 8px;color:var(--text-muted);font-size:11px;text-transform:uppercase">Visitados</th>';
+  html += '<th style="padding:10px 8px;color:var(--text-muted);font-size:11px;text-transform:uppercase">Acciones</th>';
+  html += '</tr>';
+  _admUsers.forEach(function(u, i) {
+    var visitCount = u.visitados ? Object.keys(u.visitados).length : 0;
+    var created = u.createdAt ? new Date(u.createdAt).toLocaleDateString('es-ES') : '—';
+    var lvName = typeof getLVName === 'function' ? getLVName(typeof getLV === 'function' ? getLV(u.xp||0) : 0) : '';
+    var blocked = u.blocked ? ' (bloqueado)' : '';
+    var avatar = u.photoURL ? '<img src="'+u.photoURL+'" style="width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:6px">' : '<span style="margin-right:6px">'+( u.avatar||'🦁')+'</span>';
+    html += '<tr style="border-bottom:1px solid var(--border)">';
+    html += '<td style="padding:10px 8px">' + avatar + _jEsc(u.name||'Sin nombre') + '<span style="color:var(--text-faint);font-size:11px">' + blocked + '</span></td>';
+    html += '<td style="padding:10px 8px;color:#f59e0b;font-weight:700">' + (u.xp||0) + '</td>';
+    html += '<td style="padding:10px 8px">' + (u.level||1) + ' <span style="color:var(--text-faint);font-size:11px">' + lvName + '</span></td>';
+    html += '<td style="padding:10px 8px;color:var(--text-muted)">' + created + '</td>';
+    html += '<td style="padding:10px 8px;color:var(--text-muted)">' + visitCount + '</td>';
+    html += '<td style="padding:10px 8px">';
+    html += '<button onclick="_admResetXP('+i+')" style="padding:4px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--amber);font-size:11px;cursor:pointer;font-family:sans-serif;margin-right:4px" title="Resetear XP">↻ XP</button>';
+    html += '<button onclick="_admToggleBlock('+i+')" style="padding:4px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:'+(u.blocked?'var(--green)':'var(--rose)')+';font-size:11px;cursor:pointer;font-family:sans-serif" title="'+(u.blocked?'Desbloquear':'Bloquear')+'">'+(u.blocked?'✓ Desbloquear':'✕ Bloquear')+'</button>';
+    html += '</td></tr>';
+  });
+  html += '</table>';
+  cont.innerHTML = html;
+}
+
+function _admResetXP(idx) {
+  var u = _admUsers[idx];
+  if (!u) return;
+  if (!confirm('¿Resetear la XP de ' + u.name + ' a 0?')) return;
+  db.collection('users').doc(u.uid).update({xp: 0, level: 1}).then(function() {
+    _admUsers[idx].xp = 0; _admUsers[idx].level = 1;
+    _admRenderUsers();
+  });
+}
+
+function _admToggleBlock(idx) {
+  var u = _admUsers[idx];
+  if (!u) return;
+  var newState = !u.blocked;
+  var action = newState ? 'bloquear' : 'desbloquear';
+  if (!confirm('¿Seguro que quieres ' + action + ' a ' + u.name + '?')) return;
+  db.collection('users').doc(u.uid).update({blocked: newState}).then(function() {
+    _admUsers[idx].blocked = newState;
+    _admRenderUsers();
+  });
+}
+
+/* ── Estadísticas ── */
+function _admLoadStats() {
+  var cont = document.getElementById('adm-stats-content');
+  cont.innerHTML = '<div style="color:var(--text-muted)">Calculando estadísticas...</div>';
+
+  Promise.all([
+    db.collection('users').get(),
+    db.collectionGroup('puntos').get()
+  ]).then(function(results) {
+    var userSnap = results[0];
+    var puntosSnap = results[1];
+
+    var totalUsers = 0, totalXP = 0, activeUsers = 0;
+    var visitCounts = {};
+    var now = Date.now();
+    var weekAgo = now - 7*24*60*60*1000;
+
+    userSnap.forEach(function(doc) {
+      var d = doc.data();
+      totalUsers++;
+      totalXP += d.xp || 0;
+      if (d.createdAt) {
+        var created = new Date(d.createdAt).getTime();
+        if (created > weekAgo) activeUsers++;
+      }
+      if (d.visitados) {
+        for (var key in d.visitados) {
+          visitCounts[key] = (visitCounts[key] || 0) + 1;
+        }
+      }
+    });
+
+    var totalJuegos = 0, juegosPorCol = {};
+    puntosSnap.forEach(function(doc) {
+      var d = doc.data();
+      var col = (doc.ref.parent && doc.ref.parent.parent) ? doc.ref.parent.parent.id : 'unknown';
+      var count = (d.juegos && d.juegos.length) || 0;
+      totalJuegos += count;
+      juegosPorCol[col] = (juegosPorCol[col] || 0) + count;
+    });
+
+    var sortedVisits = Object.keys(visitCounts).map(function(k) { return {key:k, count:visitCounts[k]}; });
+    sortedVisits.sort(function(a,b) { return b.count - a.count; });
+
+    var html = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">';
+    html += '<div class="stat-card"><div class="stat-n" style="color:var(--accent)">' + totalUsers + '</div><div class="stat-l">Usuarios</div></div>';
+    html += '<div class="stat-card"><div class="stat-n" style="color:#f59e0b">' + totalXP + '</div><div class="stat-l">XP total</div></div>';
+    html += '<div class="stat-card"><div class="stat-n" style="color:#a78bfa">' + totalJuegos + '</div><div class="stat-l">Minijuegos</div></div>';
+    html += '<div class="stat-card"><div class="stat-n" style="color:#4ade80">' + activeUsers + '</div><div class="stat-l">Nuevos (7 días)</div></div>';
+    html += '</div>';
+
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">';
+
+    html += '<div><div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text-primary)">🔥 Contenido más visitado</div>';
+    html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px">';
+    if (sortedVisits.length) {
+      sortedVisits.slice(0, 15).forEach(function(v, i) {
+        var label = v.key.replace(/^punto:|^sistema:|^bloque:/,'').replace(/:/g,' › ');
+        var pct = Math.round(v.count / totalUsers * 100);
+        html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">';
+        html += '<div style="font-size:11px;color:var(--text-faint);width:20px;text-align:right">' + (i+1) + '</div>';
+        html += '<div style="flex:1;font-size:12px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + _jEsc(label) + '</div>';
+        html += '<div style="width:60px"><div style="height:4px;background:var(--border);border-radius:2px"><div style="height:100%;width:'+pct+'%;background:var(--accent);border-radius:2px"></div></div></div>';
+        html += '<div style="font-size:11px;color:var(--text-muted);width:30px;text-align:right">' + v.count + '</div>';
+        html += '</div>';
+      });
+    } else { html += '<div style="color:var(--text-muted);font-size:12px">Sin datos de visitas aún.</div>'; }
+    html += '</div></div>';
+
+    html += '<div><div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text-primary)">📦 Juegos por colección</div>';
+    html += '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px">';
+    var colKeys = Object.keys(juegosPorCol).sort(function(a,b){ return juegosPorCol[b] - juegosPorCol[a]; });
+    colKeys.forEach(function(col) {
+      var pct = Math.round(juegosPorCol[col] / totalJuegos * 100);
+      html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">';
+      html += '<div style="flex:1;font-size:12px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + _jEsc(col) + '</div>';
+      html += '<div style="width:60px"><div style="height:4px;background:var(--border);border-radius:2px"><div style="height:100%;width:'+pct+'%;background:#a78bfa;border-radius:2px"></div></div></div>';
+      html += '<div style="font-size:11px;color:var(--text-muted);width:30px;text-align:right">' + juegosPorCol[col] + '</div>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+
+    html += '</div>';
+    cont.innerHTML = html;
+  }).catch(function(e) { cont.innerHTML = '<div style="color:var(--rose)">Error: '+e.message+'</div>'; });
 }
 </script>
 
