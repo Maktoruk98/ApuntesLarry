@@ -940,6 +940,13 @@ html,body{height:100%;overflow:hidden}
 .adm-pair-del:hover{color:#f87171}
 .adm-add-btn{background:none;border:1px dashed var(--border);color:var(--text-muted);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-family:sans-serif;margin-top:4px}
 .adm-add-btn:hover{border-color:var(--accent);color:var(--accent)}
+/* Juegos desplegables */
+.jgame-collapsible .jgame-body{display:none;padding-top:12px}
+.jgame-collapsible.open .jgame-body{display:block}
+.jgame-arrow{font-size:10px;color:var(--text-faint);transition:transform .2s}
+.jgame-collapsible.open .jgame-arrow{transform:rotate(90deg)}
+.jgame-toggle:hover .jgame-arrow{color:var(--accent)}
+
 .adm-type-card{cursor:pointer;padding:16px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;text-align:center;transition:border-color .15s,background .15s}
 .adm-type-card:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,var(--bg-surface))}
 
@@ -4138,9 +4145,16 @@ function renderJuegos(juegos, firestoreId, noSep) {
     else if (g.tipo === 'descarte') { body = _jDescarte(gid, g); }
     else return;
     var reportBtn = '<div style="text-align:right;margin-top:8px"><button onclick="_jReportError(\'' + _jEsc(firestoreId) + '\',\'' + _jEsc(g.titulo||'') + '\',this)" style="background:none;border:none;color:var(--text-faint);font-size:11px;cursor:pointer;font-family:sans-serif;padding:2px 6px">⚠ Informar de un error</button></div>';
-    html += '<div class="jgame"><div class="jgame-h">' + icon + ' ' + _jEsc(g.titulo || '') + '</div>' +
-      (g.instruccion ? '<div class="jgame-instr">' + _jEsc(g.instruccion) + '</div>' : '') +
-      body + reportBtn + '</div>';
+    var collapseId = gid + '_collapse';
+    html += '<div class="jgame jgame-collapsible">' +
+      '<div class="jgame-h jgame-toggle" onclick="this.parentElement.classList.toggle(\'open\')" style="cursor:pointer;user-select:none">' +
+        '<div style="display:flex;align-items:center;gap:8px;flex:1">' + icon + ' ' + _jEsc(g.titulo || '') + '</div>' +
+        '<span class="jgame-arrow">▶</span>' +
+      '</div>' +
+      '<div class="jgame-body">' +
+        (g.instruccion ? '<div class="jgame-instr">' + _jEsc(g.instruccion) + '</div>' : '') +
+        body + reportBtn +
+      '</div></div>';
   });
   return html;
 }
