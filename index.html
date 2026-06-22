@@ -1015,8 +1015,8 @@ html,body{height:100%;overflow:hidden}
     </div>
   </div>
   <div style="padding:0 40px 48px;max-width:860px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-    <div class="stat-card"><div class="stat-n" style="color:var(--accent)">2</div><div class="stat-l">Temas</div></div>
-    <div class="stat-card"><div class="stat-n" style="color:#a78bfa">5</div><div class="stat-l">Minijuegos</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:var(--accent)" id="home-temas">—</div><div class="stat-l">Temas</div></div>
+    <div class="stat-card"><div class="stat-n" style="color:#a78bfa" id="home-minijuegos">—</div><div class="stat-l">Minijuegos</div></div>
     <div class="stat-card"><div class="stat-n" style="color:#f59e0b" id="home-xp">120</div><div class="stat-l">Tu XP</div></div>
     <div class="stat-card"><div class="stat-n" style="color:#f87171" id="home-rank">#4</div><div class="stat-l">Posicion</div></div>
   </div>
@@ -1498,7 +1498,35 @@ function updateUI(){
   document.getElementById('lv-name').textContent=lvn;
   document.getElementById('lv-next').textContent=LEVELS[lv+1]?'Sig: '+LEVELS[lv+1].name:'Nivel maximo!';
   document.getElementById('home-xp').textContent=S.xp;
+  _updateHomeStats();
   renderLB();
+}
+
+var _homeStatsLoaded = false;
+function _updateHomeStats() {
+  var temasEl = document.getElementById('home-temas');
+  var miniEl = document.getElementById('home-minijuegos');
+  if (!temasEl || !miniEl) return;
+
+  var temas = 0;
+  if (window._TEMAS) {
+    for (var prof in window._TEMAS) {
+      for (var mod in window._TEMAS[prof]) { temas++; }
+    }
+  }
+  temasEl.textContent = temas || '—';
+
+  if (!_homeStatsLoaded && typeof db !== 'undefined') {
+    _homeStatsLoaded = true;
+    db.collectionGroup('puntos').get().then(function(snap) {
+      var count = 0;
+      snap.forEach(function(doc) {
+        var d = doc.data();
+        if (d && d.juegos && d.juegos.length) count += d.juegos.length;
+      });
+      miniEl.textContent = count;
+    }).catch(function() { miniEl.textContent = '—'; });
+  }
 }
 
 function renderLB(){
