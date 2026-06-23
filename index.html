@@ -1276,6 +1276,7 @@ html,body{height:100%;overflow:hidden}
     <div style="display:flex;gap:4px;margin-bottom:16px" id="admin-tabs" class="nav-tabs">
       <button class="nav-tab active" onclick="_admTab('apuntes')">📝 Apuntes</button>
       <button class="nav-tab" onclick="_admTab('juegos')">🎮 Juegos</button>
+      <button class="nav-tab" onclick="_admTab('podcast')">🎧 Podcast</button>
       <button class="nav-tab" onclick="_admTab('usuarios')">👥 Usuarios</button>
       <button class="nav-tab" onclick="_admTab('stats')">📊 Estadísticas</button>
       <button class="nav-tab" onclick="_admTab('reportes')">⚠ Reportes</button>
@@ -1362,6 +1363,15 @@ html,body{height:100%;overflow:hidden}
         </div>
         <div id="adm-juegos-preview-content"></div>
       </div>
+    </div>
+
+    <!-- Editor de podcast -->
+    <div id="adm-editor-podcast" style="display:none">
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Cada punto puede tener un podcast (audio MP3). Sube el archivo o pega una URL de Firebase Storage.</div>
+      <div id="adm-podcast-body">
+        <div style="color:var(--text-muted);font-size:13px">Selecciona un punto para gestionar su podcast.</div>
+      </div>
+      <div id="adm-podcast-status" style="margin-top:10px;font-size:12px;min-height:18px"></div>
     </div>
 
     <!-- Gestión de usuarios -->
@@ -1572,6 +1582,7 @@ html,body{height:100%;overflow:hidden}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script>
 firebase.initializeApp({
   apiKey: "AIzaSyBjccQFS1eBZc-MLz0aSD0Dgq1L3L4dFN0",
@@ -1584,6 +1595,7 @@ firebase.initializeApp({
 
 var auth = firebase.auth();
 var db = firebase.firestore();
+var storage = firebase.storage();
 
 // ── LOGIN CON GOOGLE ───────────────────────────
 window.loginGoogle = async function() {
@@ -3696,6 +3708,7 @@ function renderPunto(prof, moduloId, bloqueId, sistemaId, puntoIdx) {
       .then(function(doc) {
         if(doc.exists) {
           cont.innerHTML = mdToHtml(doc.data().contenido || doc.data().content);
+          if (typeof renderPodcast === 'function' && doc.data().podcast) { cont.innerHTML += renderPodcast(doc.data().podcast); }
           if (typeof renderJuegos === 'function' && doc.data().juegos) { cont.innerHTML += renderJuegos(doc.data().juegos, punto.firestoreId); }
           _animarCajasScan(cont);
         } else {
@@ -3778,6 +3791,9 @@ nav('home');
 (function () {
   if (document.getElementById('juegos-addon-css')) return;
   var css = ''
+    + '.punto-podcast{margin:28px 0 4px;padding:16px 18px;background:color-mix(in srgb,var(--accent) 7%,var(--bg-card));border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border));border-radius:12px;}'
+    + '.punto-podcast-h{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:15px;color:var(--text-primary);margin-bottom:12px;}'
+    + '.punto-podcast audio{border-radius:8px;}'
     + '.juegos-sep{margin:30px 0 10px;font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:17px;color:var(--text-primary);border-top:1px solid var(--border);padding-top:18px;}'
     + '.jgame{margin:14px 0;padding:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;}'
     + '.jgame-h{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:8px;color:var(--text-primary);}'
@@ -4131,6 +4147,14 @@ function descClick(gid, el, isIntruso) {
 
 /* ---------- RENDERIZADOR: pinta los juegos de un punto ---------- */
 var _JTYPE_ICONS = { conecta:'🔗', clasifica:'🗂️', rellena:'✏️', ordenar:'🔢', vf:'✅', descarte:'❌' };
+function renderPodcast(url) {
+  if (!url) return '';
+  return '<div class="punto-podcast">' +
+      '<div class="punto-podcast-h">🎧 Escucha este punto</div>' +
+      '<audio controls preload="none" src="' + _jEsc(url) + '" style="width:100%"></audio>' +
+    '</div>';
+}
+
 function renderJuegos(juegos, firestoreId, noSep) {
   if (!juegos || !juegos.length) return '';
   var base = 'j' + String(firestoreId).replace(/[^a-zA-Z0-9]/g, '');
@@ -4521,7 +4545,7 @@ function _admLoadLog() {
    PANEL ADMIN
    ══════════════════════════════════════════════════════ */
 var _ADMIN_EMAIL = 'larry.dimpiz98@gmail.com';
-var _adm = { prof:null, mod:null, blq:null, sis:null, pto:null, firestoreCol:null, firestoreId:null, juegos:null };
+var _adm = { prof:null, mod:null, blq:null, sis:null, pto:null, firestoreCol:null, firestoreId:null, juegos:null, podcast:null };
 
 function _admCheckAccess() {
   var btn = document.getElementById('btn-admin');
@@ -4547,10 +4571,12 @@ function _admReset(from) {
     var s = document.getElementById('adm-' + order[i]);
     if (s) { s.innerHTML = '<option value="">— ' + ({'mod':'Módulo','blq':'Bloque','sis':'Sistema','pto':'Punto'}[order[i]]) + ' —</option>'; s.disabled = true; }
   }
-  _adm.firestoreCol = null; _adm.firestoreId = null; _adm.juegos = null;
+  _adm.firestoreCol = null; _adm.firestoreId = null; _adm.juegos = null; _adm.podcast = null;
   document.getElementById('adm-md').value = '';
   document.getElementById('adm-preview').innerHTML = '';
   document.getElementById('adm-juegos-list').innerHTML = '<div style="color:var(--text-muted);font-size:13px">Selecciona un punto para editar sus juegos.</div>';
+  var pb = document.getElementById('adm-podcast-body');
+  if (pb) pb.innerHTML = '<div style="color:var(--text-muted);font-size:13px">Selecciona un punto para gestionar su podcast.</div>';
 }
 
 function _admOnProf() {
@@ -4654,6 +4680,8 @@ function _admOnPto() {
     _admPreview();
     _adm.juegos = d.juegos || [];
     _admRenderJuegos();
+    _adm.podcast = d.podcast || '';
+    _admRenderPodcast();
   }).catch(function(e) {
     document.getElementById('adm-md').value = 'Error: ' + e.message;
   });
@@ -4666,7 +4694,7 @@ function _admPreview() {
 }
 
 function _admTab(tab) {
-  var tabNames = ['apuntes','juegos','usuarios','stats','reportes','log'];
+  var tabNames = ['apuntes','juegos','podcast','usuarios','stats','reportes','log'];
   var tabs = document.querySelectorAll('#admin-tabs .nav-tab');
   tabs.forEach(function(t, i) { t.classList.toggle('active', tabNames[i] === tab); });
   tabNames.forEach(function(n) {
@@ -4674,7 +4702,7 @@ function _admTab(tab) {
     if (el) el.style.display = n === tab ? 'block' : 'none';
   });
   var selectors = document.getElementById('admin-selectors');
-  selectors.style.display = (tab === 'apuntes' || tab === 'juegos') ? 'flex' : 'none';
+  selectors.style.display = (tab === 'apuntes' || tab === 'juegos' || tab === 'podcast') ? 'flex' : 'none';
   if (tab === 'usuarios') _admLoadUsers();
   if (tab === 'stats') _admLoadStats();
   if (tab === 'reportes') _admLoadReports();
@@ -4842,6 +4870,94 @@ function _admSaveJuegos() {
       _admLogChange('juegos', _adm.firestoreCol + '/' + _adm.firestoreId);
     }).catch(function(e) {
       _admStatus('juegos', '❌ Error: ' + e.message, 'var(--rose)');
+    });
+}
+
+/* ── Podcast por punto ── */
+function _admRenderPodcast() {
+  var body = document.getElementById('adm-podcast-body');
+  if (!body) return;
+  if (!_adm.firestoreCol || !_adm.firestoreId) {
+    body.innerHTML = '<div style="color:var(--text-muted);font-size:13px">Selecciona un punto para gestionar su podcast.</div>';
+    return;
+  }
+  var url = _adm.podcast || '';
+  var current = url
+    ? '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px">' +
+        '<div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:8px">🎧 Podcast actual</div>' +
+        '<audio controls preload="none" src="' + _jEsc(url) + '" style="width:100%"></audio>' +
+        '<div style="display:flex;gap:8px;align-items:center;margin-top:10px">' +
+          '<input type="text" id="adm-podcast-url" value="' + _jEsc(url) + '" style="flex:1;padding:8px 10px;background:var(--bg-base);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:12px;font-family:monospace">' +
+          '<button onclick="_admSavePodcastUrl()" class="btn-s" style="font-size:12px">💾 Guardar URL</button>' +
+          '<button onclick="_admRemovePodcast()" class="btn-s" style="font-size:12px;color:var(--rose)">🗑 Quitar</button>' +
+        '</div>' +
+      '</div>'
+    : '<div style="background:var(--bg-card);border:1px dashed var(--border);border-radius:10px;padding:14px;margin-bottom:16px;color:var(--text-muted);font-size:13px">Este punto aún no tiene podcast.</div>';
+  var uploader =
+    '<div style="background:var(--bg-card);border:1px solid var(--accent);border-radius:10px;padding:16px">' +
+      '<div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:10px">Subir archivo MP3</div>' +
+      '<input type="file" id="adm-podcast-file" accept="audio/mpeg,.mp3" style="font-size:12px;color:var(--text-secondary)">' +
+      '<button onclick="_admUploadPodcast()" class="btn-p" style="font-size:13px;margin-left:10px">⬆ Subir y guardar</button>' +
+      '<div style="font-size:11px;color:var(--text-faint);margin-top:8px">Se guardará en Storage como <code>podcasts/' + _jEsc(_adm.firestoreCol) + '/' + _jEsc(_adm.firestoreId) + '.mp3</code> y se enlazará a este punto.</div>' +
+    '</div>';
+  body.innerHTML = current + uploader;
+}
+
+function _admUploadPodcast() {
+  if (!_adm.firestoreCol || !_adm.firestoreId) { _admStatus('podcast', 'Selecciona un punto primero.', 'var(--rose)'); return; }
+  var input = document.getElementById('adm-podcast-file');
+  var file = input && input.files && input.files[0];
+  if (!file) { _admStatus('podcast', 'Elige un archivo MP3 primero.', 'var(--amber)'); return; }
+  var path = 'podcasts/' + _adm.firestoreCol + '/' + _adm.firestoreId + '.mp3';
+  var ref = storage.ref(path);
+  var task = ref.put(file, { contentType: 'audio/mpeg' });
+  task.on('state_changed', function(snap) {
+    var pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+    _admStatus('podcast', 'Subiendo… ' + pct + '%', 'var(--amber)');
+  }, function(e) {
+    _admStatus('podcast', '❌ Error al subir: ' + e.message, 'var(--rose)');
+  }, function() {
+    task.snapshot.ref.getDownloadURL().then(function(url) {
+      return db.collection('temas').doc(_adm.firestoreCol).collection('puntos').doc(_adm.firestoreId)
+        .update({ podcast: url }).then(function() {
+          _adm.podcast = url;
+          _admRenderPodcast();
+          _admStatus('podcast', '✅ Podcast subido y guardado.', 'var(--green)');
+          _admLogChange('podcast', _adm.firestoreCol + '/' + _adm.firestoreId);
+        });
+    }).catch(function(e) {
+      _admStatus('podcast', '❌ Subido, pero error al guardar URL: ' + e.message, 'var(--rose)');
+    });
+  });
+}
+
+function _admSavePodcastUrl() {
+  if (!_adm.firestoreCol || !_adm.firestoreId) { _admStatus('podcast', 'Selecciona un punto primero.', 'var(--rose)'); return; }
+  var el = document.getElementById('adm-podcast-url');
+  var url = (el && el.value || '').trim();
+  _admStatus('podcast', 'Guardando…', 'var(--amber)');
+  db.collection('temas').doc(_adm.firestoreCol).collection('puntos').doc(_adm.firestoreId)
+    .update({ podcast: url }).then(function() {
+      _adm.podcast = url;
+      _admRenderPodcast();
+      _admStatus('podcast', '✅ URL guardada.', 'var(--green)');
+      _admLogChange('podcast', _adm.firestoreCol + '/' + _adm.firestoreId);
+    }).catch(function(e) {
+      _admStatus('podcast', '❌ Error: ' + e.message, 'var(--rose)');
+    });
+}
+
+function _admRemovePodcast() {
+  if (!_adm.firestoreCol || !_adm.firestoreId) return;
+  if (!confirm('¿Quitar el podcast de este punto? (El archivo en Storage no se borra.)')) return;
+  db.collection('temas').doc(_adm.firestoreCol).collection('puntos').doc(_adm.firestoreId)
+    .update({ podcast: firebase.firestore.FieldValue.delete() }).then(function() {
+      _adm.podcast = '';
+      _admRenderPodcast();
+      _admStatus('podcast', '✅ Podcast quitado del punto.', 'var(--green)');
+      _admLogChange('podcast', _adm.firestoreCol + '/' + _adm.firestoreId);
+    }).catch(function(e) {
+      _admStatus('podcast', '❌ Error: ' + e.message, 'var(--rose)');
     });
 }
 
