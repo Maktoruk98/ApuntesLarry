@@ -30,6 +30,9 @@
   --green: #4ade80;
   --rose: #f87171;
 }
+/* HOSPITAL (gratis y feo) */
+[data-tema="hospital"][data-modo="dark"]{--bg-base:#1a1a1a;--bg-surface:#222;--bg-card:#2a2a2a;--bg-card2:#333;--text-primary:#ccc;--text-secondary:#999;--text-muted:#666;--text-faint:#444;--border:#383838;--accent:#33cc66;--accent2:#33cc66;--accent-logo:#33cc66;--topbar-bg:#222;--topbar-border:#383838;--bg3:#333;--border2:rgba(255,255,255,0.1);--teal:#33cc66;--amber:#ccaa33;--green:#33cc66;--rose:#cc4444;--bg-gradient:none;--bg-overlay:none}
+[data-tema="hospital"][data-modo="light"]{--bg-base:#e8e8e8;--bg-surface:#ddd;--bg-card:#f5f5f5;--bg-card2:#eee;--text-primary:#222;--text-secondary:#555;--text-muted:#888;--text-faint:#bbb;--border:#ccc;--accent:#229944;--accent2:#229944;--accent-logo:#229944;--topbar-bg:#ddd;--topbar-border:#ccc;--topbar-text:#222;--bg3:#eee;--border2:rgba(0,0,0,0.12);--teal:#229944;--amber:#998822;--green:#229944;--rose:#aa3333;--bg-gradient:none;--bg-overlay:none}
 /* CAFÉ DARK */
 [data-tema="cafe"][data-modo="dark"]{--bg-base:#1e1610;--bg-surface:#170f09;--bg-card:#2a1e14;--bg-card2:#3a2a1a;--text-primary:#f5e6d0;--text-secondary:#c4a882;--text-muted:#a07855;--text-faint:#5a3a20;--border:rgba(255,220,180,0.12);--accent:#c8854a;--accent2:#d4a843;--accent-logo:#c8854a;--topbar-bg:#170f09;--topbar-border:rgba(255,220,180,0.1);--bg3:#3a2a1a;--border2:rgba(255,220,180,0.22);--teal:#c8854a;--amber:#d4a843;--green:#a8c850;--rose:#e87060;--bg-gradient:linear-gradient(135deg,#1e1610 0%,#3a2010 40%,#1a1008 70%,#2e1a08 100%);--bg-overlay:radial-gradient(ellipse at 75% 20%,rgba(200,133,74,0.2) 0%,transparent 55%),radial-gradient(ellipse at 20% 80%,rgba(212,168,67,0.12) 0%,transparent 50%)}
 /* CAFÉ LIGHT */
@@ -104,6 +107,44 @@ html,body{height:100%;overflow:hidden}
 .gtag.diff{background:rgba(167,139,250,.12);color:#a78bfa}
 .av-opt{width:42px;height:42px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer;border:2px solid var(--border);background:var(--bg-card);margin:4px}
 .av-opt.sel,.av-opt:hover{border-color:var(--accent)}
+.mii-editor{text-align:center}
+.mii-preview{margin:0 auto 16px;width:100px;height:100px}
+.mii-preview svg{width:100%;height:100%}
+.mii-section{margin-bottom:12px;text-align:left}
+.mii-section-title{font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.mii-opts{display:flex;flex-wrap:wrap;gap:6px}
+.mii-opt{width:36px;height:36px;border-radius:8px;border:2px solid var(--border);background:var(--bg-card);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;transition:border-color .15s}
+.mii-opt:hover,.mii-opt.sel{border-color:var(--accent)}
+.mii-opt.sel{box-shadow:0 0 0 1px var(--accent)}
+.mii-color{width:22px;height:22px;border-radius:50%}
+.mii-opt svg{width:28px;height:28px}
+.mii-acc-tag{font-size:9px;color:#f59e0b;font-weight:700;position:absolute;top:-6px;right:-4px}
+.mii-opt.premium{position:relative;opacity:.65}
+.mii-opt.premium.sel{opacity:1}
+/* ── MONEDAS & TIENDA ─────────────────────────── */
+.tb-coins{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border);font-size:12px;font-weight:700;color:#f59e0b;cursor:pointer}
+.tb-coins:hover{border-color:#f59e0b}
+.pp-coins{display:flex;align-items:center;gap:6px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:14px}
+.pp-coins-n{font-size:22px;font-weight:700;color:#f59e0b}
+.pp-coins-l{font-size:11px;color:var(--text-muted)}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.shop-item{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:border-color .15s}
+.shop-item:hover{border-color:var(--accent)}
+.shop-item.owned{border-color:#4ade80;opacity:.7;cursor:default}
+.shop-item.owned::after{content:'✓';position:absolute;top:6px;right:8px;color:#4ade80;font-weight:700;font-size:14px}
+.shop-item{position:relative}
+.shop-item-icon{font-size:28px;margin-bottom:6px}
+.shop-item-name{font-size:12px;font-weight:600;margin-bottom:4px}
+.shop-item-price{font-size:11px;color:#f59e0b;font-weight:700}
+.shop-item.owned .shop-item-price{color:#4ade80}
+.shop-section{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:600;margin:16px 0 8px}
+.coin-toast{position:fixed;bottom:70px;right:22px;background:var(--bg-surface);border:1px solid #f59e0b44;border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:8px;z-index:400;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;font-size:13px;font-weight:700;color:#f59e0b}
+.coin-toast.show{transform:translateY(0);opacity:1}
+.tema-locked{opacity:.5;pointer-events:none}
+.tema-locked-tag{font-size:9px;color:#f59e0b}
+.mii-tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap;justify-content:center}
+.mii-tab{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted)}
+.mii-tab.active{background:var(--accent);color:#0c0e14;border-color:var(--accent)}
 .setup-inp{width:100%;padding:10px;background:var(--bg-card);border:2px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:14px;outline:none;margin-bottom:14px;font-family:sans-serif}
 .setup-inp:focus{border-color:var(--accent)}
 .bone-q{font-size:17px;font-weight:600;margin-bottom:18px;min-height:56px;display:flex;align-items:center;justify-content:center;text-align:center}
@@ -1008,6 +1049,7 @@ html,body{height:100%;overflow:hidden}
     <button onclick="gamingStart()" style="margin-left:6px;padding:5px 14px;border-radius:6px;border:none;background:#13161f;color:#2dd4bf;font-size:12px;font-weight:700;cursor:pointer;font-family:sans-serif;letter-spacing:.03em">Gaming Mode</button>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
+    <div class="tb-coins" onclick="openShop()" title="Tienda">🪙 <span id="tb-coins">0</span></div>
     <button id="btn-modo" onclick="toggleModo()" title="Cambiar modo" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;font-size:18px;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:sans-serif">☀️</button>
     <div class="user-badge" onclick="togglePP()">
       <div class="user-photo" id="tb-av">🦁</div>
@@ -1032,6 +1074,13 @@ html,body{height:100%;overflow:hidden}
     <span style="color:#f59e0b" id="pp-xplbl">120 / 500</span>
   </div>
   <div class="pp-xpbar"><div class="pp-xpfill" id="pp-xpf" style="width:24%"></div></div>
+  <div class="pp-coins" onclick="openShop()" style="cursor:pointer">
+    <div style="font-size:22px">🪙</div>
+    <div>
+      <div class="pp-coins-n" id="pp-coins">0</div>
+      <div class="pp-coins-l">Monedas · <span style="color:var(--accent)">Tienda</span></div>
+    </div>
+  </div>
   <div class="lv-badge">
     <div class="lv-num" id="lv-num">1</div>
     <div>
@@ -1046,14 +1095,9 @@ html,body{height:100%;overflow:hidden}
     <!-- SELECTOR DE TEMA -->
     <div style="margin-bottom:8px">
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:8px">Apariencia</div>
-      <select id="tema-select" onchange="setTema(this.value)" style="width:100%;padding:9px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;cursor:pointer;font-family:sans-serif;margin-bottom:0">
-        <option value="default">🌑 Por defecto</option>
-        <option value="cafe">☕ Café</option>
-        <option value="te">🍵 Té verde</option>
-        <option value="lavanda">🌸 Lavanda</option>
-        <option value="oceano">🌊 Océano</option>
-      </select>
+      <div id="tema-select-wrap"></div>
     </div>
+    <button class="btn-s" style="width:100%;font-size:13px;margin-bottom:8px" onclick="openShop()">🪙 Tienda</button>
     <button id="btn-admin" onclick="nav('admin')" style="display:none;width:100%;padding:9px;background:rgba(45,212,191,.08);border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;font-family:sans-serif;margin-bottom:8px">⚙️ Panel Admin</button>
     <button onclick="window.logOut&&window.logOut()" style="width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:sans-serif">Cerrar sesion</button>
   </div>
@@ -1486,6 +1530,7 @@ html,body{height:100%;overflow:hidden}
         <div class="gaming-hud-stat"><div class="val" id="gaming-num">0</div><div class="lbl">Juego</div></div>
         <div class="gaming-hud-stat gaming-hud-streak"><div class="val" id="gaming-streak">🔥 0</div><div class="lbl">Racha</div></div>
         <div class="gaming-hud-stat"><div class="val" id="gaming-xp">0</div><div class="lbl">XP</div></div>
+        <div class="gaming-hud-stat"><div class="val" style="color:#f59e0b" id="gaming-coins">0</div><div class="lbl">🪙</div></div>
       </div>
       <div class="gaming-hud-right">
         <button class="gaming-btn-skip" onclick="gamingSkip()">Saltar ⏭</button>
@@ -1522,15 +1567,10 @@ html,body{height:100%;overflow:hidden}
     <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px">Nombre</label>
     <input class="setup-inp" id="setup-name" placeholder="Tu nombre..." value="Larry">
     <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px">Avatar</label>
-    <div style="margin-bottom:18px">
-      <div class="av-opt sel" data-av="🦁" onclick="selAv(this)">🦁</div>
-      <div class="av-opt" data-av="🦊" onclick="selAv(this)">🦊</div>
-      <div class="av-opt" data-av="🐺" onclick="selAv(this)">🐺</div>
-      <div class="av-opt" data-av="🦅" onclick="selAv(this)">🦅</div>
-      <div class="av-opt" data-av="🐉" onclick="selAv(this)">🐉</div>
-      <div class="av-opt" data-av="🌙" onclick="selAv(this)">🌙</div>
-      <div class="av-opt" data-av="⚡" onclick="selAv(this)">⚡</div>
-      <div class="av-opt" data-av="🎭" onclick="selAv(this)">🎭</div>
+    <div class="mii-editor" id="mii-editor">
+      <div class="mii-preview" id="mii-preview"></div>
+      <div class="mii-tabs" id="mii-tabs"></div>
+      <div id="mii-panel"></div>
     </div>
     <button class="btn-p" style="width:100%" onclick="saveProfile()">Guardar perfil</button>
   </div>
@@ -1564,6 +1604,8 @@ html,body{height:100%;overflow:hidden}
   </div>
   <div style="font-size:19px;font-weight:700;color:#f59e0b;margin-left:auto" id="toast-x">+10 XP</div>
 </div>
+<!-- COIN TOAST -->
+<div class="coin-toast" id="coin-toast">🪙 <span id="coin-toast-txt">+3</span></div>
 
 <!-- LEVEL UP -->
 <div class="lu-ov" id="lu-ov">
@@ -1639,12 +1681,12 @@ window.logOut = async function() {
 };
 
 // ── ENTRAR A LA APP ────────────────────────────
-function enterApp(name, avatar, xp, isFirebase, uid, photoURL, email) {
+function enterApp(name, avatar, xp, isFirebase, uid, photoURL, email, mii, coins, owned) {
   document.getElementById('login-screen').classList.add('hidden');
-  window.S = { name: name, av: avatar, xp: xp || 0, uid: uid || null, isFirebase: !!isFirebase, email: email || '' };
+  window.S = { name: name, av: avatar, xp: xp || 0, uid: uid || null, isFirebase: !!isFirebase, email: email || '', mii: mii || null, coins: coins || 0, owned: owned || [] };
   if (typeof _admCheckAccess === 'function') _admCheckAccess();
 
-  if (photoURL) {
+  if (!mii && photoURL) {
     var tbAv = document.getElementById('tb-av');
     if (tbAv) tbAv.innerHTML = '<img src="' + photoURL + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
     var ppAv = document.getElementById('pp-av');
@@ -1687,12 +1729,15 @@ function listenMyProfile(uid) {
         window.S.xp = data.xp || 0;
         window.S.name = data.name || window.S.name;
         window.S.av = data.avatar || window.S.av;
+        window.S.mii = data.mii || window.S.mii || null;
         window.S.noMostrarSalirModal = !!data.noMostrarSalirModal;
         window.S.visitados = data.visitados || {};
+        window.S.coins = data.coins || 0;
+        window.S.owned = data.owned || [];
       }
       // Cargar tema y modo
       if(data.tema || data.modo) {
-        aplicarTema(data.tema || 'default', data.modo || 'dark');
+        aplicarTema(data.tema || 'hospital', data.modo || 'dark');
       }
       if (typeof updateUI === 'function') updateUI();
     }
@@ -1705,7 +1750,7 @@ auth.onAuthStateChanged(async function(user) {
     var snap = await db.collection('users').doc(user.uid).get();
     if (snap.exists) {
       var data = snap.data();
-      enterApp(data.name, data.avatar, data.xp, true, user.uid, user.photoURL, user.email);
+      enterApp(data.name, data.avatar, data.xp, true, user.uid, user.photoURL, user.email, data.mii, data.coins, data.owned);
     }
     // Si no existe, espera a que complete el perfil en loginGoogle
   } else {
@@ -1737,11 +1782,18 @@ function updateUI(){
   var lv=getLV(S.xp),xmin=getXPMin(lv),xmax=getXPMax(lv);
   var pct=((S.xp-xmin)/(xmax-xmin)*100).toFixed(1);
   var lvn=getLVName(lv);
-  document.getElementById('tb-av').textContent=S.av;
+  var tbAv=document.getElementById('tb-av');
+  var ppAv=document.getElementById('pp-av');
+  if(S.mii){
+    tbAv.innerHTML=renderMiiSVG(S.mii,28);
+    ppAv.innerHTML=renderMiiSVG(S.mii,68);
+  } else {
+    tbAv.textContent=S.av;
+    ppAv.textContent=S.av;
+  }
   document.getElementById('tb-name').textContent=S.name;
   document.getElementById('tb-lv').textContent='Nv.'+(lv+1);
   document.getElementById('tb-xpf').style.width=pct+'%';
-  document.getElementById('pp-av').textContent=S.av;
   document.getElementById('pp-name').textContent=S.name;
   document.getElementById('pp-title').textContent='Nv.'+(lv+1)+' - '+lvn;
   document.getElementById('pp-xplbl').textContent=S.xp+' / '+xmax;
@@ -1750,6 +1802,8 @@ function updateUI(){
   document.getElementById('lv-name').textContent=lvn;
   document.getElementById('lv-next').textContent=LEVELS[lv+1]?'Sig: '+LEVELS[lv+1].name:'Nivel maximo!';
   document.getElementById('home-xp').textContent=S.xp;
+  _updateCoinsUI();
+  renderTemaSelector();
   _updateHomeStats();
   renderLB();
 }
@@ -1790,6 +1844,7 @@ function renderLB(){
         name: p.name || 'Usuario',
         xp: p.xp || 0,
         av: p.avatar || '🦁',
+        mii: p.mii || null,
         col: '#7c3aed',
         me: window.S && p.uid === window.S.uid
       };
@@ -1808,7 +1863,7 @@ function renderLB(){
     var col=i<3?colors[i]:'#3d4460';
     html+='<div class="lb-row'+(p.me?' me':'')+'">' +
       '<div style="width:18px;font-size:10px;color:'+col+';font-weight:700">'+(i+1)+'</div>'+
-      '<div class="lb-av2" style="background:'+(p.col||'#7c3aed')+'">'+p.av+'</div>'+
+      '<div class="lb-av2" style="background:'+(p.col||'#7c3aed')+'">'+(p.mii?renderMiiSVG(p.mii,22):p.av)+'</div>'+
       '<div style="flex:1;font-weight:500">'+p.name+(p.me?' (tu)':'')+'</div>'+
       '<div style="font-size:11px;color:#f59e0b">'+p.xp+'XP</div>'+
       '<div style="font-size:10px;background:rgba(167,139,250,.15);color:#a78bfa;padding:1px 6px;border-radius:99px">Nv.'+(getLV(p.xp)+1)+'</div>'+
@@ -1824,13 +1879,214 @@ function addXP(amt,title,sub){
   var newLv=getLV(S.xp);
   updateUI();
   showToast(title||'Correcto!',sub||'',amt);
-  if(newLv>oldLv)setTimeout(function(){showLU(newLv);},1200);
+  if(amt>0) addCoins(amt>=10?10:3, true);
+  if(newLv>oldLv){
+    setTimeout(function(){showLU(newLv);},1200);
+    var lvCoins = 20 + 5 * (newLv + 1);
+    addCoins(lvCoins);
+  }
   // Guardar en Firebase si está disponible
   if(typeof window.saveXPToFirebase==='function') {
     window.saveXPToFirebase(S.xp);
   }
   // Guardar en localStorage como backup
   try { localStorage.setItem('al_xp', S.xp); } catch(e) {}
+}
+
+// ── SISTEMA DE MONEDAS ───────────────────────────
+var _coinToastT = null;
+
+var SHOP_CATALOG = {
+  themes: [
+    {id:'default', name:'Noche Elegante', icon:'🌑', price:50},
+    {id:'cafe',    name:'Café',           icon:'☕', price:80},
+    {id:'te',      name:'Té verde',       icon:'🍵', price:80},
+    {id:'lavanda', name:'Lavanda',         icon:'🌸', price:100},
+    {id:'oceano',  name:'Océano',          icon:'🌊', price:100}
+  ],
+  accs: [
+    {id:'aviator',    name:'Aviador',      price:30,  cat:'Gafas'},
+    {id:'monocle',    name:'Monóculo',     price:40,  cat:'Gafas'},
+    {id:'ski',        name:'Esquí',        price:35,  cat:'Gafas'},
+    {id:'3d',         name:'3D',           price:25,  cat:'Gafas'},
+    {id:'nurse',      name:'Cofia',        price:30,  cat:'Sanitario'},
+    {id:'steth',      name:'Fonendo',      price:35,  cat:'Sanitario'},
+    {id:'mask',       name:'Mascarilla',   price:25,  cat:'Sanitario'},
+    {id:'scrubs',     name:'Pijama',       price:40,  cat:'Sanitario'},
+    {id:'labcoat',    name:'Bata',         price:45,  cat:'Sanitario'},
+    {id:'cap',        name:'Gorro',        price:35,  cat:'Cabeza'},
+    {id:'crown',      name:'Corona',       price:120, cat:'Cabeza'},
+    {id:'halo',       name:'Aureola',      price:90,  cat:'Cabeza'},
+    {id:'horns',      name:'Cuernos',      price:60,  cat:'Cabeza'},
+    {id:'band',       name:'Cinta ninja',  price:50,  cat:'Cabeza'},
+    {id:'graduation', name:'Birrete',      price:70,  cat:'Cabeza'},
+    {id:'santa',      name:'Navidad',      price:55,  cat:'Cabeza'},
+    {id:'eyepatch',   name:'Parche',       price:40,  cat:'Cara'},
+    {id:'scar',       name:'Cicatriz',     price:35,  cat:'Cara'},
+    {id:'blush',      name:'Rubor',        price:20,  cat:'Cara'},
+    {id:'freckles',   name:'Pecas',        price:15,  cat:'Cara'},
+    {id:'tattoo',     name:'Tatuaje',      price:45,  cat:'Cara'},
+    {id:'stars',      name:'Estrellas',    price:50,  cat:'Cara'},
+    {id:'headphones', name:'Cascos',       price:55,  cat:'Complementos'},
+    {id:'bowtie',     name:'Pajarita',     price:30,  cat:'Complementos'},
+    {id:'earrings',   name:'Pendientes',   price:25,  cat:'Complementos'},
+    {id:'piercing',   name:'Piercing',     price:20,  cat:'Complementos'},
+    {id:'scarf',      name:'Bufanda',      price:35,  cat:'Complementos'},
+    {id:'necklace',   name:'Collar',       price:30,  cat:'Complementos'},
+    {id:'bandaid',    name:'Tirita',       price:15,  cat:'Complementos'},
+    {id:'wings',      name:'Alas',         price:80,  cat:'Complementos'},
+    {id:'mask2',      name:'Antifaz',      price:45,  cat:'Complementos'}
+  ]
+};
+
+function _ensureCoins() {
+  if (!S.coins && S.coins !== 0) S.coins = 0;
+  if (!S.owned) S.owned = [];
+}
+
+function addCoins(amt, silent) {
+  _ensureCoins();
+  S.coins += amt;
+  _updateCoinsUI();
+  if (!silent) _showCoinToast(amt);
+  _saveCoins();
+}
+
+function _updateCoinsUI() {
+  _ensureCoins();
+  var tb = document.getElementById('tb-coins');
+  var pp = document.getElementById('pp-coins');
+  if (tb) tb.textContent = S.coins;
+  if (pp) pp.textContent = S.coins;
+}
+
+function _showCoinToast(amt) {
+  var el = document.getElementById('coin-toast');
+  var txt = document.getElementById('coin-toast-txt');
+  if (!el || !txt) return;
+  txt.textContent = (amt > 0 ? '+' : '') + amt + ' monedas';
+  el.classList.add('show');
+  clearTimeout(_coinToastT);
+  _coinToastT = setTimeout(function(){ el.classList.remove('show'); }, 2200);
+}
+
+function _saveCoins() {
+  _ensureCoins();
+  if (S.isFirebase && S.uid && typeof db !== 'undefined') {
+    db.collection('users').doc(S.uid).update({ coins: S.coins, owned: S.owned }).catch(function(e){ console.log('Coins save error:', e); });
+  }
+  try { localStorage.setItem('al_coins', S.coins); localStorage.setItem('al_owned', JSON.stringify(S.owned)); } catch(e) {}
+}
+
+function ownsItem(itemId) {
+  _ensureCoins();
+  return S.owned.indexOf(itemId) !== -1;
+}
+
+function buyItem(itemId, price) {
+  _ensureCoins();
+  if (ownsItem(itemId)) return false;
+  if (S.coins < price) return false;
+  S.coins -= price;
+  S.owned.push(itemId);
+  _updateCoinsUI();
+  _saveCoins();
+  return true;
+}
+
+function openShop() {
+  _ensureCoins();
+  var html = '<div style="font-size:20px;font-weight:700;margin-bottom:4px">🪙 Tienda</div>';
+  html += '<div style="font-size:13px;color:#f59e0b;font-weight:700;margin-bottom:18px">Tienes: ' + S.coins + ' monedas</div>';
+
+  html += '<div class="shop-section">Temas de color</div><div class="shop-grid">';
+  for (var i = 0; i < SHOP_CATALOG.themes.length; i++) {
+    var t = SHOP_CATALOG.themes[i];
+    var own = ownsItem('theme_' + t.id);
+    html += '<div class="shop-item' + (own ? ' owned' : '') + '" onclick="' + (own ? '' : 'shopBuy(\'theme_' + t.id + '\',' + t.price + ')') + '">' +
+      '<div class="shop-item-icon">' + t.icon + '</div>' +
+      '<div class="shop-item-name">' + t.name + '</div>' +
+      '<div class="shop-item-price">' + (own ? 'Comprado' : t.price + ' 🪙') + '</div></div>';
+  }
+  html += '</div>';
+
+  var cats = ['Gafas','Sanitario','Cabeza','Cara','Complementos'];
+  for (var ci = 0; ci < cats.length; ci++) {
+    var items = SHOP_CATALOG.accs.filter(function(a){ return a.cat === cats[ci]; });
+    if (!items.length) continue;
+    html += '<div class="shop-section">' + cats[ci] + '</div><div class="shop-grid">';
+    for (var j = 0; j < items.length; j++) {
+      var a = items[j];
+      var own2 = ownsItem('acc_' + a.id);
+      html += '<div class="shop-item' + (own2 ? ' owned' : '') + '" onclick="' + (own2 ? '' : 'shopBuy(\'acc_' + a.id + '\',' + a.price + ')') + '">' +
+        '<div class="shop-item-icon">' + _getAccPreview(a.id) + '</div>' +
+        '<div class="shop-item-name">' + a.name + '</div>' +
+        '<div class="shop-item-price">' + (own2 ? 'Comprado' : a.price + ' 🪙') + '</div></div>';
+    }
+    html += '</div>';
+  }
+  openModal(html);
+}
+
+function _getAccPreview(accId) {
+  for (var i = 0; i < MII.accs.length; i++) {
+    if (MII.accs[i] && MII.accs[i].id === accId) {
+      return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="36" height="36">' + MII.accs[i].fn() + '</svg>';
+    }
+  }
+  return '🪙';
+}
+
+function shopBuy(itemId, price) {
+  _ensureCoins();
+  if (S.coins < price) {
+    openModal('<div style="text-align:center;padding:20px"><div style="font-size:40px;margin-bottom:10px">😢</div><div style="font-size:16px;font-weight:700;margin-bottom:8px">Monedas insuficientes</div><div style="font-size:13px;color:var(--text-muted)">Necesitas ' + price + ' 🪙 y tienes ' + S.coins + '.<br>¡Sigue jugando para ganar más!</div></div>');
+    return;
+  }
+  if (buyItem(itemId, price)) {
+    _showCoinToast(-price);
+    openShop();
+    renderTemaSelector();
+  }
+}
+
+function renderTemaSelector() {
+  var wrap = document.getElementById('tema-select-wrap');
+  if (!wrap) return;
+  _ensureCoins();
+  var temas = [{id:'hospital', name:'Hospital', icon:'🏥', free:true}].concat(SHOP_CATALOG.themes);
+  var html = '<select id="tema-select" onchange="setTemaChecked(this.value)" style="width:100%;padding:9px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;cursor:pointer;font-family:sans-serif;margin-bottom:0">';
+  for (var i = 0; i < temas.length; i++) {
+    var t = temas[i];
+    var unlocked = t.free || ownsItem('theme_' + t.id);
+    html += '<option value="' + t.id + '"' + (!unlocked ? ' disabled' : '') + '>' + t.icon + ' ' + t.name + (!unlocked ? ' (🔒 Tienda)' : t.free ? ' (gratis)' : '') + '</option>';
+  }
+  html += '</select>';
+  wrap.innerHTML = html;
+  var sel = document.getElementById('tema-select');
+  if (sel) sel.value = _tema;
+}
+
+function setTemaChecked(tema) {
+  if (tema !== 'hospital' && !ownsItem('theme_' + tema)) {
+    aplicarTema(_tema, _modo);
+    renderTemaSelector();
+    openShop();
+    return;
+  }
+  setTema(tema);
+}
+
+function _accIsUnlocked(accId) {
+  if (!accId) return true;
+  for (var i = 0; i < MII.accs.length; i++) {
+    var a = MII.accs[i];
+    if (a && a.id === accId) {
+      if (!a.premium) return true;
+      return ownsItem('acc_' + accId);
+    }
+  }
+  return true;
 }
 
 function toggleTema(id){
@@ -2005,11 +2261,11 @@ function togglePP(){
 }
 
 // ── TEMAS Y MODO ──────────────────────────────
-var _tema = 'default';
+var _tema = 'hospital';
 var _modo = 'dark';
 
 function aplicarTema(tema, modo) {
-  _tema = tema || 'default';
+  _tema = tema || 'hospital';
   _modo = modo || 'dark';
   var el = document.documentElement;
   el.setAttribute('data-tema', _tema);
@@ -2051,8 +2307,7 @@ function _redecorarHudActivo(){
 }
 
 function actualizarSelectorTema() {
-  var select = document.getElementById('tema-select');
-  if(select) select.value = _tema;
+  renderTemaSelector();
 }
 
 function guardarApariencia(tema, modo) {
@@ -2062,9 +2317,305 @@ function guardarApariencia(tema, modo) {
     modo: modo
   }).catch(function(e){ console.log('Error guardando apariencia:', e); });
 }
+// ── MII AVATAR SYSTEM ─────────────────────────
+var MII = {
+  skins: ['#FDDBB4','#F5D0A9','#E8B98D','#D4956B','#C68642','#A0652A','#8D5524','#6B3A1F','#4A2912','#F9E0C8'],
+  hairColors: ['#1A1A1A','#2C1B0E','#5A3214','#8B4513','#B5651D','#D4A55A','#E6C35C','#F5E6CA','#C0392B','#E74C3C','#F39C12','#E67E22','#8E44AD','#2980B9','#27AE60','#EC407A'],
+  browColors: ['#1A1A1A','#2C1B0E','#5A3214','#8B4513','#B5651D','#D4A55A'],
+  faces: [
+    function(s){var d=_miiDarken(s,15);return '<circle cx="50" cy="52" r="38" fill="'+s+'"/><ellipse cx="35" cy="54" rx="8" ry="6" fill="'+d+'" opacity=".18"/><ellipse cx="65" cy="54" rx="8" ry="6" fill="'+d+'" opacity=".18"/>';},
+    function(s){var d=_miiDarken(s,15);return '<ellipse cx="50" cy="52" rx="34" ry="40" fill="'+s+'"/><ellipse cx="35" cy="54" rx="7" ry="5" fill="'+d+'" opacity=".18"/><ellipse cx="65" cy="54" rx="7" ry="5" fill="'+d+'" opacity=".18"/>';},
+    function(s){var d=_miiDarken(s,15);return '<rect x="16" y="14" width="68" height="74" rx="14" fill="'+s+'"/><ellipse cx="35" cy="54" rx="7" ry="5" fill="'+d+'" opacity=".18"/><ellipse cx="65" cy="54" rx="7" ry="5" fill="'+d+'" opacity=".18"/>';},
+    function(s){var d=_miiDarken(s,15);return '<path d="M50 12 Q84 12 84 52 Q84 90 50 90 Q16 90 16 52 Q16 12 50 12Z" fill="'+s+'"/><ellipse cx="35" cy="54" rx="7" ry="5" fill="'+d+'" opacity=".18"/><ellipse cx="65" cy="54" rx="7" ry="5" fill="'+d+'" opacity=".18"/>';},
+    function(s){var d=_miiDarken(s,15);return '<path d="M50 10 C75 10 88 30 88 52 C88 78 72 92 50 92 C28 92 12 78 12 52 C12 30 25 10 50 10Z" fill="'+s+'"/><ellipse cx="35" cy="56" rx="8" ry="5" fill="'+d+'" opacity=".18"/><ellipse cx="65" cy="56" rx="8" ry="5" fill="'+d+'" opacity=".18"/>';}
+  ],
+  eyes: [
+    function(){return '<circle cx="36" cy="48" r="3" fill="#1a1a2e"/><circle cx="64" cy="48" r="3" fill="#1a1a2e"/><circle cx="37" cy="47" r="1" fill="#fff" opacity=".6"/><circle cx="65" cy="47" r="1" fill="#fff" opacity=".6"/>';},
+    function(){return '<ellipse cx="36" cy="48" rx="4" ry="5.5" fill="#1a1a2e"/><ellipse cx="64" cy="48" rx="4" ry="5.5" fill="#1a1a2e"/><ellipse cx="37" cy="46" rx="1.5" ry="2" fill="#fff" opacity=".5"/><ellipse cx="65" cy="46" rx="1.5" ry="2" fill="#fff" opacity=".5"/>';},
+    function(){return '<circle cx="36" cy="48" r="6" fill="#fff" stroke="#1a1a2e" stroke-width="1.5"/><circle cx="38" cy="47" r="3" fill="#1a1a2e"/><circle cx="39" cy="46" r="1" fill="#fff"/><circle cx="64" cy="48" r="6" fill="#fff" stroke="#1a1a2e" stroke-width="1.5"/><circle cx="66" cy="47" r="3" fill="#1a1a2e"/><circle cx="67" cy="46" r="1" fill="#fff"/>';},
+    function(){return '<ellipse cx="36" cy="48" rx="7" ry="5" fill="#fff" stroke="#1a1a2e" stroke-width="1.5"/><circle cx="37" cy="48" r="3" fill="#4a6fa5"/><circle cx="37" cy="48" r="1.5" fill="#1a1a2e"/><circle cx="39" cy="46" r="1" fill="#fff"/><ellipse cx="64" cy="48" rx="7" ry="5" fill="#fff" stroke="#1a1a2e" stroke-width="1.5"/><circle cx="65" cy="48" r="3" fill="#4a6fa5"/><circle cx="65" cy="48" r="1.5" fill="#1a1a2e"/><circle cx="67" cy="46" r="1" fill="#fff"/>';},
+    function(){return '<ellipse cx="36" cy="48" rx="7" ry="5" fill="#fff" stroke="#1a1a2e" stroke-width="1.5"/><circle cx="37" cy="48" r="3" fill="#5D4037"/><circle cx="37" cy="48" r="1.5" fill="#1a1a2e"/><circle cx="39" cy="46" r="1" fill="#fff"/><ellipse cx="64" cy="48" rx="7" ry="5" fill="#fff" stroke="#1a1a2e" stroke-width="1.5"/><circle cx="65" cy="48" r="3" fill="#5D4037"/><circle cx="65" cy="48" r="1.5" fill="#1a1a2e"/><circle cx="67" cy="46" r="1" fill="#fff"/>';},
+    function(){return '<line x1="30" y1="48" x2="42" y2="48" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/><line x1="58" y1="48" x2="70" y2="48" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>';},
+    function(){return '<path d="M30 50 Q36 44 42 50" stroke="#1a1a2e" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M58 50 Q64 44 70 50" stroke="#1a1a2e" stroke-width="2.5" fill="none" stroke-linecap="round"/>';},
+    function(){return '<path d="M30 46 Q36 52 42 46" stroke="#1a1a2e" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M58 46 Q64 52 70 46" stroke="#1a1a2e" stroke-width="2.5" fill="none" stroke-linecap="round"/>';},
+    function(){return '<ellipse cx="36" cy="48" rx="7" ry="6" fill="#fff" stroke="#1a1a2e" stroke-width="1.5"/><circle cx="38" cy="47" r="3.5" fill="#2E7D32"/><circle cx="38" cy="47" r="1.8" fill="#1a1a2e"/><circle cx="40" cy="45" r="1.2" fill="#fff"/><ellipse cx="64" cy="48" rx="7" ry="6" fill="#fff" stroke="#1a1a2e" stroke-width="1.5"/><circle cx="66" cy="47" r="3.5" fill="#2E7D32"/><circle cx="66" cy="47" r="1.8" fill="#1a1a2e"/><circle cx="68" cy="45" r="1.2" fill="#fff"/>';},
+    function(){return '<path d="M29 48 L36 44 L43 48 L36 52Z" fill="#1a1a2e"/><path d="M57 48 L64 44 L71 48 L64 52Z" fill="#1a1a2e"/><circle cx="36" cy="47" r="1" fill="#fff" opacity=".5"/><circle cx="64" cy="47" r="1" fill="#fff" opacity=".5"/>';},
+    // ── Nuevos ──
+    function(){return '<ellipse cx="36" cy="48" rx="6" ry="5" fill="#fff" stroke="#1a1a2e" stroke-width="1.5"/><circle cx="37" cy="48" r="2.5" fill="#1a1a2e"/><circle cx="38" cy="47" r=".8" fill="#fff"/><path d="M30 43 Q36 40 42 43" stroke="#1a1a2e" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M42 50 Q44 54 42 52" stroke="#1a1a2e" stroke-width="1" fill="none"/><ellipse cx="64" cy="48" rx="6" ry="5" fill="#fff" stroke="#1a1a2e" stroke-width="1.5"/><circle cx="65" cy="48" r="2.5" fill="#1a1a2e"/><circle cx="66" cy="47" r=".8" fill="#fff"/><path d="M58 43 Q64 40 70 43" stroke="#1a1a2e" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M70 50 Q72 54 70 52" stroke="#1a1a2e" stroke-width="1" fill="none"/>';},
+    function(){return '<path d="M30 48 Q36 46 42 48" stroke="#1a1a2e" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M58 48 Q64 46 70 48" stroke="#1a1a2e" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M30 50 Q34 52 38 50" stroke="#1a1a2e" stroke-width="1" fill="none" opacity=".3"/><path d="M62 50 Q66 52 70 50" stroke="#1a1a2e" stroke-width="1" fill="none" opacity=".3"/>';},
+    function(){return '<ellipse cx="36" cy="48" rx="8" ry="7" fill="#fff" stroke="#1a1a2e" stroke-width="1.8"/><circle cx="36" cy="49" r="5" fill="#1a1a2e"/><circle cx="37" cy="47" r="2.5" fill="#fff" opacity=".7"/><circle cx="35" cy="50" r="1" fill="#fff" opacity=".3"/><ellipse cx="64" cy="48" rx="8" ry="7" fill="#fff" stroke="#1a1a2e" stroke-width="1.8"/><circle cx="64" cy="49" r="5" fill="#1a1a2e"/><circle cx="65" cy="47" r="2.5" fill="#fff" opacity=".7"/><circle cx="63" cy="50" r="1" fill="#fff" opacity=".3"/>';},
+    function(){return '<ellipse cx="36" cy="48" rx="7" ry="5" fill="#fff" stroke="#1a1a2e" stroke-width="1.5"/><circle cx="37" cy="48" r="3" fill="#2E86AB"/><circle cx="37" cy="48" r="1.5" fill="#1a1a2e"/><circle cx="39" cy="46" r="1" fill="#fff"/><ellipse cx="64" cy="48" rx="7" ry="5" fill="#fff" stroke="#1a1a2e" stroke-width="1.5"/><circle cx="65" cy="48" r="3" fill="#8B4513"/><circle cx="65" cy="48" r="1.5" fill="#1a1a2e"/><circle cx="67" cy="46" r="1" fill="#fff"/>';},
+    function(){return '<path d="M30 48 Q36 44 42 48 Q36 50 30 48Z" fill="#1a1a2e"/><circle cx="37" cy="47" r=".8" fill="#fff" opacity=".6"/><path d="M58 48 Q64 44 70 48 Q64 50 58 48Z" fill="#1a1a2e"/><circle cx="65" cy="47" r=".8" fill="#fff" opacity=".6"/>';},
+    function(){return '<ellipse cx="36" cy="48" rx="6" ry="5" fill="#fff" stroke="#1a1a2e" stroke-width="1.5"/><circle cx="37" cy="48" r="2.5" fill="#4a6fa5"/><circle cx="37" cy="48" r="1.2" fill="#1a1a2e"/><circle cx="39" cy="46" r=".8" fill="#fff"/><ellipse cx="64" cy="48" rx="6" ry="5" fill="#fff" stroke="#1a1a2e" stroke-width="1.5"/><circle cx="65" cy="48" r="2.5" fill="#4a6fa5"/><circle cx="65" cy="48" r="1.2" fill="#1a1a2e"/><circle cx="67" cy="46" r=".8" fill="#fff"/><path d="M42 52 L44 56" stroke="#4a9fd5" stroke-width="1.2" stroke-linecap="round" opacity=".6"/><path d="M70 52 L72 56" stroke="#4a9fd5" stroke-width="1.2" stroke-linecap="round" opacity=".6"/><circle cx="44" cy="57" r="1" fill="#4a9fd5" opacity=".5"/><circle cx="72" cy="57" r="1" fill="#4a9fd5" opacity=".5"/>';}
+  ],
+  brows: [
+    function(bc){return '';},
+    function(bc){return '<line x1="29" y1="39" x2="43" y2="39" stroke="'+bc+'" stroke-width="2.5" stroke-linecap="round"/><line x1="57" y1="39" x2="71" y2="39" stroke="'+bc+'" stroke-width="2.5" stroke-linecap="round"/>';},
+    function(bc){return '<path d="M29 40 Q36 35 43 40" stroke="'+bc+'" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M57 40 Q64 35 71 40" stroke="'+bc+'" stroke-width="2.5" fill="none" stroke-linecap="round"/>';},
+    function(bc){return '<path d="M29 38 Q36 42 43 38" stroke="'+bc+'" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M57 38 Q64 42 71 38" stroke="'+bc+'" stroke-width="2.5" fill="none" stroke-linecap="round"/>';},
+    function(bc){return '<line x1="29" y1="41" x2="43" y2="37" stroke="'+bc+'" stroke-width="2.8" stroke-linecap="round"/><line x1="57" y1="37" x2="71" y2="41" stroke="'+bc+'" stroke-width="2.8" stroke-linecap="round"/>';},
+    function(bc){return '<line x1="29" y1="37" x2="43" y2="41" stroke="'+bc+'" stroke-width="2.8" stroke-linecap="round"/><line x1="57" y1="41" x2="71" y2="37" stroke="'+bc+'" stroke-width="2.8" stroke-linecap="round"/>';},
+    function(bc){return '<rect x="29" y="37" width="14" height="3.5" rx="1.5" fill="'+bc+'"/><rect x="57" y="37" width="14" height="3.5" rx="1.5" fill="'+bc+'"/>';}
+  ],
+  mouths: [
+    function(){return '<path d="M40 64 Q50 72 60 64" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>';},
+    function(){return '<path d="M38 63 Q50 73 62 63" stroke="#1a1a2e" stroke-width="2" fill="#e74c3c" stroke-linecap="round"/>';},
+    function(){return '<line x1="42" y1="66" x2="58" y2="66" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round"/>';},
+    function(){return '<ellipse cx="50" cy="66" rx="5" ry="4" fill="#1a1a2e"/><ellipse cx="50" cy="65" rx="3" ry="2" fill="#c0392b" opacity=".6"/>';},
+    function(){return '<path d="M40 66 Q50 60 60 66" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>';},
+    function(){return '<path d="M38 62 Q50 74 62 62" stroke="#1a1a2e" stroke-width="2" fill="#1a1a2e" stroke-linecap="round"/><path d="M41 63 Q50 60 59 63" fill="#fff"/><path d="M42 68 Q50 72 58 68" fill="#c0392b" opacity=".7"/>';},
+    function(){return '<path d="M42 64 Q46 68 50 64 Q54 68 58 64" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>';},
+    function(){return '<path d="M42 66 L46 63 L50 66 L54 63 L58 66" stroke="#1a1a2e" stroke-width="2" fill="none" stroke-linecap="round"/>';},
+    function(){return '<path d="M40 65 Q44 65 46 63 Q50 68 54 63 Q56 65 60 65" stroke="#1a1a2e" stroke-width="1.8" fill="none" stroke-linecap="round"/>';},
+    function(){return '<circle cx="50" cy="66" r="3" fill="#1a1a2e"/>';}
+  ],
+  noses: [
+    function(){return '';},
+    function(){return '<circle cx="50" cy="58" r="1.5" fill="rgba(0,0,0,.15)"/>';},
+    function(){return '<path d="M48 56 L50 60 L52 56" stroke="rgba(0,0,0,.2)" stroke-width="1.5" fill="none" stroke-linecap="round"/>';},
+    function(){return '<ellipse cx="50" cy="58" rx="3" ry="2" fill="rgba(0,0,0,.1)" stroke="rgba(0,0,0,.12)" stroke-width="1"/>';},
+    function(){return '<line x1="50" y1="54" x2="50" y2="59" stroke="rgba(0,0,0,.15)" stroke-width="1.5" stroke-linecap="round"/>';}
+  ],
+  hairs: [
+    function(c){return '<path d="M12 40 Q12 8 50 8 Q88 8 88 40 L82 40 Q80 16 50 16 Q20 16 18 40 Z" fill="'+c+'"/>';},
+    function(c){return '<path d="M12 42 Q12 6 50 6 Q88 6 88 42 L82 42 Q80 14 50 14 Q20 14 18 42 Z" fill="'+c+'"/><path d="M16 38 Q8 40 10 55 Q12 48 16 42Z" fill="'+c+'"/>';},
+    function(c){return '<path d="M14 44 Q14 6 50 6 Q86 6 86 44" stroke="'+c+'" stroke-width="8" fill="none"/><circle cx="20" cy="12" r="7" fill="'+c+'"/><circle cx="35" cy="5" r="8" fill="'+c+'"/><circle cx="52" cy="3" r="8" fill="'+c+'"/><circle cx="68" cy="6" r="7" fill="'+c+'"/><circle cx="80" cy="14" r="6" fill="'+c+'"/>';},
+    function(c){return '<path d="M15 45 Q15 5 50 5 Q85 5 85 45 L85 58 Q90 58 87 65 L82 56 L82 45 Q80 14 50 14 Q20 14 18 45 L18 56 Q10 58 13 65 L18 58 Z" fill="'+c+'"/>';},
+    function(c){return '<path d="M50 6 Q88 6 88 40 L82 40 Q80 16 50 16 Q22 16 20 40 L14 40 Q14 6 50 6Z" fill="'+c+'"/><path d="M20 36 L14 40 L20 44Z" fill="'+c+'"/>';},
+    function(c){return '<path d="M14 38 Q14 4 50 4 Q86 4 86 38 L86 65 Q86 80 78 85 L78 45 Q76 14 50 14 Q24 14 22 45 L22 85 Q14 80 14 65Z" fill="'+c+'"/>';},
+    function(c){return '<path d="M50 4 Q86 4 86 38 L82 38 Q80 14 50 14 Q20 14 18 38 L14 38 Q14 4 50 4Z" fill="'+c+'"/><path d="M82 38 Q86 38 88 30 Q92 38 86 44 L82 42Z" fill="'+c+'"/><path d="M18 38 Q14 38 12 30 Q8 38 14 44 L18 42Z" fill="'+c+'"/>';},
+    function(c){return '<path d="M20 36 Q20 10 50 10 Q80 10 80 36" fill="none" stroke="'+c+'" stroke-width="10"/><path d="M30 12 Q50 0 70 12" fill="'+c+'"/>';},
+    function(c){return '<path d="M12 42 Q12 4 50 4 Q88 4 88 42 L84 42 Q82 12 50 12 Q18 12 16 42Z" fill="'+c+'"/><path d="M30 10 Q28 0 20 4 Q24 10 30 10Z" fill="'+c+'"/><path d="M42 6 Q40 -4 34 2 Q38 8 42 6Z" fill="'+c+'"/>';},
+    function(c){return '';}
+  ],
+  accs: [
+    null,
+    // ── GRATIS ──
+    {id:'glasses', premium:false, label:'Gafas', fn:function(){return '<circle cx="36" cy="48" r="10" fill="none" stroke="#333" stroke-width="2"/><circle cx="64" cy="48" r="10" fill="none" stroke="#333" stroke-width="2"/><line x1="46" y1="48" x2="54" y2="48" stroke="#333" stroke-width="2"/><line x1="26" y1="48" x2="18" y2="45" stroke="#333" stroke-width="1.5"/><line x1="74" y1="48" x2="82" y2="45" stroke="#333" stroke-width="1.5"/>';}},
+    {id:'sunglasses', premium:false, label:'De sol', fn:function(){return '<rect x="25" y="42" width="22" height="13" rx="3" fill="#1a1a2e" stroke="#333" stroke-width="1.5"/><rect x="53" y="42" width="22" height="13" rx="3" fill="#1a1a2e" stroke="#333" stroke-width="1.5"/><line x1="47" y1="48" x2="53" y2="48" stroke="#333" stroke-width="2"/><line x1="25" y1="46" x2="16" y2="43" stroke="#333" stroke-width="1.5"/><line x1="75" y1="46" x2="84" y2="43" stroke="#333" stroke-width="1.5"/>';}},
+    {id:'roundglasses', premium:false, label:'Redondas', fn:function(){return '<circle cx="36" cy="48" r="10" fill="rgba(200,220,255,.15)" stroke="#B8860B" stroke-width="1.8"/><circle cx="64" cy="48" r="10" fill="rgba(200,220,255,.15)" stroke="#B8860B" stroke-width="1.8"/><path d="M46 47 Q50 44 54 47" stroke="#B8860B" stroke-width="1.5" fill="none"/><line x1="26" y1="47" x2="16" y2="44" stroke="#B8860B" stroke-width="1.5"/><line x1="74" y1="47" x2="84" y2="44" stroke="#B8860B" stroke-width="1.5"/>';}},
+    {id:'nerd', premium:false, label:'Nerd', fn:function(){return '<rect x="25" y="41" width="22" height="15" rx="3" fill="rgba(200,220,255,.1)" stroke="#1a1a2e" stroke-width="2"/><rect x="53" y="41" width="22" height="15" rx="3" fill="rgba(200,220,255,.1)" stroke="#1a1a2e" stroke-width="2"/><line x1="47" y1="48" x2="53" y2="48" stroke="#1a1a2e" stroke-width="2"/><line x1="25" y1="46" x2="16" y2="43" stroke="#1a1a2e" stroke-width="1.5"/><line x1="75" y1="46" x2="84" y2="43" stroke="#1a1a2e" stroke-width="1.5"/><rect x="43" y="46" width="4" height="4" rx="1" fill="#1a1a2e" opacity=".15"/>';}},
+    {id:'aviator', premium:true, label:'Aviador', cat:'other', fn:function(){return '<path d="M24 43 Q30 40 36 43 Q42 46 46 46 L54 46 Q58 46 64 43 Q70 40 76 43 Q80 45 80 50 Q80 56 74 56 Q68 56 64 54 Q58 52 54 52 L46 52 Q42 52 36 54 Q30 56 26 56 Q20 56 20 50 Q20 45 24 43Z" fill="rgba(100,60,20,.55)" stroke="#8B6914" stroke-width="1.5"/><line x1="20" y1="46" x2="12" y2="42" stroke="#8B6914" stroke-width="1.5"/><line x1="80" y1="46" x2="88" y2="42" stroke="#8B6914" stroke-width="1.5"/><path d="M46 49 L54 49" stroke="#8B6914" stroke-width="1.5"/>';}},
+    {id:'monocle', premium:true, label:'Monoculo', cat:'other', fn:function(){return '<circle cx="64" cy="48" r="11" fill="rgba(200,220,255,.1)" stroke="#B8860B" stroke-width="2"/><circle cx="64" cy="48" r="9" fill="none" stroke="#DAA520" stroke-width=".8"/><line x1="64" y1="59" x2="64" y2="76" stroke="#B8860B" stroke-width="1.2"/><line x1="64" y1="76" x2="58" y2="82" stroke="#B8860B" stroke-width="1.2"/>';}},
+    {id:'ski', premium:true, label:'Esqui', cat:'other', fn:function(){return '<path d="M18 42 Q20 36 36 36 L64 36 Q80 36 82 42 L82 52 Q80 58 64 58 L36 58 Q20 58 18 52Z" fill="rgba(255,100,0,.25)" stroke="#E67E22" stroke-width="1.8"/><path d="M18 42 Q20 36 36 36 L64 36 Q80 36 82 42" fill="#E67E22" stroke="none" opacity=".3"/><rect x="46" y="46" width="8" height="4" rx="2" fill="#E67E22" opacity=".5"/><line x1="18" y1="47" x2="10" y2="44" stroke="#E67E22" stroke-width="1.5"/><line x1="82" y1="47" x2="90" y2="44" stroke="#E67E22" stroke-width="1.5"/>';}},
+    {id:'3d', premium:true, label:'3D', cat:'other', fn:function(){return '<rect x="24" y="42" width="22" height="13" rx="3" fill="rgba(0,150,255,.35)" stroke="#333" stroke-width="1.5"/><rect x="54" y="42" width="22" height="13" rx="3" fill="rgba(255,0,0,.35)" stroke="#333" stroke-width="1.5"/><line x1="46" y1="48" x2="54" y2="48" stroke="#333" stroke-width="2"/><line x1="24" y1="46" x2="16" y2="43" stroke="#333" stroke-width="1.5"/><line x1="76" y1="46" x2="84" y2="43" stroke="#333" stroke-width="1.5"/>';}},
+    // ── SANITARIOS (premium) ──
+    {id:'nurse', premium:true, label:'Cofia', cat:'sani', fn:function(){return '<path d="M24 18 Q24 0 50 0 Q76 0 76 18Z" fill="#fff" stroke="#ddd" stroke-width=".8"/><rect x="24" y="16" width="52" height="5" rx="2" fill="#fff" stroke="#e74c3c" stroke-width="1"/><path d="M44 2 L50 16 L56 2" stroke="#e74c3c" stroke-width="2" fill="none" stroke-linejoin="round"/><circle cx="50" cy="8" r="1.5" fill="#e74c3c" opacity=".5"/><line x1="24" y1="10" x2="44" y2="10" stroke="#e74c3c" stroke-width=".6" opacity=".25"/><line x1="56" y1="10" x2="76" y2="10" stroke="#e74c3c" stroke-width=".6" opacity=".25"/>';}},
+    {id:'steth', premium:true, label:'Fonendo', cat:'sani', fn:function(){return '<path d="M30 76 C30 76 28 82 30 88 Q30 98 50 100 Q70 98 70 88 C72 82 70 76 70 76" stroke="#778899" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="50" cy="100" r="6" fill="#B0B0B0" stroke="#778899" stroke-width="2"/><circle cx="50" cy="100" r="3" fill="#8a8a8a"/><circle cx="50" cy="100" r="1.2" fill="#666"/><ellipse cx="30" cy="75" rx="3.5" ry="2" fill="#778899"/><ellipse cx="70" cy="75" rx="3.5" ry="2" fill="#778899"/>';}},
+    {id:'mask', premium:true, label:'Mascarilla', cat:'sani', fn:function(){return '<path d="M26 56 Q26 52 35 50 L65 50 Q74 52 74 56 L74 72 Q74 82 50 84 Q26 82 26 72Z" fill="#D5EEF4" stroke="#8FBFCC" stroke-width="1.2"/><path d="M26 56 Q26 52 35 50 L65 50 Q74 52 74 56" fill="#C5E4ED" stroke="none"/><line x1="30" y1="59" x2="70" y2="59" stroke="#A8D4E0" stroke-width=".8"/><line x1="30" y1="63" x2="70" y2="63" stroke="#A8D4E0" stroke-width=".8"/><line x1="30" y1="67" x2="70" y2="67" stroke="#A8D4E0" stroke-width=".8"/><line x1="30" y1="71" x2="70" y2="71" stroke="#A8D4E0" stroke-width=".8"/><path d="M50 72 L50 78" stroke="#8FBFCC" stroke-width="1" opacity=".5"/><line x1="26" y1="54" x2="14" y2="46" stroke="#8FBFCC" stroke-width="2" stroke-linecap="round"/><line x1="74" y1="54" x2="86" y2="46" stroke="#8FBFCC" stroke-width="2" stroke-linecap="round"/>';}},
+    {id:'scrubs', premium:true, label:'Pijama', cat:'sani', fn:function(){return '<path d="M25 84 L25 100 L75 100 L75 84 Q65 78 50 78 Q35 78 25 84Z" fill="#2E86AB" stroke="#236B8E" stroke-width="1"/><path d="M38 78 Q50 72 62 78" fill="#2E86AB" stroke="#236B8E" stroke-width="1"/><path d="M42 78 L42 84 Q50 88 58 84 L58 78" fill="#236B8E" stroke="none" opacity=".5"/><line x1="50" y1="86" x2="50" y2="96" stroke="#236B8E" stroke-width=".8" opacity=".4"/><rect x="56" y="88" width="8" height="6" rx="1.5" fill="#236B8E" stroke="#1B5A73" stroke-width=".6" opacity=".6"/>';}},
+    {id:'labcoat', premium:true, label:'Bata', cat:'sani', fn:function(){return '<path d="M22 80 L22 100 L78 100 L78 80 Q65 74 50 74 Q35 74 22 80Z" fill="#F5F5F5" stroke="#ddd" stroke-width="1"/><path d="M36 74 Q50 68 64 74" fill="#F5F5F5" stroke="#ddd" stroke-width="1"/><path d="M42 74 L44 86 Q50 90 56 86 L58 74" fill="#eee" stroke="#ddd" stroke-width=".6"/><line x1="50" y1="86" x2="50" y2="100" stroke="#ddd" stroke-width=".8"/><circle cx="46" cy="90" r="1.2" fill="#ddd"/><circle cx="46" cy="94" r="1.2" fill="#ddd"/><rect x="56" y="88" width="9" height="7" rx="2" fill="none" stroke="#ddd" stroke-width=".8"/><rect x="58" y="89" width="4" height="3" rx=".5" fill="#3498DB" opacity=".6"/>';}},
+    // ── GORROS/CABEZA (premium) ──
+    {id:'cap', premium:true, label:'Gorro', cat:'head', fn:function(){return '<path d="M12 30 Q12 4 50 4 Q88 4 88 30Z" fill="#2980B9"/><path d="M12 30 Q12 4 50 4 Q88 4 88 30" fill="none" stroke="#1A5276" stroke-width="1"/><rect x="8" y="28" width="84" height="8" rx="4" fill="#1A5276"/><circle cx="50" cy="4" r="5" fill="#3498DB" stroke="#2471A3" stroke-width="1"/><path d="M20 14 Q50 8 80 14" stroke="#fff" stroke-width=".8" opacity=".15" fill="none"/>';}},
+    {id:'crown', premium:true, label:'Corona', cat:'head', fn:function(){return '<path d="M20 22 L26 4 L36 16 L50 0 L64 16 L74 4 L80 22Z" fill="#FFD700" stroke="#B8860B" stroke-width="1.2" stroke-linejoin="round"/><path d="M20 22 L26 4 L36 16 L50 0 L64 16 L74 4 L80 22Z" fill="#DAA520" opacity=".3"/><rect x="20" y="20" width="60" height="7" rx="1.5" fill="#FFD700" stroke="#B8860B" stroke-width="1"/><circle cx="35" cy="23" r="2.5" fill="#E74C3C" stroke="#C0392B" stroke-width=".5"/><ellipse cx="50" cy="23" rx="3" ry="2.5" fill="#3498DB" stroke="#2471A3" stroke-width=".5"/><circle cx="65" cy="23" r="2.5" fill="#2ECC71" stroke="#27AE60" stroke-width=".5"/><circle cx="50" cy="3" r="2" fill="#E74C3C" stroke="#C0392B" stroke-width=".5"/><path d="M24 21 L24 18" stroke="#FFD700" stroke-width="1.5"/><path d="M76 21 L76 18" stroke="#FFD700" stroke-width="1.5"/>';}},
+    {id:'halo', premium:true, label:'Aureola', cat:'head', fn:function(){return '<ellipse cx="50" cy="4" rx="24" ry="6" fill="none" stroke="#FFD700" stroke-width="3.5" opacity=".8"/><ellipse cx="50" cy="4" rx="24" ry="6" fill="none" stroke="#FFFACD" stroke-width="1.5" opacity=".6"/><ellipse cx="50" cy="3" rx="20" ry="4" fill="none" stroke="#fff" stroke-width=".8" opacity=".3"/>';}},
+    {id:'horns', premium:true, label:'Cuernos', cat:'head', fn:function(){return '<path d="M28 26 Q20 8 14 2 Q18 12 22 18 Q24 22 28 26Z" fill="#C0392B" stroke="#922B21" stroke-width="1"/><path d="M72 26 Q80 8 86 2 Q82 12 78 18 Q76 22 72 26Z" fill="#C0392B" stroke="#922B21" stroke-width="1"/><path d="M26 24 Q20 10 16 4" stroke="#E74C3C" stroke-width="1.5" opacity=".4" fill="none" stroke-linecap="round"/><path d="M74 24 Q80 10 84 4" stroke="#E74C3C" stroke-width="1.5" opacity=".4" fill="none" stroke-linecap="round"/><circle cx="14" cy="2" r="2" fill="#F39C12"/><circle cx="86" cy="2" r="2" fill="#F39C12"/>';}},
+    {id:'band', premium:true, label:'Cinta ninja', cat:'head', fn:function(){return '<path d="M12 28 Q50 20 88 28" stroke="#e74c3c" stroke-width="5" fill="none"/><path d="M12 28 Q50 20 88 28" stroke="#c0392b" stroke-width="2" fill="none" opacity=".5"/><path d="M80 25 L92 18 L90 28 L84 24Z" fill="#e74c3c" stroke="#c0392b" stroke-width=".8"/><path d="M82 24 L94 14 L92 22 L86 20Z" fill="#c0392b" stroke="#922B21" stroke-width=".6"/><circle cx="50" cy="24" r="4" fill="#c0392b" stroke="#922B21" stroke-width="1"/><circle cx="50" cy="24" r="2" fill="#e74c3c"/>';}},
+    {id:'graduation', premium:true, label:'Birrete', cat:'head', fn:function(){return '<rect x="18" y="14" width="64" height="6" rx="1" fill="#1a1a2e" stroke="#111" stroke-width=".8"/><path d="M14 17 L50 6 L86 17 L50 22Z" fill="#2c2c3e" stroke="#1a1a2e" stroke-width="1"/><path d="M14 17 L50 6 L86 17" fill="#3d3d52" stroke="none"/><line x1="72" y1="18" x2="72" y2="32" stroke="#F1C40F" stroke-width="1.5"/><circle cx="72" cy="33" r="2.5" fill="#F1C40F"/><path d="M70 33 Q72 37 74 33" stroke="#F1C40F" stroke-width="1" fill="none"/><rect x="48" y="13" width="4" height="4" rx=".5" fill="#F1C40F" opacity=".8"/>';}},
+    {id:'santa', premium:true, label:'Navidad', cat:'head', fn:function(){return '<path d="M14 32 Q14 6 50 4 Q86 6 86 32Z" fill="#C0392B"/><path d="M14 32 Q14 6 50 4 Q86 6 86 32" fill="none" stroke="#922B21" stroke-width="1"/><path d="M86 28 Q92 18 96 22 Q94 30 86 32Z" fill="#C0392B" stroke="#922B21" stroke-width=".6"/><circle cx="96" cy="20" r="5" fill="#fff"/><rect x="10" y="28" width="80" height="8" rx="4" fill="#fff" stroke="#eee" stroke-width=".5"/><path d="M24 14 Q50 6 76 14" stroke="#fff" stroke-width=".6" opacity=".2" fill="none"/><path d="M30 20 Q50 12 70 20" stroke="#E74C3C" stroke-width=".6" opacity=".3" fill="none"/>';}},
+    // ── CARA/ESTILO (premium) ──
+    {id:'eyepatch', premium:true, label:'Parche', cat:'face', fn:function(){return '<ellipse cx="64" cy="48" rx="10" ry="9" fill="#2c2c2c" stroke="#1a1a1a" stroke-width="1.5"/><line x1="74" y1="44" x2="86" y2="36" stroke="#2c2c2c" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="36" x2="54" y2="44" stroke="#2c2c2c" stroke-width="2" stroke-linecap="round"/><path d="M60 42 Q64 40 68 42" stroke="#444" stroke-width=".8" fill="none"/><circle cx="62" cy="50" r=".8" fill="#444"/>';}},
+    {id:'scar', premium:true, label:'Cicatriz', cat:'face', fn:function(){return '<path d="M62 30 Q66 42 60 56 Q64 68 62 78" stroke="#D4856B" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M58 36 L66 38" stroke="#D4856B" stroke-width="1.2" stroke-linecap="round"/><path d="M56 46 L64 44" stroke="#D4856B" stroke-width="1.2" stroke-linecap="round"/><path d="M58 56 L66 54" stroke="#D4856B" stroke-width="1.2" stroke-linecap="round"/><path d="M56 66 L64 64" stroke="#D4856B" stroke-width="1.2" stroke-linecap="round"/><path d="M58 74 L66 72" stroke="#D4856B" stroke-width="1.2" stroke-linecap="round"/>';}},
+    {id:'blush', premium:true, label:'Rubor', cat:'face', fn:function(){return '<ellipse cx="30" cy="58" rx="9" ry="5" fill="#FF6B8A" opacity=".25"/><ellipse cx="70" cy="58" rx="9" ry="5" fill="#FF6B8A" opacity=".25"/><circle cx="26" cy="57" r="1" fill="#FF6B8A" opacity=".15"/><circle cx="34" cy="59" r="1.5" fill="#FF6B8A" opacity=".15"/><circle cx="66" cy="57" r="1" fill="#FF6B8A" opacity=".15"/><circle cx="74" cy="59" r="1.5" fill="#FF6B8A" opacity=".15"/>';}},
+    {id:'freckles', premium:true, label:'Pecas', cat:'face', fn:function(){return '<circle cx="30" cy="54" r="1.2" fill="#B5651D" opacity=".35"/><circle cx="35" cy="56" r="1" fill="#B5651D" opacity=".3"/><circle cx="27" cy="58" r="1.1" fill="#B5651D" opacity=".3"/><circle cx="33" cy="60" r=".9" fill="#B5651D" opacity=".25"/><circle cx="38" cy="54" r="1" fill="#B5651D" opacity=".2"/><circle cx="65" cy="54" r="1.2" fill="#B5651D" opacity=".35"/><circle cx="70" cy="56" r="1" fill="#B5651D" opacity=".3"/><circle cx="62" cy="58" r="1.1" fill="#B5651D" opacity=".3"/><circle cx="67" cy="60" r=".9" fill="#B5651D" opacity=".25"/><circle cx="72" cy="54" r="1" fill="#B5651D" opacity=".2"/>';}},
+    // ── OTROS (premium) ──
+    {id:'headphones', premium:true, label:'Cascos', cat:'other', fn:function(){return '<path d="M14 48 Q14 18 50 18 Q86 18 86 48" stroke="#333" stroke-width="4" fill="none"/><rect x="8" y="42" width="12" height="18" rx="5" fill="#444" stroke="#333" stroke-width="1.5"/><rect x="80" y="42" width="12" height="18" rx="5" fill="#444" stroke="#333" stroke-width="1.5"/><rect x="10" y="46" width="8" height="10" rx="3" fill="#1DB954" opacity=".7"/><rect x="82" y="46" width="8" height="10" rx="3" fill="#1DB954" opacity=".7"/><path d="M14 48 Q14 22 50 22 Q86 22 86 48" stroke="#555" stroke-width="1.5" fill="none" opacity=".3"/>';}},
+    {id:'bowtie', premium:true, label:'Pajarita', cat:'other', fn:function(){return '<path d="M36 82 L50 88 L64 82 L64 92 L50 86 L36 92Z" fill="#8E44AD" stroke="#6C3483" stroke-width="1"/><path d="M36 82 L50 88 L36 92Z" fill="#9B59B6" stroke="none"/><circle cx="50" cy="87" r="3" fill="#6C3483" stroke="#5B2C6F" stroke-width=".8"/><circle cx="50" cy="87" r="1.5" fill="#8E44AD"/>';}},
+    {id:'earrings', premium:true, label:'Pendientes', cat:'other', fn:function(){return '<circle cx="14" cy="55" r="3.5" fill="#FFD700" stroke="#DAA520" stroke-width="1"/><circle cx="14" cy="55" r="1.5" fill="#FFF8DC" opacity=".6"/><circle cx="86" cy="55" r="3.5" fill="#FFD700" stroke="#DAA520" stroke-width="1"/><circle cx="86" cy="55" r="1.5" fill="#FFF8DC" opacity=".6"/><line x1="14" y1="51" x2="14" y2="49" stroke="#DAA520" stroke-width="1" stroke-linecap="round"/><line x1="86" y1="51" x2="86" y2="49" stroke="#DAA520" stroke-width="1" stroke-linecap="round"/>';}},
+    {id:'tattoo', premium:true, label:'Tatuaje', cat:'face', fn:function(){return '<path d="M68 62 Q74 58 78 64 Q82 70 76 74 Q70 78 66 72 Q62 66 68 62Z" stroke="#2C3E50" stroke-width="1.2" fill="none" opacity=".6"/><path d="M72 60 L72 56" stroke="#2C3E50" stroke-width="1" opacity=".5" stroke-linecap="round"/><path d="M78 66 L82 64" stroke="#2C3E50" stroke-width="1" opacity=".5" stroke-linecap="round"/><path d="M74 74 L76 78" stroke="#2C3E50" stroke-width="1" opacity=".5" stroke-linecap="round"/><path d="M66 68 L62 66" stroke="#2C3E50" stroke-width="1" opacity=".5" stroke-linecap="round"/><circle cx="72" cy="67" r="1" fill="#2C3E50" opacity=".4"/>';}},
+    {id:'stars', premium:true, label:'Estrellas', cat:'face', fn:function(){return '<path d="M18 30 L20 24 L22 30 L28 30 L23 34 L25 40 L20 36 L15 40 L17 34 L12 30Z" fill="#F1C40F" stroke="#D4AC0D" stroke-width=".5"/><path d="M78 34 L79.5 30 L81 34 L85 34 L82 37 L83 41 L79.5 38 L76 41 L77 37 L74 34Z" fill="#F1C40F" stroke="#D4AC0D" stroke-width=".5"/><path d="M24 68 L25 65 L26 68 L29 68 L27 70 L28 73 L25 71 L22 73 L23 70 L21 68Z" fill="#F1C40F" stroke="#D4AC0D" stroke-width=".4" opacity=".7"/><circle cx="80" cy="24" r="1" fill="#F1C40F" opacity=".5"/><circle cx="14" cy="44" r=".8" fill="#F1C40F" opacity=".4"/>';}},
+    // ── MAS ACCESORIOS ──
+    {id:'piercing', premium:true, label:'Piercing', cat:'face', fn:function(){return '<circle cx="44" cy="70" r="2" fill="#C0C0C0" stroke="#999" stroke-width=".8"/><circle cx="44" cy="70" r=".8" fill="#fff" opacity=".5"/><circle cx="26" cy="48" r="1.5" fill="#C0C0C0" stroke="#999" stroke-width=".6"/><circle cx="26" cy="48" r=".5" fill="#fff" opacity=".4"/>';}},
+    {id:'scarf', premium:true, label:'Bufanda', cat:'other', fn:function(){return '<path d="M20 76 Q30 72 50 72 Q70 72 80 76 Q82 80 80 84 Q70 80 50 80 Q30 80 20 84 Q18 80 20 76Z" fill="#E74C3C" stroke="#C0392B" stroke-width="1"/><path d="M20 76 Q30 72 50 72 Q70 72 80 76" fill="#F15A4A" stroke="none" opacity=".4"/><line x1="30" y1="74" x2="30" y2="82" stroke="#C0392B" stroke-width=".6" opacity=".4"/><line x1="40" y1="73" x2="40" y2="81" stroke="#C0392B" stroke-width=".6" opacity=".4"/><line x1="50" y1="72" x2="50" y2="80" stroke="#C0392B" stroke-width=".6" opacity=".4"/><line x1="60" y1="73" x2="60" y2="81" stroke="#C0392B" stroke-width=".6" opacity=".4"/><line x1="70" y1="74" x2="70" y2="82" stroke="#C0392B" stroke-width=".6" opacity=".4"/><path d="M74 78 L78 88 L72 90 L68 80Z" fill="#E74C3C" stroke="#C0392B" stroke-width=".8"/><line x1="73" y1="82" x2="71" y2="88" stroke="#C0392B" stroke-width=".5" opacity=".4"/>';}},
+    {id:'necklace', premium:true, label:'Collar', cat:'other', fn:function(){return '<path d="M30 76 Q30 82 40 86 Q50 90 60 86 Q70 82 70 76" stroke="#DAA520" stroke-width="1.5" fill="none"/><path d="M46 88 L50 94 L54 88" fill="#3498DB" stroke="#2471A3" stroke-width=".8"/><circle cx="50" cy="92" r="1" fill="#5DADE2" opacity=".6"/>';}},
+    {id:'bandaid', premium:true, label:'Tirita', cat:'face', fn:function(){return '<rect x="56" y="54" width="20" height="10" rx="3" fill="#F5CBA7" stroke="#E0AC69" stroke-width="1" transform="rotate(-15,66,59)"/><rect x="61" y="56" width="10" height="6" rx="1" fill="#EDBB99" stroke="none" transform="rotate(-15,66,59)"/><circle cx="64" cy="59" r=".8" fill="#D4A56A" transform="rotate(-15,66,59)"/><circle cx="67" cy="58" r=".8" fill="#D4A56A" transform="rotate(-15,66,59)"/><circle cx="65" cy="61" r=".8" fill="#D4A56A" transform="rotate(-15,66,59)"/>';}},
+    {id:'wings', premium:true, label:'Alas', cat:'other', fn:function(){return '<path d="M10 60 Q0 40 6 28 Q12 36 10 46 Q8 52 10 60Z" fill="#E8E8E8" stroke="#ccc" stroke-width=".8" opacity=".8"/><path d="M10 60 Q-4 44 2 22 Q10 32 8 42 Q6 50 10 60Z" fill="#F5F5F5" stroke="#ddd" stroke-width=".6" opacity=".6"/><path d="M10 60 Q-2 50 4 34" stroke="#ddd" stroke-width=".5" fill="none" opacity=".4"/><path d="M90 60 Q100 40 94 28 Q88 36 90 46 Q92 52 90 60Z" fill="#E8E8E8" stroke="#ccc" stroke-width=".8" opacity=".8"/><path d="M90 60 Q104 44 98 22 Q90 32 92 42 Q94 50 90 60Z" fill="#F5F5F5" stroke="#ddd" stroke-width=".6" opacity=".6"/><path d="M90 60 Q102 50 96 34" stroke="#ddd" stroke-width=".5" fill="none" opacity=".4"/>';}},
+    {id:'mask2', premium:true, label:'Antifaz', cat:'face', fn:function(){return '<path d="M16 44 Q22 38 36 38 Q44 38 50 42 Q56 38 64 38 Q78 38 84 44 L84 52 Q78 56 64 56 Q56 56 50 52 Q44 56 36 56 Q22 56 16 52Z" fill="#1a1a2e" stroke="#111" stroke-width="1" opacity=".85"/><circle cx="36" cy="48" r="8" fill="none" stroke="#333" stroke-width="1"/><circle cx="64" cy="48" r="8" fill="none" stroke="#333" stroke-width="1"/><line x1="12" y1="44" x2="6" y2="40" stroke="#1a1a2e" stroke-width="1.5" stroke-linecap="round"/><line x1="88" y1="44" x2="94" y2="40" stroke="#1a1a2e" stroke-width="1.5" stroke-linecap="round"/>';}}
+  ]
+};
+
+function _miiDarken(hex,pct){
+  var n=parseInt(hex.slice(1),16);
+  var r=Math.max(0,(n>>16)-(255*pct/100)|0);
+  var g=Math.max(0,((n>>8)&0xFF)-(255*pct/100)|0);
+  var b=Math.max(0,(n&0xFF)-(255*pct/100)|0);
+  return '#'+(r<<16|g<<8|b).toString(16).padStart(6,'0');
+}
+
+var _miiDraft = {face:0, skin:0, eyes:0, brow:0, browColor:0, nose:0, mouth:0, hair:0, hairColor:0, acc:0};
+var _miiTab = 'face';
+
+function renderMiiSVG(cfg, size) {
+  var c = cfg || _miiDraft;
+  var skin = MII.skins[c.skin] || MII.skins[0];
+  var hc = MII.hairColors[c.hairColor] || MII.hairColors[0];
+  var bc = MII.browColors[c.browColor !== undefined ? c.browColor : 0] || MII.browColors[0];
+  var svg = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="'+size+'" height="'+size+'">';
+  svg += (MII.faces[c.face] || MII.faces[0])(skin);
+  svg += (MII.brows[c.brow] || MII.brows[0])(bc);
+  svg += (MII.eyes[c.eyes] || MII.eyes[0])();
+  svg += (MII.noses[c.nose] || MII.noses[0])();
+  svg += (MII.mouths[c.mouth] || MII.mouths[0])();
+  svg += (MII.hairs[c.hair] || MII.hairs[0])(hc);
+  var acc = MII.accs[c.acc];
+  if (acc && acc.fn) svg += acc.fn();
+  svg += '</svg>';
+  return svg;
+}
+
+function miiUpdatePreview() {
+  var el = document.getElementById('mii-preview');
+  if (el) el.innerHTML = renderMiiSVG(_miiDraft, 100);
+}
+
+function miiSetVal(key, val) {
+  if (key === 'acc' && val > 0) {
+    var a = MII.accs[val];
+    if (a && a.premium && !ownsItem('acc_' + a.id)) {
+      openShop();
+      return;
+    }
+  }
+  _miiDraft[key] = val;
+  miiUpdatePreview();
+  miiRenderPanel();
+}
+
+function miiSwitchTab(tab) {
+  _miiTab = tab;
+  document.querySelectorAll('.mii-tab').forEach(function(t){ t.classList.toggle('active', t.dataset.tab === tab); });
+  miiRenderPanel();
+}
+
+function miiRenderPanel() {
+  var panel = document.getElementById('mii-panel');
+  if (!panel) return;
+  var html = '';
+  if (_miiTab === 'face') {
+    html += '<div class="mii-section"><div class="mii-section-title">Forma</div><div class="mii-opts">';
+    var faceLabels = ['Redonda','Ovalada','Cuadrada','Suave','Larga'];
+    for (var i = 0; i < MII.faces.length; i++) {
+      html += '<button class="mii-opt'+(_miiDraft.face===i?' sel':'')+'" onclick="miiSetVal(\'face\','+i+')" style="width:auto;padding:0 8px;font-size:10px">'+faceLabels[i]+'</button>';
+    }
+    html += '</div></div>';
+    html += '<div class="mii-section"><div class="mii-section-title">Color de piel</div><div class="mii-opts">';
+    for (var i = 0; i < MII.skins.length; i++) {
+      html += '<button class="mii-opt'+(_miiDraft.skin===i?' sel':'')+'" onclick="miiSetVal(\'skin\','+i+')"><div class="mii-color" style="background:'+MII.skins[i]+'"></div></button>';
+    }
+    html += '</div></div>';
+  } else if (_miiTab === 'eyes') {
+    html += '<div class="mii-section"><div class="mii-section-title">Estilo de ojos</div><div class="mii-opts">';
+    var eyeLabels = ['Simples','Grandes','Anime','Azules','Marrones','Cerrados','Felices','Tristes','Verdes','Gatuno','Pestanas','Cansados','Kawaii','Hetero','Rasgados','Llorosos'];
+    for (var i = 0; i < MII.eyes.length; i++) {
+      html += '<button class="mii-opt'+(_miiDraft.eyes===i?' sel':'')+'" onclick="miiSetVal(\'eyes\','+i+')" style="width:auto;padding:0 8px;font-size:10px">'+eyeLabels[i]+'</button>';
+    }
+    html += '</div></div>';
+    html += '<div class="mii-section"><div class="mii-section-title">Cejas</div><div class="mii-opts">';
+    var browLabels = ['Sin','Rectas','Arqueadas','Tristes','Enfadadas','Preocupadas','Gruesas'];
+    for (var i = 0; i < MII.brows.length; i++) {
+      html += '<button class="mii-opt'+(_miiDraft.brow===i?' sel':'')+'" onclick="miiSetVal(\'brow\','+i+')" style="width:auto;padding:0 8px;font-size:10px">'+browLabels[i]+'</button>';
+    }
+    html += '</div></div>';
+    html += '<div class="mii-section"><div class="mii-section-title">Color de cejas</div><div class="mii-opts">';
+    for (var i = 0; i < MII.browColors.length; i++) {
+      html += '<button class="mii-opt'+(_miiDraft.browColor===i?' sel':'')+'" onclick="miiSetVal(\'browColor\','+i+')"><div class="mii-color" style="background:'+MII.browColors[i]+'"></div></button>';
+    }
+    html += '</div></div>';
+  } else if (_miiTab === 'nose') {
+    html += '<div class="mii-section"><div class="mii-section-title">Nariz</div><div class="mii-opts">';
+    var noseLabels = ['Sin','Punto','Triangulo','Redonda','Linea'];
+    for (var i = 0; i < MII.noses.length; i++) {
+      html += '<button class="mii-opt'+(_miiDraft.nose===i?' sel':'')+'" onclick="miiSetVal(\'nose\','+i+')" style="width:auto;padding:0 8px;font-size:10px">'+noseLabels[i]+'</button>';
+    }
+    html += '</div></div>';
+  } else if (_miiTab === 'mouth') {
+    html += '<div class="mii-section"><div class="mii-section-title">Boca</div><div class="mii-opts">';
+    var mouthLabels = ['Sonrisa','Abierta','Seria','Sorpresa','Triste','Risa','Onda','Zigzag','Mueca','Circulo'];
+    for (var i = 0; i < MII.mouths.length; i++) {
+      html += '<button class="mii-opt'+(_miiDraft.mouth===i?' sel':'')+'" onclick="miiSetVal(\'mouth\','+i+')" style="width:auto;padding:0 8px;font-size:10px">'+mouthLabels[i]+'</button>';
+    }
+    html += '</div></div>';
+  } else if (_miiTab === 'hair') {
+    html += '<div class="mii-section"><div class="mii-section-title">Peinado</div><div class="mii-opts">';
+    var hairLabels = ['Corto','Lado','Rizado','Largo','Raya','Melena','Puntas','Tupé','Punk','Sin'];
+    for (var i = 0; i < MII.hairs.length; i++) {
+      html += '<button class="mii-opt'+(_miiDraft.hair===i?' sel':'')+'" onclick="miiSetVal(\'hair\','+i+')" style="width:auto;padding:0 8px;font-size:10px">'+hairLabels[i]+'</button>';
+    }
+    html += '</div></div>';
+    html += '<div class="mii-section"><div class="mii-section-title">Color de pelo</div><div class="mii-opts">';
+    for (var i = 0; i < MII.hairColors.length; i++) {
+      html += '<button class="mii-opt'+(_miiDraft.hairColor===i?' sel':'')+'" onclick="miiSetVal(\'hairColor\','+i+')"><div class="mii-color" style="background:'+MII.hairColors[i]+'"></div></button>';
+    }
+    html += '</div></div>';
+  } else if (_miiTab === 'acc') {
+    var cats = [
+      {key:null, title:'General'},
+      {key:'sani', title:'Sanitario'},
+      {key:'head', title:'Cabeza'},
+      {key:'face', title:'Cara'},
+      {key:'other', title:'Complementos'}
+    ];
+    for (var ci = 0; ci < cats.length; ci++) {
+      var catItems = [];
+      for (var i = 0; i < MII.accs.length; i++) {
+        var a = MII.accs[i];
+        var aCat = a ? (a.cat || null) : null;
+        if (aCat === cats[ci].key || (!a && ci === 0) || (!aCat && a && !a.premium && ci === 0)) catItems.push(i);
+      }
+      if (!catItems.length) continue;
+      html += '<div class="mii-section"><div class="mii-section-title">'+cats[ci].title+'</div><div class="mii-opts">';
+      for (var j = 0; j < catItems.length; j++) {
+        var idx = catItems[j];
+        var a = MII.accs[idx];
+        var isPrem = a && a.premium;
+        var label = a ? a.label : 'Ninguno';
+        html += '<button class="mii-opt'+(_miiDraft.acc===idx?' sel':'')+(isPrem?' premium':'')+'" onclick="miiSetVal(\'acc\','+idx+')" style="width:auto;padding:0 8px;font-size:10px;position:relative">'+label+(isPrem?'<span class="mii-acc-tag">🪙</span>':'')+'</button>';
+      }
+      html += '</div></div>';
+    }
+  }
+  panel.innerHTML = html;
+}
+
+function miiInitEditor() {
+  if (window.S && window.S.mii) {
+    _miiDraft = JSON.parse(JSON.stringify(window.S.mii));
+    if(_miiDraft.brow === undefined) _miiDraft.brow = 0;
+    if(_miiDraft.browColor === undefined) _miiDraft.browColor = 0;
+    if(_miiDraft.nose === undefined) _miiDraft.nose = 0;
+  }
+  var tabs = [
+    {key:'face',label:'Cara'},
+    {key:'eyes',label:'Ojos'},
+    {key:'nose',label:'Nariz'},
+    {key:'mouth',label:'Boca'},
+    {key:'hair',label:'Pelo'},
+    {key:'acc',label:'Extras'}
+  ];
+  var tabsEl = document.getElementById('mii-tabs');
+  if (tabsEl) {
+    var h = '';
+    for (var i = 0; i < tabs.length; i++) {
+      h += '<button class="mii-tab'+(tabs[i].key===_miiTab?' active':'')+'" data-tab="'+tabs[i].key+'" onclick="miiSwitchTab(\''+tabs[i].key+'\')">'+tabs[i].label+'</button>';
+    }
+    tabsEl.innerHTML = h;
+  }
+  miiUpdatePreview();
+  miiRenderPanel();
+}
+
+function getAvatarHTML(cfg, size) {
+  if (cfg && typeof cfg === 'object' && cfg.face !== undefined) {
+    return renderMiiSVG(cfg, size);
+  }
+  return cfg || '🦁';
+}
+
 function openSetup(){
   document.getElementById('setup-ov').style.display='flex';
   document.getElementById('setup-name').value=S.name;
+  _miiTab = 'face';
+  miiInitEditor();
 }
 function closeSetup(){document.getElementById('setup-ov').style.display='none';}
 
@@ -2101,9 +2652,13 @@ function selAv(el){
 }
 function saveProfile(){
   S.name=document.getElementById('setup-name').value.trim()||'Larry';
-  var avEl=document.querySelector('.av-opt.sel');
-  S.av=avEl?avEl.dataset.av:'🦁';
+  S.mii=JSON.parse(JSON.stringify(_miiDraft));
   updateUI();closeSetup();showToast('Perfil guardado','Listo',0);
+  if(S.uid && S.isFirebase){
+    db.collection('users').doc(S.uid).update({
+      name:S.name, mii:S.mii
+    }).catch(function(e){console.log('Profile save error:',e);});
+  }
 }
 
 var toastT;
@@ -4297,6 +4852,7 @@ function abrirMinijuego(pi, gi) {
 function _jAcierto(sub) {
   if (_gaming.active) {
     _gaming.xp += 5;
+    _gaming.coins = (_gaming.coins || 0) + 3;
     _gamingUpdateHud();
   } else {
     addXP(5, '¡Correcto!', sub);
@@ -4314,6 +4870,7 @@ function _jCompletar(sub) {
     _gaming.xp += 10;
     _gaming.streak++;
     _gaming.xp += _gaming.streak;
+    _gaming.coins = (_gaming.coins || 0) + 10;
     _gamingUpdateHud();
   } else {
     addXP(10, '¡Completado!', sub);
@@ -4340,6 +4897,7 @@ function gamingLaunch() {
   _gaming.idx = 0;
   _gaming.streak = 0;
   _gaming.xp = 0;
+  _gaming.coins = 0;
   _gaming.queue = [];
   _gamingUpdateHud();
   document.getElementById('gaming-game-container').innerHTML = '<div style="text-align:center;padding:40px 0;color:rgba(255,255,255,.4)">Cargando minijuegos…</div>';
@@ -4418,6 +4976,8 @@ function _gamingUpdateHud() {
   document.getElementById('gaming-num').textContent = _gaming.idx + 1;
   document.getElementById('gaming-streak').textContent = '🔥 ' + _gaming.streak;
   document.getElementById('gaming-xp').textContent = _gaming.xp;
+  var gcEl = document.getElementById('gaming-coins');
+  if (gcEl) gcEl.textContent = _gaming.coins || 0;
   var total = _gaming.queue.length || 1;
   var pct = Math.round((_gaming.idx / total) * 100);
   document.getElementById('gaming-progress-fill').style.width = pct + '%';
@@ -4433,6 +4993,8 @@ function gamingSkip() {
 function gamingExit() {
   _gaming.active = false;
   if (_gaming.observer) _gaming.observer.disconnect();
+  if (_gaming.xp > 0) addXP(_gaming.xp, '¡Gaming Mode!', _gaming.idx + ' ejercicios');
+  if (_gaming.coins > 0) addCoins(_gaming.coins);
   document.getElementById('gaming-overlay').classList.remove('active');
 }
 
