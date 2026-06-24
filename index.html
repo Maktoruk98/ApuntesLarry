@@ -1721,9 +1721,10 @@ window.logOut = async function() {
 
 // ── ENTRAR A LA APP ────────────────────────────
 function enterApp(name, avatar, xp, isFirebase, uid, photoURL, email, mii, coins, owned) {
+  console.log('[ENTER] enterApp called, name:', name, 'uid:', uid);
   document.getElementById('login-screen').classList.add('hidden');
   window.S = { name: name, av: avatar, xp: xp || 0, uid: uid || null, isFirebase: !!isFirebase, email: email || '', mii: mii || null, coins: coins || 0, owned: owned || [] };
-  if (typeof _admCheckAccess === 'function') _admCheckAccess();
+  try { if (typeof _admCheckAccess === 'function') _admCheckAccess(); } catch(e) { console.error('[ENTER] _admCheckAccess error:', e); }
 
   if (!mii && photoURL) {
     var tbAv = document.getElementById('tb-av');
@@ -1732,13 +1733,14 @@ function enterApp(name, avatar, xp, isFirebase, uid, photoURL, email, mii, coins
     if (ppAv) ppAv.innerHTML = '<img src="' + photoURL + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
   }
 
-  if (typeof updateUI === 'function') updateUI();
-  if (typeof nav === 'function') nav('home');
+  try { if (typeof updateUI === 'function') updateUI(); } catch(e) { console.error('[ENTER] updateUI error:', e); }
+  try { if (typeof nav === 'function') nav('home'); } catch(e) { console.error('[ENTER] nav error:', e); }
 
   if (isFirebase && uid) {
     listenRanking();
     listenMyProfile(uid);
   }
+  console.log('[ENTER] enterApp completed');
 }
 
 // ── GUARDAR XP ─────────────────────────────────
@@ -1785,15 +1787,22 @@ function listenMyProfile(uid) {
 
 // ── OBSERVER DE AUTH ───────────────────────────
 auth.onAuthStateChanged(async function(user) {
-  if (user) {
-    var snap = await db.collection('users').doc(user.uid).get();
-    if (snap.exists) {
-      var data = snap.data();
-      enterApp(data.name, data.avatar, data.xp, true, user.uid, user.photoURL, user.email, data.mii, data.coins, data.owned);
+  try {
+    if (user) {
+      console.log('[AUTH] user detected:', user.uid);
+      var snap = await db.collection('users').doc(user.uid).get();
+      console.log('[AUTH] doc exists:', snap.exists);
+      if (snap.exists) {
+        var data = snap.data();
+        enterApp(data.name, data.avatar, data.xp, true, user.uid, user.photoURL, user.email, data.mii, data.coins, data.owned);
+        console.log('[AUTH] enterApp called OK');
+      }
+    } else {
+      document.getElementById('login-screen').classList.remove('hidden');
     }
-    // Si no existe, espera a que complete el perfil en loginGoogle
-  } else {
-    document.getElementById('login-screen').classList.remove('hidden');
+  } catch(e) {
+    console.error('[AUTH] observer error:', e);
+    alert('[AUTH] Error: ' + e.message);
   }
 });
 </script>
