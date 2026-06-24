@@ -30,9 +30,6 @@
   --green: #4ade80;
   --rose: #f87171;
 }
-/* HOSPITAL (gratis y feo) */
-[data-tema="hospital"][data-modo="dark"]{--bg-base:#1a1a1a;--bg-surface:#222;--bg-card:#2a2a2a;--bg-card2:#333;--text-primary:#ccc;--text-secondary:#999;--text-muted:#666;--text-faint:#444;--border:#383838;--accent:#33cc66;--accent2:#33cc66;--accent-logo:#33cc66;--topbar-bg:#222;--topbar-border:#383838;--bg3:#333;--border2:rgba(255,255,255,0.1);--teal:#33cc66;--amber:#ccaa33;--green:#33cc66;--rose:#cc4444;--bg-gradient:none;--bg-overlay:none}
-[data-tema="hospital"][data-modo="light"]{--bg-base:#e8e8e8;--bg-surface:#ddd;--bg-card:#f5f5f5;--bg-card2:#eee;--text-primary:#222;--text-secondary:#555;--text-muted:#888;--text-faint:#bbb;--border:#ccc;--accent:#229944;--accent2:#229944;--accent-logo:#229944;--topbar-bg:#ddd;--topbar-border:#ccc;--topbar-text:#222;--bg3:#eee;--border2:rgba(0,0,0,0.12);--teal:#229944;--amber:#998822;--green:#229944;--rose:#aa3333;--bg-gradient:none;--bg-overlay:none}
 /* CAFÉ DARK */
 [data-tema="cafe"][data-modo="dark"]{--bg-base:#1e1610;--bg-surface:#170f09;--bg-card:#2a1e14;--bg-card2:#3a2a1a;--text-primary:#f5e6d0;--text-secondary:#c4a882;--text-muted:#a07855;--text-faint:#5a3a20;--border:rgba(255,220,180,0.12);--accent:#c8854a;--accent2:#d4a843;--accent-logo:#c8854a;--topbar-bg:#170f09;--topbar-border:rgba(255,220,180,0.1);--bg3:#3a2a1a;--border2:rgba(255,220,180,0.22);--teal:#c8854a;--amber:#d4a843;--green:#a8c850;--rose:#e87060;--bg-gradient:linear-gradient(135deg,#1e1610 0%,#3a2010 40%,#1a1008 70%,#2e1a08 100%);--bg-overlay:radial-gradient(ellipse at 75% 20%,rgba(200,133,74,0.2) 0%,transparent 55%),radial-gradient(ellipse at 20% 80%,rgba(212,168,67,0.12) 0%,transparent 50%)}
 /* CAFÉ LIGHT */
@@ -1737,7 +1734,7 @@ function listenMyProfile(uid) {
       }
       // Cargar tema y modo
       if(data.tema || data.modo) {
-        aplicarTema(data.tema || 'hospital', data.modo || 'dark');
+        aplicarTema(data.tema || 'default', data.modo || 'dark');
       }
       if (typeof updateUI === 'function') updateUI();
     }
@@ -1898,7 +1895,6 @@ var _coinToastT = null;
 
 var SHOP_CATALOG = {
   themes: [
-    {id:'default', name:'Noche Elegante', icon:'🌑', price:50},
     {id:'cafe',    name:'Café',           icon:'☕', price:80},
     {id:'te',      name:'Té verde',       icon:'🍵', price:80},
     {id:'lavanda', name:'Lavanda',         icon:'🌸', price:100},
@@ -2054,7 +2050,7 @@ function renderTemaSelector() {
   var wrap = document.getElementById('tema-select-wrap');
   if (!wrap) return;
   _ensureCoins();
-  var temas = [{id:'hospital', name:'Hospital', icon:'🏥', free:true}].concat(SHOP_CATALOG.themes);
+  var temas = [{id:'default', name:'Noche Elegante', icon:'🌑', free:true}].concat(SHOP_CATALOG.themes);
   var html = '<select id="tema-select" onchange="setTemaChecked(this.value)" style="width:100%;padding:9px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;cursor:pointer;font-family:sans-serif;margin-bottom:0">';
   for (var i = 0; i < temas.length; i++) {
     var t = temas[i];
@@ -2068,7 +2064,7 @@ function renderTemaSelector() {
 }
 
 function setTemaChecked(tema) {
-  if (tema !== 'hospital' && !ownsItem('theme_' + tema)) {
+  if (tema !== 'default' && !ownsItem('theme_' + tema)) {
     aplicarTema(_tema, _modo);
     renderTemaSelector();
     openShop();
@@ -2261,11 +2257,11 @@ function togglePP(){
 }
 
 // ── TEMAS Y MODO ──────────────────────────────
-var _tema = 'hospital';
+var _tema = 'default';
 var _modo = 'dark';
 
 function aplicarTema(tema, modo) {
-  _tema = tema || 'hospital';
+  _tema = tema || 'default';
   _modo = modo || 'dark';
   var el = document.documentElement;
   el.setAttribute('data-tema', _tema);
@@ -5542,6 +5538,7 @@ function _admRenderUsers() {
   html += '<tr style="border-bottom:2px solid var(--border);text-align:left">';
   html += '<th style="padding:10px 8px;color:var(--text-muted);font-size:11px;text-transform:uppercase">Usuario</th>';
   html += '<th style="padding:10px 8px;color:var(--text-muted);font-size:11px;text-transform:uppercase">XP</th>';
+  html += '<th style="padding:10px 8px;color:var(--text-muted);font-size:11px;text-transform:uppercase">🪙</th>';
   html += '<th style="padding:10px 8px;color:var(--text-muted);font-size:11px;text-transform:uppercase">Nivel</th>';
   html += '<th style="padding:10px 8px;color:var(--text-muted);font-size:11px;text-transform:uppercase">Registro</th>';
   html += '<th style="padding:10px 8px;color:var(--text-muted);font-size:11px;text-transform:uppercase">Visitados</th>';
@@ -5556,11 +5553,13 @@ function _admRenderUsers() {
     html += '<tr style="border-bottom:1px solid var(--border)">';
     html += '<td style="padding:10px 8px">' + avatar + _jEsc(u.name||'Sin nombre') + '<span style="color:var(--text-faint);font-size:11px">' + blocked + '</span></td>';
     html += '<td style="padding:10px 8px;color:#f59e0b;font-weight:700">' + (u.xp||0) + '</td>';
+    html += '<td style="padding:10px 8px;color:#f59e0b">' + (u.coins||0) + '</td>';
     html += '<td style="padding:10px 8px">' + (u.level||1) + ' <span style="color:var(--text-faint);font-size:11px">' + lvName + '</span></td>';
     html += '<td style="padding:10px 8px;color:var(--text-muted)">' + created + '</td>';
     html += '<td style="padding:10px 8px;color:var(--text-muted)">' + visitCount + '</td>';
     html += '<td style="padding:10px 8px">';
     html += '<button onclick="_admResetXP('+i+')" style="padding:4px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--amber);font-size:11px;cursor:pointer;font-family:sans-serif;margin-right:4px" title="Resetear XP">↻ XP</button>';
+    html += '<button onclick="_admEditCoins('+i+')" style="padding:4px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:#f59e0b;font-size:11px;cursor:pointer;font-family:sans-serif;margin-right:4px" title="Editar monedas">🪙 Monedas</button>';
     html += '<button onclick="_admToggleBlock('+i+')" style="padding:4px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:'+(u.blocked?'var(--green)':'var(--rose)')+';font-size:11px;cursor:pointer;font-family:sans-serif;margin-right:4px" title="'+(u.blocked?'Desbloquear':'Bloquear')+'">'+(u.blocked?'✓ Desbloquear':'✕ Bloquear')+'</button>';
     html += '<button onclick="_admDeleteUser('+i+')" style="padding:4px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-faint);font-size:11px;cursor:pointer;font-family:sans-serif" title="Eliminar usuario">🗑</button>';
     html += '</td></tr>';
@@ -5577,6 +5576,25 @@ function _admResetXP(idx) {
     _admUsers[idx].xp = 0; _admUsers[idx].level = 1;
     _admRenderUsers();
   });
+}
+
+function _admEditCoins(idx) {
+  var u = _admUsers[idx];
+  if (!u) return;
+  var input = prompt('Monedas actuales de ' + u.name + ': ' + (u.coins||0) + '\n\nIntroduce la nueva cantidad (número) o +/- para sumar/restar:', String(u.coins||0));
+  if (input === null) return;
+  input = input.trim();
+  var newCoins;
+  if (input.charAt(0) === '+' || input.charAt(0) === '-') {
+    newCoins = (u.coins||0) + parseInt(input, 10);
+  } else {
+    newCoins = parseInt(input, 10);
+  }
+  if (isNaN(newCoins) || newCoins < 0) { alert('Cantidad no válida.'); return; }
+  db.collection('users').doc(u.uid).update({coins: newCoins}).then(function() {
+    _admUsers[idx].coins = newCoins;
+    _admRenderUsers();
+  }).catch(function(e) { alert('Error: ' + e.message); });
 }
 
 function _admDeleteUser(idx) {
