@@ -139,6 +139,21 @@ html,body{height:100%;overflow:hidden}
 .coin-toast.show{transform:translateY(0);opacity:1}
 .tema-locked{opacity:.5;pointer-events:none}
 .tema-locked-tag{font-size:9px;color:#f59e0b}
+/* ── ONBOARDING / CREATE CHARACTER ───────────── */
+.onboard-ov{position:fixed;inset:0;background:#0c0e14;z-index:900;display:none;align-items:center;justify-content:center;flex-direction:column;padding:24px;overflow-y:auto}
+.onboard-ov.show{display:flex}
+.onboard-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.onboard-title{font-size:20px;font-weight:700;text-align:center;margin-bottom:4px}
+.onboard-sub{font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:20px}
+.onboard-preview{width:120px;height:120px;margin:0 auto 18px;border-radius:50%;background:var(--bg-card);border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.onboard-preview svg{width:100%;height:100%}
+.onboard-section{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:600;margin:14px 0 6px}
+.onboard-opts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.onboard-opts .mii-opt{width:34px;height:34px}
+.onboard-name{width:100%;padding:10px 14px;background:var(--bg-card);border:2px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:15px;outline:none;font-family:sans-serif;text-align:center;margin-bottom:6px}
+.onboard-name:focus{border-color:var(--accent)}
+.onboard-go{width:100%;padding:12px;background:var(--accent);color:#0c0e14;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:16px;font-family:sans-serif}
+.onboard-go:hover{opacity:.9}
 .mii-tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap;justify-content:center}
 .mii-tab{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted)}
 .mii-tab.active{background:var(--accent);color:#0c0e14;border-color:var(--accent)}
@@ -1037,6 +1052,33 @@ html,body{height:100%;overflow:hidden}
 </div>
 
 
+<!-- ONBOARDING — CREAR PERSONAJE -->
+<div class="onboard-ov" id="onboard-ov">
+  <div class="onboard-card">
+    <div class="onboard-title">Crea tu personaje</div>
+    <div class="onboard-sub">Elige tu aspecto y nombre para empezar</div>
+    <div class="onboard-preview" id="onboard-preview"></div>
+    <input class="onboard-name" id="onboard-name" placeholder="Tu nombre..." maxlength="20" autocomplete="off">
+    <div class="onboard-section">Cara</div>
+    <div class="onboard-opts" id="ob-face"></div>
+    <div class="onboard-section">Color de piel</div>
+    <div class="onboard-opts" id="ob-skin"></div>
+    <div class="onboard-section">Ojos</div>
+    <div class="onboard-opts" id="ob-eyes"></div>
+    <div class="onboard-section">Nariz</div>
+    <div class="onboard-opts" id="ob-nose"></div>
+    <div class="onboard-section">Boca</div>
+    <div class="onboard-opts" id="ob-mouth"></div>
+    <div class="onboard-section">Peinado</div>
+    <div class="onboard-opts" id="ob-hair"></div>
+    <div class="onboard-section">Color de pelo</div>
+    <div class="onboard-opts" id="ob-haircolor"></div>
+    <div class="onboard-section">Accesorio gratis</div>
+    <div class="onboard-opts" id="ob-acc"></div>
+    <button class="onboard-go" id="onboard-go" onclick="onboardFinish()">¡Empezar!</button>
+  </div>
+</div>
+
 <div class="topbar">
   <div class="logo" onclick="nav('home')">Apuntes<span>Larry</span></div>
   <div class="nav-tabs">
@@ -1646,17 +1688,8 @@ window.loginGoogle = async function() {
     var userRef = db.collection('users').doc(user.uid);
     var snap = await userRef.get();
     if (!snap.exists) {
-      // Primera vez — crear perfil con datos de Google
-      var emojis = ['🦁','🦊','🐺','🦅','🐉','🌙','⚡','🎭','🐻','🦋'];
-      var av = emojis[Math.floor(Math.random() * emojis.length)];
-      await userRef.set({
-        name: user.displayName || 'Usuario',
-        avatar: av,
-        xp: 0,
-        level: 1,
-        photoURL: user.photoURL || '',
-        createdAt: new Date().toISOString()
-      });
+      onboardStart(user);
+      return;
     }
   } catch(e) {
     document.getElementById('login-error').textContent = 'Error al iniciar sesión: ' + e.message;
@@ -2614,6 +2647,107 @@ function openSetup(){
   miiInitEditor();
 }
 function closeSetup(){document.getElementById('setup-ov').style.display='none';}
+
+// ── ONBOARDING — CREAR PERSONAJE ─────────────
+var _obMii = {face:0, skin:0, eyes:0, brow:0, browColor:0, nose:0, mouth:0, hair:0, hairColor:0, acc:0};
+var _obUser = null;
+
+function _obUpdatePreview() {
+  var el = document.getElementById('onboard-preview');
+  if (el) el.innerHTML = renderMiiSVG(_obMii, 110);
+}
+
+function _obSet(key, val, container) {
+  _obMii[key] = val;
+  _obUpdatePreview();
+  if (container) {
+    container.querySelectorAll('.mii-opt').forEach(function(b, i) {
+      b.classList.toggle('sel', parseInt(b.dataset.idx) === val);
+    });
+  }
+}
+
+function onboardStart(user) {
+  _obUser = user;
+  _obMii = {face:0, skin:0, eyes:0, brow:0, browColor:0, nose:0, mouth:0, hair:0, hairColor:0, acc:0};
+  var nameEl = document.getElementById('onboard-name');
+  nameEl.value = user.displayName || '';
+
+  var faceLabels = ['Redonda','Ovalada','Cuadrada','Suave','Larga'];
+  var eyeLabels = ['Simples','Grandes','Anime','Azules','Marrones','Cerrados','Felices','Tristes','Verdes','Gatuno','Pestañas','Cansados','Kawaii','Hetero','Rasgados','Llorosos'];
+  var noseLabels = ['Sin','Punto','Triángulo','Redonda','Línea'];
+  var mouthLabels = ['Sonrisa','Abierta','Seria','Sorpresa','Triste','Risa','Onda','Zigzag','Mueca','Círculo'];
+  var hairLabels = ['Corto','Lado','Rizado','Largo','Raya','Melena','Puntas','Tupé','Punk','Sin'];
+
+  _obRenderBtns('ob-face', 'face', faceLabels, MII.faces.length);
+  _obRenderColors('ob-skin', 'skin', MII.skins);
+  _obRenderBtns('ob-eyes', 'eyes', eyeLabels, MII.eyes.length);
+  _obRenderBtns('ob-nose', 'nose', noseLabels, MII.noses.length);
+  _obRenderBtns('ob-mouth', 'mouth', mouthLabels, MII.mouths.length);
+  _obRenderBtns('ob-hair', 'hair', hairLabels, MII.hairs.length);
+  _obRenderColors('ob-haircolor', 'hairColor', MII.hairColors);
+  _obRenderAccs('ob-acc');
+
+  _obUpdatePreview();
+  document.getElementById('onboard-ov').classList.add('show');
+}
+
+function _obRenderBtns(containerId, key, labels, count) {
+  var c = document.getElementById(containerId);
+  var html = '';
+  for (var i = 0; i < count; i++) {
+    html += '<button class="mii-opt' + (_obMii[key]===i?' sel':'') + '" data-idx="'+i+'" onclick="_obSet(\''+key+'\','+i+',this.parentNode)" style="width:auto;padding:0 8px;font-size:10px">' + (labels[i]||i) + '</button>';
+  }
+  c.innerHTML = html;
+}
+
+function _obRenderColors(containerId, key, colors) {
+  var c = document.getElementById(containerId);
+  var html = '';
+  for (var i = 0; i < colors.length; i++) {
+    html += '<button class="mii-opt' + (_obMii[key]===i?' sel':'') + '" data-idx="'+i+'" onclick="_obSet(\''+key+'\','+i+',this.parentNode)"><div class="mii-color" style="background:'+colors[i]+'"></div></button>';
+  }
+  c.innerHTML = html;
+}
+
+function _obRenderAccs(containerId) {
+  var c = document.getElementById(containerId);
+  var html = '<button class="mii-opt' + (_obMii.acc===0?' sel':'') + '" data-idx="0" onclick="_obSet(\'acc\',0,this.parentNode)" style="width:auto;padding:0 8px;font-size:10px">Ninguno</button>';
+  for (var i = 1; i < MII.accs.length; i++) {
+    var a = MII.accs[i];
+    if (!a || a.premium) continue;
+    html += '<button class="mii-opt' + (_obMii.acc===i?' sel':'') + '" data-idx="'+i+'" onclick="_obSet(\'acc\','+i+',this.parentNode)" style="width:auto;padding:0 8px;font-size:10px">' + a.label + '</button>';
+  }
+  c.innerHTML = html;
+}
+
+async function onboardFinish() {
+  var name = document.getElementById('onboard-name').value.trim();
+  if (!name) { document.getElementById('onboard-name').style.borderColor = '#f87171'; return; }
+  if (!_obUser) return;
+  var btn = document.getElementById('onboard-go');
+  btn.textContent = 'Creando...';
+  btn.disabled = true;
+  try {
+    await db.collection('users').doc(_obUser.uid).set({
+      name: name,
+      avatar: '🦁',
+      mii: _obMii,
+      xp: 0,
+      level: 1,
+      coins: 0,
+      owned: [],
+      photoURL: _obUser.photoURL || '',
+      createdAt: new Date().toISOString()
+    });
+    document.getElementById('onboard-ov').classList.remove('show');
+    enterApp(name, '🦁', 0, true, _obUser.uid, _obUser.photoURL, _obUser.email, _obMii, 0, []);
+  } catch(e) {
+    btn.textContent = '¡Empezar!';
+    btn.disabled = false;
+    alert('Error al crear perfil: ' + e.message);
+  }
+}
 
 // ── MODAL DE SALIDA DE BLOQUE ─────────────────
 function openSalirModal(puntoNombre, padreNombre, onConfirm){
