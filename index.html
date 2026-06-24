@@ -1691,6 +1691,8 @@ window.loginGoogle = async function() {
       onboardStart(user);
       return;
     }
+    var data = snap.data();
+    enterApp(data.name, data.avatar, data.xp, true, user.uid, user.photoURL, user.email, data.mii, data.coins, data.owned);
   } catch(e) {
     document.getElementById('login-error').textContent = 'Error al iniciar sesión: ' + e.message;
   }
