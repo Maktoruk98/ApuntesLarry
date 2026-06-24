@@ -1694,7 +1694,9 @@ window.loginGoogle = async function() {
     var data = snap.data();
     enterApp(data.name, data.avatar, data.xp, true, user.uid, user.photoURL, user.email, data.mii, data.coins, data.owned);
   } catch(e) {
+    console.error('loginGoogle error:', e);
     document.getElementById('login-error').textContent = 'Error al iniciar sesión: ' + e.message;
+    alert('Error login: ' + e.message);
   }
 };
 
