@@ -1679,30 +1679,10 @@ var db = firebase.firestore();
 var storage = firebase.storage();
 
 // ── LOGIN CON GOOGLE ───────────────────────────
-window._loginBusy = false;
-window.loginGoogle = async function() {
-  if (window._loginBusy) return;
-  window._loginBusy = true;
+window.loginGoogle = function() {
   document.getElementById('login-error').textContent = '';
-  try {
-    var provider = new firebase.auth.GoogleAuthProvider();
-    var result = await auth.signInWithPopup(provider);
-    var user = result.user;
-    var userRef = db.collection('users').doc(user.uid);
-    var snap = await userRef.get();
-    if (!snap.exists) {
-      onboardStart(user);
-      return;
-    }
-    var data = snap.data();
-    enterApp(data.name, data.avatar, data.xp, true, user.uid, user.photoURL, user.email, data.mii, data.coins, data.owned);
-  } catch(e) {
-    console.error('loginGoogle error:', e);
-    document.getElementById('login-error').textContent = 'Error al iniciar sesión: ' + e.message;
-    alert('Error login: ' + e.message);
-  } finally {
-    window._loginBusy = false;
-  }
+  var provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithRedirect(provider);
 };
 
 // ── LOGIN SIN CUENTA (desactivado — solo Google) ──
