@@ -1678,9 +1678,26 @@ var auth = firebase.auth();
 var db = firebase.firestore();
 var storage = firebase.storage();
 
+function _dbg(msg) {
+  console.log(msg);
+  var el = document.getElementById('login-error');
+  if (el) el.textContent = msg;
+}
+
+// ── Procesar resultado de redirect (si volvemos de Google) ──
+auth.getRedirectResult().then(function(result) {
+  if (result && result.user) {
+    _dbg('[REDIRECT] Login OK: ' + result.user.email);
+  } else {
+    console.log('[REDIRECT] No redirect result');
+  }
+}).catch(function(e) {
+  _dbg('[REDIRECT] Error: ' + e.code + ' ' + e.message);
+});
+
 // ── LOGIN CON GOOGLE ───────────────────────────
 window.loginGoogle = function() {
-  document.getElementById('login-error').textContent = '';
+  _dbg('Redirigiendo a Google...');
   var provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithRedirect(provider);
 };
@@ -1786,6 +1803,7 @@ auth.onAuthStateChanged(async function(user) {
         }, 50);
       }
     } else {
+      console.log('[AUTH] no user — showing login screen');
       document.getElementById('login-screen').classList.remove('hidden');
     }
   } catch(e) {
