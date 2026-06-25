@@ -1912,7 +1912,7 @@ function addXP(amt,title,sub){
   var newLv=getLV(S.xp);
   updateUI();
   showToast(title||'Correcto!',sub||'',amt);
-  if(amt>0) addCoins(amt>=10?10:3, true);
+  if(amt>0) addCoins(amt>=10?10:3);
   if(newLv>oldLv){
     setTimeout(function(){showLU(newLv);},1200);
     var lvCoins = 20 + 5 * (newLv + 1);
