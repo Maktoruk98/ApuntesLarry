@@ -2698,6 +2698,7 @@ function _obSet(key, val, container) {
 }
 
 function onboardStart(user) {
+  document.getElementById('login-screen').classList.add('hidden');
   _obUser = user;
   _obMii = {face:0, skin:0, eyes:0, brow:0, browColor:0, nose:0, mouth:0, hair:0, hairColor:0, acc:0};
   var nameEl = document.getElementById('onboard-name');
