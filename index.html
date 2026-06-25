@@ -1029,6 +1029,29 @@ html,body{height:100%;overflow:hidden}
 .desc-opt:hover{border-color:var(--accent)}
 .desc-opt.ok{border-color:var(--green);background:color-mix(in srgb,var(--green) 8%,var(--bg-card2));color:var(--green)}
 .desc-opt.ko{border-color:var(--rose);background:color-mix(in srgb,var(--rose) 8%,var(--bg-card2));color:var(--rose);animation:shake .3s}
+
+@media (max-width:600px){
+  .topbar{padding:0 10px;gap:6px}
+  .logo{font-size:14px}
+  .nav-tabs{gap:2px;padding:2px}
+  .nav-tab{padding:4px 8px;font-size:11px}
+  .tb-name{display:none}
+  .tb-xpbar{width:40px}
+  .tb-coins{font-size:11px;padding:3px 7px}
+  .user-badge{padding:3px 6px;gap:4px}
+  .page{padding:70px 14px 100px}
+  .pp{width:100%;transform:translateX(100%)}
+  .pp.open{transform:translateX(0)}
+  .shop-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px!important}
+  .shop-item{padding:10px!important}
+  .onboard-card{padding:18px;margin:0 8px}
+  .onboard-opts{gap:6px!important}
+  .home-stats{grid-template-columns:repeat(2,1fr)!important}
+  .xp-toast{bottom:12px;right:12px;left:12px;padding:10px 14px}
+  .coin-toast{bottom:60px;right:12px;left:12px}
+  .mii-edit-tabs{flex-wrap:wrap}
+  .mii-edit-tab{font-size:11px;padding:4px 8px}
+}
 </style>
 </head>
 <body>
