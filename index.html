@@ -4563,6 +4563,7 @@ function _jClasifica(gid, g) {
     '<div id="' + gid + '-result" class="jgame-result"></div>';
 }
 function gClasCheck(gid) {
+  var rewarded = _jChecked[gid];
   var chips = document.querySelectorAll('.clasifica-chip[data-game="' + gid + '"]');
   var res = document.getElementById(gid + '-result');
   var ok = 0, total = chips.length, inPool = 0;
@@ -4572,20 +4573,21 @@ function gClasCheck(gid) {
     if (!zone) { inPool++; return; }
     if (zone.dataset.cat === chip.dataset.cat) {
       chip.classList.add('correct'); chip.draggable = false; ok++;
-      _jAcierto('Clasifica ' + ok + '/' + total);
+      if (!rewarded) _jAcierto('Clasifica ' + ok + '/' + total);
     } else {
       chip.classList.add('wrong-place');
-      _jFallo();
+      if (!rewarded) _jFallo();
       setTimeout(function () { chip.classList.remove('wrong-place'); }, 600);
     }
   });
   if (ok === total && total > 0) {
     res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Perfecto!</span>';
-    _jCompletar('Clasifica');
+    if (!rewarded) _jCompletar('Clasifica');
   } else {
     res.innerHTML = '<span style="color:var(--amber)">' + ok + '/' + total + ' correctos' +
       (inPool ? ', ' + inPool + ' sin clasificar' : '') + '. ¡Sigue!</span>';
   }
+  _jChecked[gid] = true;
 }
 
 /* ---------- RELLENA ARRASTRANDO (motor nuevo: arrastre + toque) ---------- */
@@ -4661,6 +4663,7 @@ function rellDrop(e, gid, slotId) {
 /* Toque móvil: marca la palabra como seleccionada (luego se toca el hueco) */
 function rellTouchStart(e, gid, chipId) { rellPick(gid, chipId); }
 function gRellCheck(gid) {
+  var rewarded = _jChecked[gid];
   var slots = document.querySelectorAll('.rell-slot[id^="' + gid + '-s"]');
   var ok = 0, total = 0;
   slots.forEach(function (s) {
@@ -4668,16 +4671,17 @@ function gRellCheck(gid) {
     var val = (s.textContent || '').trim().toLowerCase();
     var ans = (s.dataset.answer || '').trim().toLowerCase();
     s.classList.remove('ok', 'ko');
-    if (val && val === ans) { s.classList.add('ok'); ok++; _jAcierto('Rellena ' + ok + '/' + total); }
-    else { s.classList.add('ko'); _jFallo(); (function (x) { setTimeout(function () { x.classList.remove('ko'); }, 600); })(s); }
+    if (val && val === ans) { s.classList.add('ok'); ok++; if (!rewarded) _jAcierto('Rellena ' + ok + '/' + total); }
+    else { s.classList.add('ko'); if (!rewarded) _jFallo(); (function (x) { setTimeout(function () { x.classList.remove('ko'); }, 600); })(s); }
   });
   var res = document.getElementById(gid + '-result');
   if (ok === total && total > 0) {
     res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Perfecto!</span>';
-    _jCompletar('Rellena');
+    if (!rewarded) _jCompletar('Rellena');
   } else {
     res.innerHTML = '<span style="color:var(--amber)">' + ok + '/' + total + ' correctas. ¡Sigue!</span>';
   }
+  _jChecked[gid] = true;
 }
 
 /* ---------- ORDENAR (drag to reorder) ---------- */
@@ -4727,22 +4731,24 @@ function _ordRender(gid) {
   list.innerHTML = html;
 }
 function gOrdCheck(gid) {
+  var rewarded = _jChecked[gid];
   var items = window['_ord_' + gid];
   var list = document.getElementById(gid + '-list');
   var els = Array.from(list.querySelectorAll('.orden-item'));
   var ok = 0;
   items.forEach(function(it, i) {
     els[i].classList.remove('ok', 'ko');
-    if (it.correctIdx === i) { els[i].classList.add('ok'); ok++; _jAcierto('Ordenar ' + ok); }
-    else { els[i].classList.add('ko'); _jFallo(); }
+    if (it.correctIdx === i) { els[i].classList.add('ok'); ok++; if (!rewarded) _jAcierto('Ordenar ' + ok); }
+    else { els[i].classList.add('ko'); if (!rewarded) _jFallo(); }
   });
   var res = document.getElementById(gid + '-result');
   if (ok === items.length) {
     res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Perfecto!</span>';
-    _jCompletar('Ordenar');
+    if (!rewarded) _jCompletar('Ordenar');
   } else {
     res.innerHTML = '<span style="color:var(--amber)">' + ok + '/' + items.length + ' en su sitio. ¡Reordena!</span>';
   }
+  _jChecked[gid] = true;
 }
 
 /* ---------- VERDADERO / FALSO ---------- */
@@ -4988,6 +4994,7 @@ function abrirMinijuego(pi, gi) {
 /* ══════════════════════════════════════════════════════
    SISTEMA DE XP — modo estudio vs gaming
    ══════════════════════════════════════════════════════ */
+var _jChecked = {};
 function _jAcierto(sub) {
   if (_gaming.active) {
     _gaming.xp += 5;
