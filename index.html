@@ -1703,12 +1703,14 @@ firebase.initializeApp({
 var auth = firebase.auth();
 var db = firebase.firestore();
 var storage = firebase.storage();
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
 // ── LOGIN CON GOOGLE ───────────────────────────
 window.loginGoogle = async function() {
   document.getElementById('login-error').textContent = '';
   try {
     var provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
     await auth.signInWithPopup(provider);
   } catch(e) {
     document.getElementById('login-error').textContent = 'Error: ' + e.message;
