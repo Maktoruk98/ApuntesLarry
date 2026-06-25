@@ -1796,6 +1796,14 @@ auth.onAuthStateChanged(async function(user) {
         var data = snap.data();
         enterApp(data.name, data.avatar, data.xp, true, user.uid, user.photoURL, user.email, data.mii, data.coins, data.owned);
         console.log('[AUTH] enterApp called OK');
+      } else {
+        // Usuario autenticado pero sin documento — mostrar onboarding
+        var waitOB = setInterval(function() {
+          if (typeof onboardStart === 'function') {
+            clearInterval(waitOB);
+            onboardStart(user);
+          }
+        }, 50);
       }
     } else {
       document.getElementById('login-screen').classList.remove('hidden');
