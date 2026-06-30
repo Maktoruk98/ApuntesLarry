@@ -203,6 +203,32 @@ html,body{height:100%;overflow:hidden}
 .md-content tr:last-child td{border-bottom:none}
 .md-content hr{border:none;border-top:1px solid var(--border);margin:24px 0}
 .md-content blockquote{border-left:3px solid var(--accent);padding:10px 16px;background:#0a1f2a;border-radius:0 6px 6px 0;margin-bottom:14px}
+.md-content img{max-width:100%;height:auto;border-radius:10px;margin:12px 0;border:1px solid var(--border);display:block}
+.adm-img-btn{padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;cursor:pointer;font-family:sans-serif;transition:border-color .15s}
+.adm-img-btn:hover{border-color:var(--accent)}
+.adm-img-progress{display:none;align-items:center;gap:8px;font-size:12px;color:var(--text-muted)}
+.adm-img-progress .bar{flex:1;height:6px;background:var(--border);border-radius:99px;overflow:hidden}
+.adm-img-progress .fill{height:100%;background:var(--accent);border-radius:99px;width:0%;transition:width .2s}
+.img-modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:350;display:none;align-items:center;justify-content:center;padding:20px}
+.img-modal-ov.open{display:flex}
+.img-modal{background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:620px;padding:28px;position:relative}
+.img-modal-close{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:var(--bg-card);border:1px solid var(--border);color:var(--text-muted);cursor:pointer;font-size:14px}
+.img-modal h3{font-size:16px;font-weight:700;margin:0 0 18px;color:var(--text-primary)}
+.img-preview-zone{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:18px;min-height:120px;display:flex}
+.img-preview-zone.align-left{justify-content:flex-start}
+.img-preview-zone.align-center{justify-content:center}
+.img-preview-zone.align-right{justify-content:flex-end}
+.img-preview-zone img{border-radius:8px;object-fit:contain;max-height:260px;transition:width .2s}
+.img-ctrl-group{margin-bottom:16px}
+.img-ctrl-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:8px}
+.img-size-btns,.img-align-btns{display:flex;gap:6px}
+.img-size-btns button,.img-align-btns button{flex:1;padding:9px 6px;background:var(--bg-card);border:2px solid var(--border);border-radius:8px;color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;font-family:sans-serif;transition:border-color .15s,color .15s}
+.img-size-btns button.active,.img-align-btns button.active{border-color:var(--accent);color:var(--accent)}
+.img-size-btns button:hover,.img-align-btns button:hover{border-color:var(--text-muted)}
+.img-slider-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.img-slider-row input[type=range]{flex:1;accent-color:var(--accent)}
+.img-slider-row span{font-size:12px;color:var(--text-secondary);font-weight:600;min-width:36px;text-align:right}
+.img-modal-actions{display:flex;gap:10px;margin-top:20px}
 /* Cajas especiales por emoji en H2 */
 .md-content h2:has(+ *):nth-of-type(1){color:#4ade80}
 .caja-esencial{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-left:4px solid #4ade80;border-radius:8px;padding:16px 20px;margin-bottom:20px}
@@ -1401,11 +1427,60 @@ html,body{height:100%;overflow:hidden}
           <div id="adm-preview" class="md-content" style="flex:1;min-height:420px;padding:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow-y:auto;font-size:13px"></div>
         </div>
       </div>
-      <div style="display:flex;gap:10px;margin-top:14px">
+      <div style="display:flex;gap:10px;margin-top:14px;align-items:center;flex-wrap:wrap">
         <button onclick="_admSaveApuntes()" class="btn-p" style="font-size:13px">💾 Guardar apuntes</button>
         <button onclick="_admPreview()" class="btn-s" style="font-size:13px">👁 Actualizar vista previa</button>
+        <button onclick="document.getElementById('adm-img-input').click()" class="adm-img-btn">🖼️ Insertar imagen</button>
+        <input type="file" id="adm-img-input" accept="image/*" style="display:none" onchange="_admUploadImg(this)">
+        <div id="adm-img-progress" class="adm-img-progress"><span id="adm-img-pct">0%</span><div class="bar"><div id="adm-img-fill" class="fill"></div></div></div>
       </div>
       <div id="adm-apuntes-status" style="margin-top:8px;font-size:12px;min-height:18px"></div>
+    </div>
+
+    <!-- Modal de imagen -->
+    <div id="img-modal-ov" class="img-modal-ov" onclick="if(event.target===this)_imgModalClose()">
+      <div class="img-modal">
+        <button class="img-modal-close" onclick="_imgModalClose()">✕</button>
+        <h3>🖼️ Configurar imagen</h3>
+        <div id="img-preview-zone" class="img-preview-zone align-center">
+          <img id="img-preview-el" src="" alt="preview">
+        </div>
+        <div class="img-ctrl-group">
+          <div class="img-ctrl-label">Tamaño</div>
+          <div class="img-size-btns" id="img-size-btns">
+            <button onclick="_imgSetSize(25)">25%</button>
+            <button onclick="_imgSetSize(33)">33%</button>
+            <button onclick="_imgSetSize(50)" class="active">50%</button>
+            <button onclick="_imgSetSize(75)">75%</button>
+            <button onclick="_imgSetSize(100)">100%</button>
+          </div>
+          <div class="img-slider-row">
+            <input type="range" id="img-size-slider" min="10" max="100" value="50" oninput="_imgSetSize(Number(this.value),true)">
+            <span id="img-size-val">50%</span>
+          </div>
+        </div>
+        <div class="img-ctrl-group">
+          <div class="img-ctrl-label">Alineación</div>
+          <div class="img-align-btns" id="img-align-btns">
+            <button onclick="_imgSetAlign('left')">⬅ Izquierda</button>
+            <button onclick="_imgSetAlign('center')" class="active">⬛ Centro</button>
+            <button onclick="_imgSetAlign('right')">➡ Derecha</button>
+          </div>
+        </div>
+        <div class="img-ctrl-group">
+          <div class="img-ctrl-label">Bordes redondeados</div>
+          <div class="img-align-btns" id="img-radius-btns">
+            <button onclick="_imgSetRadius(0)">Sin borde</button>
+            <button onclick="_imgSetRadius(8)" class="active">Suave</button>
+            <button onclick="_imgSetRadius(16)">Redondeado</button>
+            <button onclick="_imgSetRadius(9999)">Circular</button>
+          </div>
+        </div>
+        <div class="img-modal-actions">
+          <button class="btn-p" style="font-size:13px" onclick="_imgModalInsert()">✅ Insertar</button>
+          <button class="btn-s" style="font-size:13px" onclick="_imgModalClose()">Cancelar</button>
+        </div>
+      </div>
     </div>
 
     <!-- Editor de juegos -->
@@ -5424,6 +5499,112 @@ function _admPreview() {
   var md = document.getElementById('adm-md').value;
   var html = typeof mdToHtml === 'function' ? mdToHtml(md) : (typeof marked !== 'undefined' ? marked.parse(md) : md);
   document.getElementById('adm-preview').innerHTML = html;
+}
+
+var _imgModal = { url: '', size: 50, align: 'center', radius: 8 };
+
+function _admUploadImg(input) {
+  if (!input.files || !input.files[0]) return;
+  if (!_adm.firestoreCol || !_adm.firestoreId) {
+    _admStatus('apuntes', '⚠️ Selecciona un punto antes de subir una imagen.', 'var(--rose)');
+    input.value = '';
+    return;
+  }
+  var file = input.files[0];
+  if (file.size > 5 * 1024 * 1024) {
+    _admStatus('apuntes', '⚠️ La imagen no puede superar 5 MB.', 'var(--rose)');
+    input.value = '';
+    return;
+  }
+  var ext = file.name.split('.').pop().toLowerCase();
+  var ts = Date.now();
+  var path = 'apuntes/' + _adm.firestoreCol + '/' + _adm.firestoreId + '/' + ts + '.' + ext;
+  var ref = storage.ref(path);
+  var task = ref.put(file);
+  var prog = document.getElementById('adm-img-progress');
+  var pct = document.getElementById('adm-img-pct');
+  var fill = document.getElementById('adm-img-fill');
+  prog.style.display = 'flex';
+  _admStatus('apuntes', '📤 Subiendo imagen...', 'var(--amber)');
+  task.on('state_changed', function(snap) {
+    var p = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+    pct.textContent = p + '%';
+    fill.style.width = p + '%';
+  }, function(err) {
+    prog.style.display = 'none';
+    _admStatus('apuntes', '❌ Error al subir: ' + err.message, 'var(--rose)');
+    input.value = '';
+  }, function() {
+    task.snapshot.ref.getDownloadURL().then(function(url) {
+      prog.style.display = 'none';
+      input.value = '';
+      _imgModalOpen(url);
+    });
+  });
+}
+
+function _imgModalOpen(url) {
+  _imgModal = { url: url, size: 50, align: 'center', radius: 8 };
+  document.getElementById('img-preview-el').src = url;
+  _imgApplyPreview();
+  _imgSetSize(50);
+  _imgSetAlign('center');
+  _imgSetRadius(8);
+  document.getElementById('img-modal-ov').classList.add('open');
+}
+
+function _imgModalClose() {
+  document.getElementById('img-modal-ov').classList.remove('open');
+}
+
+function _imgSetSize(val, fromSlider) {
+  _imgModal.size = val;
+  document.getElementById('img-size-val').textContent = val + '%';
+  document.getElementById('img-size-slider').value = val;
+  if (!fromSlider) {
+    var btns = document.querySelectorAll('#img-size-btns button');
+    btns.forEach(function(b) { b.classList.toggle('active', parseInt(b.textContent) === val); });
+  }
+  _imgApplyPreview();
+}
+
+function _imgSetAlign(align) {
+  _imgModal.align = align;
+  var zone = document.getElementById('img-preview-zone');
+  zone.className = 'img-preview-zone align-' + align;
+  var btns = document.querySelectorAll('#img-align-btns button');
+  var aligns = ['left','center','right'];
+  btns.forEach(function(b, i) { b.classList.toggle('active', aligns[i] === align); });
+}
+
+function _imgSetRadius(r) {
+  _imgModal.radius = r;
+  var btns = document.querySelectorAll('#img-radius-btns button');
+  var vals = [0, 8, 16, 9999];
+  btns.forEach(function(b, i) { b.classList.toggle('active', vals[i] === r); });
+  _imgApplyPreview();
+}
+
+function _imgApplyPreview() {
+  var img = document.getElementById('img-preview-el');
+  img.style.width = _imgModal.size + '%';
+  img.style.borderRadius = _imgModal.radius + 'px';
+}
+
+function _imgModalInsert() {
+  var s = _imgModal;
+  var margin = s.align === 'center' ? '12px auto' : (s.align === 'right' ? '12px 0 12px auto' : '12px auto 12px 0');
+  var imgHtml = '\n<div style="text-align:' + s.align + '">' +
+    '<img src="' + s.url + '" alt="imagen" style="width:' + s.size + '%;border-radius:' + s.radius + 'px;display:block;margin:' + margin + '">' +
+    '</div>\n';
+  var ta = document.getElementById('adm-md');
+  var pos = ta.selectionStart || ta.value.length;
+  ta.value = ta.value.substring(0, pos) + imgHtml + ta.value.substring(pos);
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = pos + imgHtml.length;
+  _admPreview();
+  _admStatus('apuntes', '✅ Imagen insertada correctamente.', 'var(--green)');
+  _imgModalClose();
 }
 
 function _admTab(tab) {
