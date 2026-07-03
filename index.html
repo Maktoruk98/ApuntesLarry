@@ -600,7 +600,7 @@ html,body{height:100%;overflow:hidden}
 .cuadricula-grid.cols-4{grid-template-columns:repeat(4,1fr)}
 
 .cq-card{
-  position:relative;z-index:2;border-radius:14px;
+  position:relative;z-index:2;border-radius:14px;min-height:150px;box-sizing:border-box;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
   cursor:pointer;background:rgba(128,128,128,.06);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   border:1px solid var(--border);padding:1.3rem 1rem;text-align:center;overflow:hidden;
@@ -627,10 +627,21 @@ html,body{height:100%;overflow:hidden}
 .cq-num{font-size:11px;font-weight:700;color:var(--accent);font-family:'Courier New',monospace;opacity:.6;letter-spacing:.05em}
 .cq-lock-badge{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(128,128,128,.2);font-family:'Courier New',monospace;margin-top:2px}
 
-/* Brillo "no visitado" */
-@keyframes cqUnseenGlow{0%,100%{box-shadow:0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent),0 0 14px color-mix(in srgb, var(--accent) 18%, transparent)}50%{box-shadow:0 0 0 1px color-mix(in srgb, var(--accent) 65%, transparent),0 0 22px color-mix(in srgb, var(--accent) 30%, transparent)}}
-.cq-card.unseen{animation:cqUnseenGlow 2.6s ease-in-out infinite}
-.cq-card.unseen .cq-dot-new{position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
+/* Efecto cromado — tarjeta aún no visitada (se adapta al tema activo) */
+.cq-card.unseen{
+  background:linear-gradient(135deg, var(--bg-card,rgba(128,128,128,.06)) 0%, var(--bg-card2,rgba(200,200,200,.14)) 45%, rgba(255,255,255,.16) 50%, var(--bg-card2,rgba(200,200,200,.14)) 55%, var(--bg-card,rgba(128,128,128,.06)) 100%);
+  border-color:var(--border2, var(--accent));
+}
+.cq-card.unseen::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,.2) 45%, rgba(255,255,255,.4) 50%, rgba(255,255,255,.2) 55%, transparent 70%);
+  background-size:250% 250%;background-position:200% 0;
+  animation:cqChromeSheen 4.5s ease-in-out infinite;
+}
+@keyframes cqChromeSheen{0%{background-position:200% 0}100%{background-position:-80% 0}}
+
+/* Estrella — punto con todos sus minijuegos completados */
+.cq-star{position:absolute;top:8px;right:9px;font-size:14px;line-height:1;filter:drop-shadow(0 0 4px rgba(245,158,11,.6))}
 
 /* Animación: deslizamiento seda (lobby de bloques) */
 @keyframes cqSilk{0%{opacity:0;transform:translateX(-24px)}100%{opacity:1;transform:translateX(0)}}
@@ -1858,6 +1869,7 @@ function listenMyProfile(uid) {
         window.S.mii = data.mii || window.S.mii || null;
         window.S.noMostrarSalirModal = !!data.noMostrarSalirModal;
         window.S.visitados = data.visitados || {};
+        window.S.completados = data.completados || {};
         window.S.coins = data.coins || 0;
         window.S.owned = data.owned || [];
       }
@@ -3963,6 +3975,51 @@ function marcarVisitado(id){
   }
 }
 
+// ── SISTEMA DE "COMPLETADOS" (estrella: todos los juegos de un punto hechos) ──
+function esCompletado(id){
+  if(!window.S) return false;
+  if(!window.S.completados) window.S.completados = {};
+  return !!window.S.completados[id];
+}
+function marcarCompletado(id){
+  if(!window.S) return;
+  if(!window.S.completados) window.S.completados = {};
+  if(window.S.completados[id]) return;
+  window.S.completados[id] = true;
+  if(window.S.uid && window.S.isFirebase && typeof db !== 'undefined'){
+    var update = {};
+    update['completados.'+id] = true;
+    db.collection('users').doc(window.S.uid).update(update).catch(function(e){ console.log('Error guardando completado:', e); });
+  }
+}
+// Observa los resultados de los minijuegos de un punto y marca el punto como completado
+// cuando todos han sido superados al menos una vez.
+function _trackPuntoJuegos(col, firestoreId, juegos){
+  if(!juegos || !juegos.length || !col || !firestoreId) return;
+  var key = 'punto-juegos:'+col+':'+firestoreId;
+  if(esCompletado(key)) return;
+  var base = 'j' + String(firestoreId).replace(/[^a-zA-Z0-9]/g, '');
+  var total = juegos.length;
+  var done = {};
+  juegos.forEach(function(g, idx){
+    var resultEl = document.getElementById(base + '_g' + idx + '-result');
+    if(!resultEl) return;
+    var obs = new MutationObserver(function(){
+      var txt = resultEl.textContent || '';
+      if(txt.indexOf('🎉') !== -1 || txt.indexOf('Perfecto') !== -1 || txt.indexOf('Completado') !== -1){
+        if(!done[idx]){
+          done[idx] = true;
+          if(Object.keys(done).length === total){
+            marcarCompletado(key);
+          }
+        }
+        obs.disconnect();
+      }
+    });
+    obs.observe(resultEl, { childList: true, characterData: true, subtree: true });
+  });
+}
+
 // ── DECORACIÓN MODO CLARO: líquido + scanline + partículas ──
 // Se aplica a cards de carrusel (profesoras/módulos) y cuadrícula (bloques/sistemas)
 // EXCLUYE explícitamente .anim-scan (lobby de puntos)
@@ -4220,7 +4277,7 @@ function _buildCuadricula(containerId, items, onEnter, opts) {
     if(unseen) card.classList.add('unseen');
 
     var numHtml = item.num ? '<div class="cq-num">'+item.num+'</div>' : '';
-    var dotHtml = unseen ? '<div class="cq-dot-new"></div>' : '';
+    var starHtml = (!item.locked && item.completado) ? '<div class="cq-star">⭐</div>' : '';
 
     if(item.locked){
       card.innerHTML =
@@ -4233,7 +4290,7 @@ function _buildCuadricula(containerId, items, onEnter, opts) {
     } else {
       card.innerHTML =
         '<div class="cq-corner tl"></div><div class="cq-corner tr"></div><div class="cq-corner bl"></div><div class="cq-corner br"></div>' +
-        dotHtml + numHtml +
+        starHtml + numHtml +
         '<div class="cq-emoji">'+(item.emoji||'')+'</div>' +
         '<div class="cq-label">'+item.label+'</div>' +
         '<div class="cq-title">'+item.title+'</div>' +
@@ -4437,6 +4494,7 @@ function renderLobbyPuntos(prof, moduloId, bloqueId, sistemaId) {
   if(oldNav && oldNav.parentElement) oldNav.parentElement.style.display = 'none';
 
   var n = puntos.length;
+  var col = (modulo.tipo === 'modulo-bloques' && bloqueId && sistemaId) ? sistema.firestoreCol : modulo.firestoreCol;
   var items = puntos.map(function(punto, i){
     return {
       emoji: '📄',
@@ -4444,6 +4502,7 @@ function renderLobbyPuntos(prof, moduloId, bloqueId, sistemaId) {
       title: punto.titulo,
       sub: (i+1)+' / '+n,
       locked: false,
+      completado: !!(col && punto.firestoreId && esCompletado('punto-juegos:'+col+':'+punto.firestoreId)),
       visitId: 'punto:'+prof+':'+moduloId+':'+(bloqueId||'-')+':'+(sistemaId||'-')+':'+i
     };
   });
@@ -4503,7 +4562,10 @@ function renderPunto(prof, moduloId, bloqueId, sistemaId, puntoIdx) {
         if(doc.exists) {
           cont.innerHTML = mdToHtml(doc.data().contenido || doc.data().content);
           if (typeof renderPodcast === 'function' && doc.data().podcast) { cont.innerHTML += renderPodcast(doc.data().podcast); }
-          if (typeof renderJuegos === 'function' && doc.data().juegos) { cont.innerHTML += renderJuegos(doc.data().juegos, punto.firestoreId); }
+          if (typeof renderJuegos === 'function' && doc.data().juegos) {
+            cont.innerHTML += renderJuegos(doc.data().juegos, punto.firestoreId);
+            if (typeof _trackPuntoJuegos === 'function') _trackPuntoJuegos(sistema.firestoreCol, punto.firestoreId, doc.data().juegos);
+          }
           _animarCajasScan(cont);
         } else {
           cont.innerHTML = '<div style="color:#f87171;text-align:center;padding:40px 0">Contenido no encontrado en Firestore.</div>';
