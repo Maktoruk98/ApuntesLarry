@@ -540,6 +540,7 @@ html,body{height:100%;overflow:hidden}
   min-height: 18px;
   text-align: center;
 }
+.jgame-tick{color:var(--green);font-weight:700;margin-left:2px}
 
 /* ── TRANSICIONES ENTRE ALTURAS ─────────────────────── */
 @keyframes alturaZoomIn{0%{opacity:0;transform:scale(.65);filter:blur(10px)}100%{opacity:1;transform:scale(1);filter:blur(0)}}
@@ -643,6 +644,18 @@ html,body{height:100%;overflow:hidden}
 /* Estrella — punto con todos sus minijuegos completados */
 .cq-star{position:absolute;top:8px;right:9px;font-size:14px;line-height:1;filter:drop-shadow(0 0 4px rgba(245,158,11,.6))}
 
+/* Medidor de progreso — módulo/bloque/sistema (puntos de teoría completados) */
+.progress-meter{width:100%;margin-top:8px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.progress-num{font-size:10px;font-family:'Courier New',monospace;color:var(--accent);opacity:.75}
+.progress-bar{width:78%;height:4px;border-radius:99px;background:rgba(128,128,128,.22);overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
+
+/* Tono verde suave — contenedor (punto/sistema/bloque/módulo) 100% completado */
+.cq-card.completo{background:linear-gradient(135deg, rgba(74,222,128,.16) 0%, rgba(74,222,128,.04) 100%);border-color:var(--green)}
+.cq-card.completo.unseen::after{content:none}
+.cq-card.completo .progress-fill{background:var(--green)}
+.cq-card.completo .progress-num{color:var(--green)}
+
 /* Animación: deslizamiento seda (lobby de bloques) */
 @keyframes cqSilk{0%{opacity:0;transform:translateX(-24px)}100%{opacity:1;transform:translateX(0)}}
 .cq-card.anim-silk{animation:cqSilk .45s cubic-bezier(.22,1,.36,1) forwards}
@@ -687,6 +700,9 @@ html,body{height:100%;overflow:hidden}
 .carrusel-card::before{content:'';position:absolute;inset:0;border-radius:14px;background:linear-gradient(135deg,rgba(128,128,128,.04) 0%,transparent 60%);pointer-events:none}
 .carrusel-card.locked{background:rgba(0,0,0,.55);border-color:rgba(128,128,128,.08);cursor:default}
 .carrusel-card.locked::before{background:linear-gradient(135deg,rgba(255,255,255,.015) 0%,transparent 60%)}
+.carrusel-card.completo{background:linear-gradient(135deg, rgba(74,222,128,.16) 0%, rgba(74,222,128,.04) 100%);border-color:var(--green)}
+.carrusel-card.completo .progress-fill{background:var(--green)}
+.carrusel-card.completo .progress-num{color:var(--green)}
 .cc-corner{position:absolute;width:9px;height:9px}
 .cc-corner.tl{top:6px;left:6px;border-top:1px solid var(--accent);border-left:1px solid var(--accent);opacity:.5}
 .cc-corner.br{bottom:6px;right:6px;border-bottom:1px solid var(--accent);border-right:1px solid var(--accent);opacity:.5}
@@ -906,6 +922,14 @@ html,body{height:100%;overflow:hidden}
   font-size:13px !important; font-weight:400 !important;
   color:var(--accent) !important; opacity:.85 !important;
   position:relative; z-index:3; text-align:center;
+}
+
+/* Tono verde de completado — debe ganar al fondo "papel" del modo claro */
+[data-modo="light"] .carrusel-card.completo:not(.locked),
+[data-modo="light"] .cq-card.completo:not(.anim-scan):not(.locked){
+  background:linear-gradient(135deg, rgba(74,222,128,.4) 0%, rgba(74,222,128,.14) 100%) !important;
+  border-color:var(--green) !important;
+  box-shadow:0 0 0 1px var(--green), 0 4px 14px rgba(74,222,128,.18) !important;
 }
 
 /* ── CARRUSEL VERTICAL (>6 items) ───────────────────── */
@@ -1198,6 +1222,7 @@ html,body{height:100%;overflow:hidden}
     </div>
     <button class="btn-s" style="width:100%;font-size:13px;margin-bottom:8px" onclick="openShop()">🪙 Tienda</button>
     <button id="btn-admin" onclick="nav('admin')" style="display:none;width:100%;padding:9px;background:rgba(45,212,191,.08);border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;font-family:sans-serif;margin-bottom:8px">⚙️ Panel Admin</button>
+    <button onclick="resetearProgreso()" style="width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:sans-serif;margin-bottom:8px">🔄 Reiniciar progreso de estudio</button>
     <button onclick="window.logOut&&window.logOut()" style="width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:sans-serif">Cerrar sesion</button>
   </div>
 </div>
@@ -2313,7 +2338,7 @@ function navProf(prof){
 
 function renderLobbyModulosIsabel(){
   var items = [
-    { emoji: '🤝', label: 'Módulo 1', title: 'Habilidades Sociales', sub: window._TEMAS.isabel.m1.tipo==='modulo-firestore' ? window._TEMAS.isabel.m1.puntos.length+' puntos' : 'Disponible', locked: false, _mod: 'm1' },
+    { emoji: '🤝', label: 'Módulo 1', title: 'Habilidades Sociales', sub: window._TEMAS.isabel.m1.tipo==='modulo-firestore' ? window._TEMAS.isabel.m1.puntos.length+' puntos' : 'Disponible', locked: false, progreso: _progresoModulo(window._TEMAS.isabel.m1), _mod: 'm1' },
     { emoji: '🩺', label: 'Módulo 2', title: 'Atención al Usuario', sub: 'Pendiente', locked: true, _mod: 'm2' },
     { emoji: '✍️', label: 'Módulo 3', title: 'Comunicación Oral y Escrita', sub: 'Pendiente', locked: true, _mod: 'm3' }
   ];
@@ -2324,9 +2349,9 @@ function renderLobbyModulosIsabel(){
 
 function renderLobbyModulosJudith(){
   var items = [
-    { emoji: '🏥', label: 'Módulo 1', title: 'Sistema de Salud', sub: '8 puntos', locked: false, _mod: 'm1' },
-    { emoji: '🫀', label: 'Módulo 2', title: 'El Cuerpo Humano y su Anatomía', sub: '4 bloques', locked: false, _mod: 'm2' },
-    { emoji: '🩺', label: 'Módulo 3', title: 'Patologías más Frecuentes', sub: '3 bloques', locked: false, _mod: 'm3' },
+    { emoji: '🏥', label: 'Módulo 1', title: 'Sistema de Salud', sub: '8 puntos', locked: false, progreso: _progresoModulo(window._TEMAS.judith.m1), _mod: 'm1' },
+    { emoji: '🫀', label: 'Módulo 2', title: 'El Cuerpo Humano y su Anatomía', sub: '4 bloques', locked: false, progreso: _progresoModulo(window._TEMAS.judith.m2), _mod: 'm2' },
+    { emoji: '🩺', label: 'Módulo 3', title: 'Patologías más Frecuentes', sub: '3 bloques', locked: false, progreso: _progresoModulo(window._TEMAS.judith.m3), _mod: 'm3' },
     { emoji: '🔬', label: 'Módulo 4', title: 'Pruebas Médicas', sub: 'Pendiente', locked: true, _mod: 'm4' }
   ];
   _buildCarrusel('lobby-modulos-judith-lista', items, function(idx){
@@ -3992,32 +4017,87 @@ function marcarCompletado(id){
     db.collection('users').doc(window.S.uid).update(update).catch(function(e){ console.log('Error guardando completado:', e); });
   }
 }
-// Observa los resultados de los minijuegos de un punto y marca el punto como completado
-// cuando todos han sido superados al menos una vez.
+// Observa los resultados de los minijuegos de un punto: marca cada minijuego individual
+// como completado (tick verde) y, cuando TODOS los del punto lo están, marca el punto entero.
 function _trackPuntoJuegos(col, firestoreId, juegos){
   if(!juegos || !juegos.length || !col || !firestoreId) return;
-  var key = 'punto-juegos:'+col+':'+firestoreId;
-  if(esCompletado(key)) return;
   var base = 'j' + String(firestoreId).replace(/[^a-zA-Z0-9]/g, '');
-  var total = juegos.length;
-  var done = {};
   juegos.forEach(function(g, idx){
+    var gkey = 'juego:'+col+':'+firestoreId+':'+idx;
     var resultEl = document.getElementById(base + '_g' + idx + '-result');
     if(!resultEl) return;
+    if(esCompletado(gkey)) return; // ya estaba hecho, no hace falta observar
     var obs = new MutationObserver(function(){
       var txt = resultEl.textContent || '';
       if(txt.indexOf('🎉') !== -1 || txt.indexOf('Perfecto') !== -1 || txt.indexOf('Completado') !== -1){
-        if(!done[idx]){
-          done[idx] = true;
-          if(Object.keys(done).length === total){
-            marcarCompletado(key);
-          }
-        }
+        marcarCompletado(gkey);
+        _marcarTickEnDOM(resultEl);
+        _checkPuntoCompletado(col, firestoreId, juegos.length);
         obs.disconnect();
       }
     });
     obs.observe(resultEl, { childList: true, characterData: true, subtree: true });
   });
+}
+function _checkPuntoCompletado(col, firestoreId, total){
+  var key = 'punto-completo:'+col+':'+firestoreId;
+  if(esCompletado(key)) return;
+  for(var i=0; i<total; i++){
+    if(!esCompletado('juego:'+col+':'+firestoreId+':'+i)) return;
+  }
+  marcarCompletado(key);
+}
+function _marcarTickEnDOM(resultEl){
+  var wrap = resultEl.closest('.jgame-collapsible');
+  if(!wrap) return;
+  var titleEl = wrap.querySelector('.jgame-h-title');
+  if(titleEl && !titleEl.querySelector('.jgame-tick')) titleEl.insertAdjacentHTML('beforeend', ' <span class="jgame-tick" title="Completado">✓</span>');
+}
+
+// ── PROGRESO POR CONTENEDOR (bloque/sistema/módulo) — derivado, no persistido ──
+function _progresoPuntos(puntos, col){
+  var total = 0, done = 0;
+  (puntos || []).forEach(function(p){
+    if(!p.firestoreId || !col) return; // sin contenido en Firestore, no trackeable
+    total++;
+    if(esCompletado('punto-completo:'+col+':'+p.firestoreId)) done++;
+  });
+  return { done: done, total: total };
+}
+function _progresoSistema(sistema){
+  return _progresoPuntos(sistema.puntos, sistema.firestoreCol);
+}
+function _progresoBloque(bloque){
+  var total = 0, done = 0;
+  Object.keys(bloque.sistemas || {}).forEach(function(sid){
+    var pr = _progresoSistema(bloque.sistemas[sid]);
+    total += pr.total; done += pr.done;
+  });
+  return { done: done, total: total };
+}
+function _progresoModulo(modulo){
+  if(modulo.tipo === 'modulo-bloques'){
+    var total = 0, done = 0;
+    Object.keys(modulo.bloques || {}).forEach(function(bid){
+      var pr = _progresoBloque(modulo.bloques[bid]);
+      total += pr.total; done += pr.done;
+    });
+    return { done: done, total: total };
+  }
+  return _progresoPuntos(modulo.puntos, modulo.firestoreCol);
+}
+
+// ── RESET DE PROGRESO (disponible para cualquier usuario, en su propio panel) ──
+function resetearProgreso(){
+  if(!window.S || !window.S.uid){ alert('Inicia sesión para poder reiniciar tu progreso.'); return; }
+  if(!confirm('¿Seguro que quieres reiniciar tu progreso de estudio (visitas, minijuegos y puntos completados)?\n\nTu XP, nivel y monedas no se ven afectados.')) return;
+  window.S.visitados = {};
+  window.S.completados = {};
+  if(window.S.isFirebase && typeof db !== 'undefined'){
+    db.collection('users').doc(window.S.uid).update({ visitados: {}, completados: {} })
+      .catch(function(e){ console.log('Error reseteando progreso:', e); });
+  }
+  location.reload();
 }
 
 // ── DECORACIÓN MODO CLARO: líquido + scanline + partículas ──
@@ -4124,6 +4204,13 @@ function _buildCarrusel(containerId, items, onEnter, opts) {
   items.forEach(function(item, i){
     var card = document.createElement('div');
     var tierClass = intensity === 'modulo' ? ' tier-modulo' : (intensity === 'prof' ? ' tier-prof' : '');
+    var progresoHtml = '';
+    if(!item.locked && item.progreso && item.progreso.total > 0){
+      var pct = Math.round(item.progreso.done / item.progreso.total * 100);
+      if(item.progreso.done === item.progreso.total) tierClass += ' completo';
+      progresoHtml = '<div class="progress-meter"><div class="progress-num">'+item.progreso.done+'/'+item.progreso.total+'</div>' +
+        '<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div></div>';
+    }
     card.className = 'carrusel-card' + tierClass + (item.locked ? ' locked' : '');
     var ringHtml = (intensity && !item.locked) ? '<div class="carrusel-ring show"></div>' : '';
     var emojiClass = (intensity && !item.locked) ? 'cc-emoji boost' : 'cc-emoji';
@@ -4142,7 +4229,8 @@ function _buildCarrusel(containerId, items, onEnter, opts) {
         '<div class="'+emojiClass+'">'+(item.emoji||'')+'</div>' +
         '<div class="cc-label">'+item.label+'</div>' +
         '<div class="cc-title">'+item.title+'</div>' +
-        '<div class="cc-sub">'+item.sub+'</div>';
+        '<div class="cc-sub">'+item.sub+'</div>' +
+        progresoHtml;
       card.onclick = function(){
         var pos = parseInt(card.getAttribute('data-pos'));
         if(pos < 2) move(-1);
@@ -4278,6 +4366,15 @@ function _buildCuadricula(containerId, items, onEnter, opts) {
 
     var numHtml = item.num ? '<div class="cq-num">'+item.num+'</div>' : '';
     var starHtml = (!item.locked && item.completado) ? '<div class="cq-star">⭐</div>' : '';
+    var progresoHtml = '';
+    var esCompleto = !!item.completado;
+    if(!item.locked && item.progreso && item.progreso.total > 0){
+      var pct = Math.round(item.progreso.done / item.progreso.total * 100);
+      esCompleto = item.progreso.done === item.progreso.total;
+      progresoHtml = '<div class="progress-meter"><div class="progress-num">'+item.progreso.done+'/'+item.progreso.total+'</div>' +
+        '<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div></div>';
+    }
+    if(esCompleto) card.classList.add('completo');
 
     if(item.locked){
       card.innerHTML =
@@ -4294,7 +4391,8 @@ function _buildCuadricula(containerId, items, onEnter, opts) {
         '<div class="cq-emoji">'+(item.emoji||'')+'</div>' +
         '<div class="cq-label">'+item.label+'</div>' +
         '<div class="cq-title">'+item.title+'</div>' +
-        (item.sub ? '<div class="cq-sub">'+item.sub+'</div>' : '');
+        (item.sub ? '<div class="cq-sub">'+item.sub+'</div>' : '') +
+        progresoHtml;
       card.onclick = function(){
         if(item.visitId) marcarVisitado(item.visitId);
         card.classList.remove('unseen');
@@ -4390,6 +4488,7 @@ function renderLobbyBloques(prof, moduloId) {
       title: bloque.titulo,
       sub: nsistemas+' '+(nsistemas===1?'sección':'secciones'),
       locked: false,
+      progreso: _progresoBloque(bloque),
       visitId: 'bloque:'+prof+':'+moduloId+':'+bloqueId
     };
   });
@@ -4426,7 +4525,7 @@ function renderLobbySistemas(prof, moduloId, bloqueId) {
     var sistema = bloque.sistemas[sistemaId];
     var np = sistema.puntos.length;
     var pendiente = !sistema.firestoreCol && sistema.puntos.every(function(p){ return !p.firestoreId; });
-    return {
+    var item = {
       emoji: '📄',
       label: esUltimoLobby ? 'Punto' : 'Sistema',
       title: sistema.titulo,
@@ -4434,6 +4533,14 @@ function renderLobbySistemas(prof, moduloId, bloqueId) {
       locked: pendiente,
       visitId: 'sistema:'+prof+':'+moduloId+':'+bloqueId+':'+sistemaId
     };
+    if(esUltimoLobby){
+      // Esta tarjeta salta directo al punto (no hay grid de puntos intermedio) — se trata como tal
+      var p0 = sistema.puntos[0];
+      item.completado = !!(sistema.firestoreCol && p0 && p0.firestoreId && esCompletado('punto-completo:'+sistema.firestoreCol+':'+p0.firestoreId));
+    } else {
+      item.progreso = _progresoSistema(sistema);
+    }
+    return item;
   });
 
   // Si es el último lobby: scan + sonido (igual que lobby de puntos)
@@ -4502,7 +4609,7 @@ function renderLobbyPuntos(prof, moduloId, bloqueId, sistemaId) {
       title: punto.titulo,
       sub: (i+1)+' / '+n,
       locked: false,
-      completado: !!(col && punto.firestoreId && esCompletado('punto-juegos:'+col+':'+punto.firestoreId)),
+      completado: !!(col && punto.firestoreId && esCompletado('punto-completo:'+col+':'+punto.firestoreId)),
       visitId: 'punto:'+prof+':'+moduloId+':'+(bloqueId||'-')+':'+(sistemaId||'-')+':'+i
     };
   });
@@ -4563,7 +4670,7 @@ function renderPunto(prof, moduloId, bloqueId, sistemaId, puntoIdx) {
           cont.innerHTML = mdToHtml(doc.data().contenido || doc.data().content);
           if (typeof renderPodcast === 'function' && doc.data().podcast) { cont.innerHTML += renderPodcast(doc.data().podcast); }
           if (typeof renderJuegos === 'function' && doc.data().juegos) {
-            cont.innerHTML += renderJuegos(doc.data().juegos, punto.firestoreId);
+            cont.innerHTML += renderJuegos(doc.data().juegos, punto.firestoreId, false, sistema.firestoreCol);
             if (typeof _trackPuntoJuegos === 'function') _trackPuntoJuegos(sistema.firestoreCol, punto.firestoreId, doc.data().juegos);
           }
           _animarCajasScan(cont);
@@ -5017,7 +5124,7 @@ function renderPodcast(url) {
     '</div>';
 }
 
-function renderJuegos(juegos, firestoreId, noSep) {
+function renderJuegos(juegos, firestoreId, noSep, col) {
   if (!juegos || !juegos.length) return '';
   var base = 'j' + String(firestoreId).replace(/[^a-zA-Z0-9]/g, '');
   var html = noSep ? '' : '<div class="juegos-sep">🎮 Practica lo aprendido</div>';
@@ -5032,9 +5139,10 @@ function renderJuegos(juegos, firestoreId, noSep) {
     else return;
     var reportBtn = '<div style="text-align:right;margin-top:8px"><button onclick="_jReportError(\'' + _jEsc(firestoreId) + '\',\'' + _jEsc(g.titulo||'') + '\',this)" style="background:none;border:none;color:var(--text-faint);font-size:11px;cursor:pointer;font-family:sans-serif;padding:2px 6px">⚠ Informar de un error</button></div>';
     var collapseId = gid + '_collapse';
+    var tick = (col && typeof esCompletado === 'function' && esCompletado('juego:'+col+':'+firestoreId+':'+idx)) ? ' <span class="jgame-tick" title="Completado">✓</span>' : '';
     html += '<div class="jgame jgame-collapsible">' +
       '<div class="jgame-h jgame-toggle" onclick="this.parentElement.classList.toggle(\'open\')" style="cursor:pointer;user-select:none">' +
-        '<div style="display:flex;align-items:center;gap:8px;flex:1">' + icon + ' ' + _jEsc(g.titulo || '') + '</div>' +
+        '<div class="jgame-h-title" style="display:flex;align-items:center;gap:8px;flex:1">' + icon + ' ' + _jEsc(g.titulo || '') + tick + '</div>' +
         '<span class="jgame-arrow">▶</span>' +
       '</div>' +
       '<div class="jgame-body">' +
