@@ -1524,6 +1524,13 @@ html,body{height:100%;overflow:hidden}
           </div>
         </div>
         <div class="img-ctrl-group">
+          <div class="img-ctrl-label">Rotación</div>
+          <div class="img-slider-row">
+            <input type="range" id="img-rotation-slider" min="-45" max="45" value="0" oninput="_imgSetRotation(Number(this.value))">
+            <span id="img-rotation-val">0°</span>
+          </div>
+        </div>
+        <div class="img-ctrl-group">
           <div class="img-ctrl-label">Bordes redondeados</div>
           <div class="img-align-btns" id="img-radius-btns">
             <button onclick="_imgSetRadius(0)">Sin borde</button>
@@ -5697,7 +5704,7 @@ function _admPreview() {
   document.getElementById('adm-preview').innerHTML = html;
 }
 
-var _imgModal = { url: '', size: 50, align: 'center', radius: 8 };
+var _imgModal = { url: '', size: 50, align: 'center', radius: 8, rotation: 0 };
 
 function _admUploadImg(input) {
   if (!input.files || !input.files[0]) return;
@@ -5740,12 +5747,13 @@ function _admUploadImg(input) {
 }
 
 function _imgModalOpen(url) {
-  _imgModal = { url: url, size: 50, align: 'center', radius: 8 };
+  _imgModal = { url: url, size: 50, align: 'center', radius: 8, rotation: 0 };
   document.getElementById('img-preview-el').src = url;
   _imgApplyPreview();
   _imgSetSize(50);
   _imgSetAlign('center');
   _imgSetRadius(8);
+  _imgSetRotation(0);
   document.getElementById('img-modal-ov').classList.add('open');
 }
 
@@ -5781,17 +5789,27 @@ function _imgSetRadius(r) {
   _imgApplyPreview();
 }
 
+function _imgSetRotation(deg) {
+  _imgModal.rotation = deg;
+  document.getElementById('img-rotation-val').textContent = deg + '°';
+  document.getElementById('img-rotation-slider').value = deg;
+  _imgApplyPreview();
+}
+
 function _imgApplyPreview() {
   var img = document.getElementById('img-preview-el');
   img.style.width = _imgModal.size + '%';
   img.style.borderRadius = _imgModal.radius + 'px';
+  img.style.transform = 'rotate(' + _imgModal.rotation + 'deg)';
 }
 
 function _imgModalInsert() {
   var s = _imgModal;
   var margin = s.align === 'center' ? '12px auto' : (s.align === 'right' ? '12px 0 12px auto' : '12px auto 12px 0');
+  var imgStyle = 'width:' + s.size + '%;border-radius:' + s.radius + 'px;display:block;margin:' + margin;
+  if (s.rotation) { imgStyle += ';transform:rotate(' + s.rotation + 'deg)'; }
   var imgHtml = '\n<div style="text-align:' + s.align + '">' +
-    '<img src="' + s.url + '" alt="imagen" style="width:' + s.size + '%;border-radius:' + s.radius + 'px;display:block;margin:' + margin + '">' +
+    '<img src="' + s.url + '" alt="imagen" style="' + imgStyle + '">' +
     '</div>\n';
   var ta = document.getElementById('adm-md');
   var pos = ta.selectionStart || ta.value.length;
