@@ -64,6 +64,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 if __name__ == '__main__':
     os.chdir(REPO_DIR)
-    server = http.server.ThreadingHTTPServer(('', PORT), Handler)
+    server = http.server.ThreadingHTTPServer(('127.0.0.1', PORT), Handler)
     print('Serving ApuntesLarry admin server on http://localhost:%d' % PORT)
     server.serve_forever()

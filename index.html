@@ -1486,7 +1486,7 @@ html,body{height:100%;overflow:hidden}
       <div style="display:flex;gap:10px;margin-top:14px;align-items:center;flex-wrap:wrap">
         <button onclick="_admSaveApuntes()" class="btn-p" style="font-size:13px">💾 Guardar apuntes</button>
         <button onclick="_admPreview()" class="btn-s" style="font-size:13px">👁 Actualizar vista previa</button>
-        <button onclick="document.getElementById('adm-img-input').click()" class="adm-img-btn">🖼️ Insertar imagen</button>
+        <button onclick="_admInsertImgClick()" class="adm-img-btn">🖼️ Insertar imagen</button>
         <input type="file" id="adm-img-input" accept="image/*" style="display:none" onchange="_admUploadImg(this)">
         <button id="adm-commit-push-btn" onclick="_admCommitPush()" class="btn-s" style="font-size:13px;margin-left:auto">🚀 Commit y Push</button>
       </div>
@@ -5708,6 +5708,28 @@ function _admPreview() {
 var _imgModal = { url: '', size: 50, align: 'center', radius: 8, rotation: 0 };
 var _imgDirHandle = null;
 
+async function _admInsertImgClick() {
+  if (!window.showDirectoryPicker) {
+    _admStatus('apuntes', '⚠️ Tu navegador no soporta guardar en disco (usa Chrome o Edge).', 'var(--rose)');
+    return;
+  }
+  if (!_imgDirHandle) {
+    try {
+      _admStatus('apuntes', '📁 Selecciona la carpeta "images" del repositorio...', 'var(--amber)');
+      _imgDirHandle = await window.showDirectoryPicker({ id: 'apunteslarry-images', mode: 'readwrite' });
+      _admStatus('apuntes', '', '');
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        _admStatus('apuntes', '❌ No se pudo acceder a la carpeta: ' + err.message, 'var(--rose)');
+      } else {
+        _admStatus('apuntes', '', '');
+      }
+      return;
+    }
+  }
+  document.getElementById('adm-img-input').click();
+}
+
 async function _admUploadImg(input) {
   if (!input.files || !input.files[0]) return;
   var file = input.files[0];
@@ -5716,16 +5738,7 @@ async function _admUploadImg(input) {
     input.value = '';
     return;
   }
-  if (!window.showDirectoryPicker) {
-    _admStatus('apuntes', '⚠️ Tu navegador no soporta guardar en disco (usa Chrome o Edge).', 'var(--rose)');
-    input.value = '';
-    return;
-  }
   try {
-    if (!_imgDirHandle) {
-      _admStatus('apuntes', '📁 Selecciona la carpeta "images" del repositorio...', 'var(--amber)');
-      _imgDirHandle = await window.showDirectoryPicker({ id: 'apunteslarry-images' });
-    }
     _admStatus('apuntes', '📤 Guardando imagen en disco...', 'var(--amber)');
     var name = await _imgSaveToDir(_imgDirHandle, file);
     input.value = '';
@@ -5733,9 +5746,7 @@ async function _admUploadImg(input) {
     _imgModalOpen('images/' + name);
   } catch (err) {
     input.value = '';
-    if (err.name === 'AbortError') { _admStatus('apuntes', '', ''); return; }
     _admStatus('apuntes', '❌ Error al guardar la imagen: ' + err.message, 'var(--rose)');
-    _imgDirHandle = null;
   }
 }
 
@@ -5787,7 +5798,14 @@ async function _admCommitPush() {
 
 function _imgModalOpen(url) {
   _imgModal = { url: url, size: 50, align: 'center', radius: 8, rotation: 0 };
-  document.getElementById('img-preview-el').src = url;
+  var previewEl = document.getElementById('img-preview-el');
+  previewEl.onerror = function() {
+    _admStatus('apuntes', '⚠️ No se pudo cargar la vista previa de "' + url + '". Revisa la consola del navegador (F12) para ver el error exacto.', 'var(--rose)');
+  };
+  previewEl.onload = function() {
+    _admStatus('apuntes', '', '');
+  };
+  previewEl.src = url.indexOf('data:') === 0 ? url : (url + '?t=' + Date.now());
   _imgApplyPreview();
   _imgSetSize(50);
   _imgSetAlign('center');
