@@ -1488,9 +1488,10 @@ html,body{height:100%;overflow:hidden}
         <button onclick="_admPreview()" class="btn-s" style="font-size:13px">👁 Actualizar vista previa</button>
         <button onclick="document.getElementById('adm-img-input').click()" class="adm-img-btn">🖼️ Insertar imagen</button>
         <input type="file" id="adm-img-input" accept="image/*" style="display:none" onchange="_admUploadImg(this)">
-        <div id="adm-img-progress" class="adm-img-progress"><span id="adm-img-pct">0%</span><div class="bar"><div id="adm-img-fill" class="fill"></div></div></div>
+        <button id="adm-commit-push-btn" onclick="_admCommitPush()" class="btn-s" style="font-size:13px;margin-left:auto">🚀 Commit y Push</button>
       </div>
       <div id="adm-apuntes-status" style="margin-top:8px;font-size:12px;min-height:18px"></div>
+      <div id="adm-commit-push-status" style="margin-top:4px;font-size:12px;min-height:18px"></div>
     </div>
 
     <!-- Modal de imagen -->
@@ -5705,45 +5706,83 @@ function _admPreview() {
 }
 
 var _imgModal = { url: '', size: 50, align: 'center', radius: 8, rotation: 0 };
+var _imgDirHandle = null;
 
-function _admUploadImg(input) {
+async function _admUploadImg(input) {
   if (!input.files || !input.files[0]) return;
-  if (!_adm.firestoreCol || !_adm.firestoreId) {
-    _admStatus('apuntes', '⚠️ Selecciona un punto antes de subir una imagen.', 'var(--rose)');
-    input.value = '';
-    return;
-  }
   var file = input.files[0];
   if (file.size > 5 * 1024 * 1024) {
     _admStatus('apuntes', '⚠️ La imagen no puede superar 5 MB.', 'var(--rose)');
     input.value = '';
     return;
   }
-  var ext = file.name.split('.').pop().toLowerCase();
-  var ts = Date.now();
-  var path = 'apuntes/' + _adm.firestoreCol + '/' + _adm.firestoreId + '/' + ts + '.' + ext;
-  var ref = storage.ref(path);
-  var task = ref.put(file);
-  var prog = document.getElementById('adm-img-progress');
-  var pct = document.getElementById('adm-img-pct');
-  var fill = document.getElementById('adm-img-fill');
-  prog.style.display = 'flex';
-  _admStatus('apuntes', '📤 Subiendo imagen...', 'var(--amber)');
-  task.on('state_changed', function(snap) {
-    var p = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-    pct.textContent = p + '%';
-    fill.style.width = p + '%';
-  }, function(err) {
-    prog.style.display = 'none';
-    _admStatus('apuntes', '❌ Error al subir: ' + err.message, 'var(--rose)');
+  if (!window.showDirectoryPicker) {
+    _admStatus('apuntes', '⚠️ Tu navegador no soporta guardar en disco (usa Chrome o Edge).', 'var(--rose)');
     input.value = '';
-  }, function() {
-    task.snapshot.ref.getDownloadURL().then(function(url) {
-      prog.style.display = 'none';
-      input.value = '';
-      _imgModalOpen(url);
+    return;
+  }
+  try {
+    if (!_imgDirHandle) {
+      _admStatus('apuntes', '📁 Selecciona la carpeta "images" del repositorio...', 'var(--amber)');
+      _imgDirHandle = await window.showDirectoryPicker({ id: 'apunteslarry-images' });
+    }
+    _admStatus('apuntes', '📤 Guardando imagen en disco...', 'var(--amber)');
+    var name = await _imgSaveToDir(_imgDirHandle, file);
+    input.value = '';
+    _admStatus('apuntes', '✅ Imagen guardada en images/' + name, 'var(--green)');
+    _imgModalOpen('images/' + name);
+  } catch (err) {
+    input.value = '';
+    if (err.name === 'AbortError') { _admStatus('apuntes', '', ''); return; }
+    _admStatus('apuntes', '❌ Error al guardar la imagen: ' + err.message, 'var(--rose)');
+    _imgDirHandle = null;
+  }
+}
+
+async function _imgSaveToDir(dirHandle, file) {
+  var name = file.name.replace(/[^a-zA-Z0-9._-]/g, '-');
+  var exists = true;
+  try { await dirHandle.getFileHandle(name, { create: false }); } catch (e) { exists = false; }
+  if (exists) {
+    var dot = name.lastIndexOf('.');
+    var base = dot > -1 ? name.slice(0, dot) : name;
+    var ext = dot > -1 ? name.slice(dot) : '';
+    name = base + '-' + Date.now() + ext;
+  }
+  var fh = await dirHandle.getFileHandle(name, { create: true });
+  var writable = await fh.createWritable();
+  await writable.write(file);
+  await writable.close();
+  return name;
+}
+
+async function _admCommitPush() {
+  if (!confirm('¿Subir los cambios a GitHub (commit + push)?')) return;
+  var btn = document.getElementById('adm-commit-push-btn');
+  var statusEl = document.getElementById('adm-commit-push-status');
+  btn.disabled = true;
+  statusEl.textContent = '⏳ Haciendo commit y push...';
+  statusEl.style.color = 'var(--amber)';
+  try {
+    var res = await fetch('/api/commit-push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Actualización desde panel admin' })
     });
-  });
+    var data = await res.json();
+    if (data.ok) {
+      statusEl.textContent = data.skipped ? 'ℹ️ No había cambios pendientes.' : '✅ Cambios subidos a GitHub correctamente.';
+      statusEl.style.color = 'var(--green)';
+    } else {
+      statusEl.textContent = '❌ Error: ' + (data.output || 'desconocido');
+      statusEl.style.color = 'var(--rose)';
+    }
+  } catch (e) {
+    statusEl.textContent = '❌ No se pudo conectar con el servidor local (solo funciona corriendo admin-server.py en localhost).';
+    statusEl.style.color = 'var(--rose)';
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 function _imgModalOpen(url) {
