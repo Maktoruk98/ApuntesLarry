@@ -421,7 +421,20 @@ html,body{height:100%;overflow:hidden}
   border-radius: 10px;
   padding: 20px 22px;
   margin: 20px 0;
+  position: relative;
 }
+.jexr-play{animation:jexr-box .9s cubic-bezier(.34,1.56,.64,1);overflow:hidden}
+@keyframes jexr-box{
+  0%{background:var(--bg2);transform:scale(1);box-shadow:none;border-color:var(--border)}
+  35%{background:rgba(74,222,128,.22);transform:scale(1.02);box-shadow:0 0 22px rgba(74,222,128,.45);border-color:#4ade80}
+  100%{background:var(--bg2);transform:scale(1);box-shadow:none;border-color:var(--border)}
+}
+.jexr-sweep{position:absolute;top:0;bottom:0;width:40%;background:linear-gradient(90deg,transparent,rgba(74,222,128,.35),transparent);pointer-events:none;opacity:0}
+.jexr-play .jexr-sweep{opacity:1;animation:jexr-sweep .55s ease-out}
+@keyframes jexr-sweep{0%{transform:translateX(-120%) skewX(-15deg)}100%{transform:translateX(220%) skewX(-15deg)}}
+.jexr-check{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:#4ade80;color:#0a0f0c;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;transform:scale(0);opacity:0}
+.jexr-play .jexr-check{animation:jexr-check .5s cubic-bezier(.34,1.56,.64,1) forwards .55s}
+@keyframes jexr-check{0%{transform:scale(0);opacity:0}55%{transform:scale(1.25);opacity:1}75%{transform:scale(.92)}100%{transform:scale(1);opacity:1}}
 .jgame-title {
   font-size: 11px;
   text-transform: uppercase;
@@ -4074,6 +4087,7 @@ function _trackPuntoJuegos(col, firestoreId, juegos){
       if(txt.indexOf('🎉') !== -1 || txt.indexOf('Perfecto') !== -1 || txt.indexOf('Completado') !== -1){
         marcarCompletado(gkey);
         _marcarTickEnDOM(resultEl);
+        _showExerciseReward(resultEl);
         _checkPuntoCompletado(col, firestoreId, juegos.length);
         obs.disconnect();
       }
@@ -4163,6 +4177,59 @@ function _showPuntoReward(){
   ov.classList.add('show');
   setTimeout(function(){ ov.classList.remove('show'); }, 2300);
   playPuntoCompleteSound();
+}
+// ── PREMIO SENSORIAL: EJERCICIO INDIVIDUAL (whoosh corto + destello en la caja) ──
+function _lightWhoosh(c, rv, start, dur){
+  var bufferSize = Math.floor(c.sampleRate * dur);
+  var buffer = c.createBuffer(1, bufferSize, c.sampleRate);
+  var data = buffer.getChannelData(0);
+  for(var i = 0; i < bufferSize; i++) data[i] = Math.random()*2-1;
+  var noise = c.createBufferSource();
+  noise.buffer = buffer;
+  var bp = c.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.Q.value = 0.8;
+  bp.frequency.setValueAtTime(500, c.currentTime + start);
+  bp.frequency.exponentialRampToValueAtTime(3200, c.currentTime + start + dur);
+  var noiseGain = c.createGain();
+  noiseGain.gain.setValueAtTime(0.0001, c.currentTime + start);
+  noiseGain.gain.linearRampToValueAtTime(0.12, c.currentTime + start + dur*0.6);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + start + dur);
+  noise.connect(bp); bp.connect(noiseGain); noiseGain.connect(c.destination);
+  var wet = c.createGain(); wet.gain.value = 0.3;
+  noiseGain.connect(wet); wet.connect(rv); rv.connect(c.destination);
+  noise.start(c.currentTime + start); noise.stop(c.currentTime + start + dur);
+}
+function playExerciseCompleteSound(){
+  try {
+    var c = _getAudioCtx();
+    if(!c) return;
+    var rv = _getSharedReverb(c);
+    var shift = _PUNTO_REWARD_KEYS[Math.floor(Math.random() * _PUNTO_REWARD_KEYS.length)];
+    var root = 130.81 * Math.pow(2, shift/12) * 2;
+    _lightWhoosh(c, rv, 0, 0.32);
+    _etherealVoice(c, rv, 0.16, root, 0.07, 0.12, 0.5, 'sine');
+  } catch(e){}
+}
+function _showExerciseReward(resultEl){
+  var wrap = resultEl.closest('.jgame-collapsible');
+  if(!wrap) return;
+  var sweep = document.createElement('div');
+  sweep.className = 'jexr-sweep';
+  var check = document.createElement('div');
+  check.className = 'jexr-check';
+  check.textContent = '✓';
+  wrap.appendChild(sweep);
+  wrap.appendChild(check);
+  wrap.classList.remove('jexr-play');
+  void wrap.offsetWidth;
+  wrap.classList.add('jexr-play');
+  setTimeout(function(){
+    wrap.classList.remove('jexr-play');
+    if(sweep.parentNode) sweep.parentNode.removeChild(sweep);
+    if(check.parentNode) check.parentNode.removeChild(check);
+  }, 1200);
+  playExerciseCompleteSound();
 }
 function _marcarTickEnDOM(resultEl){
   var wrap = resultEl.closest('.jgame-collapsible');
