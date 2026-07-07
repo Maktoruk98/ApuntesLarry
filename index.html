@@ -137,6 +137,14 @@ html,body{height:100%;overflow:hidden}
 .shop-section{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:600;margin:16px 0 8px}
 .coin-toast{position:fixed;bottom:70px;right:22px;background:var(--bg-surface);border:1px solid #f59e0b44;border-radius:12px;padding:10px 16px;display:flex;align-items:center;gap:8px;z-index:400;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;font-size:13px;font-weight:700;color:#f59e0b}
 .coin-toast.show{transform:translateY(0);opacity:1}
+/* ── PREMIO SENSORIAL: PUNTO COMPLETADO (impulso digital verde) ── */
+.punto-reward-ov{position:fixed;inset:0;z-index:450;pointer-events:none;display:flex;align-items:center;justify-content:center;opacity:0}
+.punto-reward-ov.show{opacity:1;animation:pr-fade 2.2s ease-out forwards}
+.punto-reward-vignette{position:absolute;inset:0;background:radial-gradient(circle at center,rgba(74,222,128,.22),transparent 62%)}
+.punto-reward-ring{position:absolute;width:20px;height:20px;border-radius:50%;border:3px solid var(--green);box-shadow:0 0 30px 4px rgba(74,222,128,.55)}
+.punto-reward-ov.show .punto-reward-ring{animation:pr-ring 2.2s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes pr-fade{0%{opacity:0}8%{opacity:1}75%{opacity:1}100%{opacity:0}}
+@keyframes pr-ring{0%{width:20px;height:20px;opacity:.9}100%{width:70vmin;height:70vmin;opacity:0}}
 .tema-locked{opacity:.5;pointer-events:none}
 .tema-locked-tag{font-size:9px;color:#f59e0b}
 /* ── ONBOARDING / CREATE CHARACTER ───────────── */
@@ -1810,6 +1818,11 @@ html,body{height:100%;overflow:hidden}
 </div>
 <!-- COIN TOAST -->
 <div class="coin-toast" id="coin-toast">🪙 <span id="coin-toast-txt">+3</span></div>
+<!-- PREMIO SENSORIAL: PUNTO COMPLETADO -->
+<div class="punto-reward-ov" id="punto-reward-ov">
+  <div class="punto-reward-vignette"></div>
+  <div class="punto-reward-ring"></div>
+</div>
 
 <!-- LEVEL UP -->
 <div class="lu-ov" id="lu-ov">
@@ -4075,6 +4088,81 @@ function _checkPuntoCompletado(col, firestoreId, total){
     if(!esCompletado('juego:'+col+':'+firestoreId+':'+i)) return;
   }
   marcarCompletado(key);
+  _showPuntoReward();
+}
+// ── PREMIO SENSORIAL: PUNTO COMPLETADO (whoosh profundo, arpegio Lidio en tonalidad aleatoria) ──
+function _deepWhoosh(c, rv, start, dur, subStart, subEnd){
+  var sub = c.createOscillator(), subGain = c.createGain();
+  sub.type = 'sine';
+  sub.frequency.setValueAtTime(subStart, c.currentTime + start);
+  sub.frequency.exponentialRampToValueAtTime(subEnd, c.currentTime + start + dur*0.8);
+  subGain.gain.setValueAtTime(0.0001, c.currentTime + start);
+  subGain.gain.linearRampToValueAtTime(0.22, c.currentTime + start + dur*0.5);
+  subGain.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + start + dur);
+  sub.connect(subGain); subGain.connect(c.destination);
+  sub.start(c.currentTime + start); sub.stop(c.currentTime + start + dur + 0.1);
+
+  var bufferSize = Math.floor(c.sampleRate * dur);
+  var buffer = c.createBuffer(1, bufferSize, c.sampleRate);
+  var data = buffer.getChannelData(0);
+  for(var i = 0; i < bufferSize; i++) data[i] = Math.random()*2-1;
+  var noise = c.createBufferSource();
+  noise.buffer = buffer;
+  var lp = c.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.setValueAtTime(150, c.currentTime + start);
+  lp.frequency.linearRampToValueAtTime(900, c.currentTime + start + dur*0.7);
+  lp.frequency.exponentialRampToValueAtTime(200, c.currentTime + start + dur);
+  var noiseGain = c.createGain();
+  noiseGain.gain.setValueAtTime(0.0001, c.currentTime + start);
+  noiseGain.gain.linearRampToValueAtTime(0.18, c.currentTime + start + dur*0.55);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + start + dur);
+  noise.connect(lp); lp.connect(noiseGain); noiseGain.connect(c.destination);
+  var wet = c.createGain(); wet.gain.value = 0.6;
+  noiseGain.connect(wet); wet.connect(rv); rv.connect(c.destination);
+  noise.start(c.currentTime + start); noise.stop(c.currentTime + start + dur);
+}
+function _etherealVoice(c, rv, start, freq, peak, attack, dur, type){
+  var o1 = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain();
+  o1.type = type; o2.type = type;
+  o1.frequency.value = freq;
+  o2.frequency.value = freq * 1.006;
+  g.gain.setValueAtTime(0.0001, c.currentTime + start);
+  g.gain.linearRampToValueAtTime(peak, c.currentTime + start + attack);
+  g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + start + dur);
+  var dry = c.createGain(); dry.gain.value = 0.35;
+  var wet = c.createGain(); wet.gain.value = 0.75;
+  o1.connect(g); o2.connect(g);
+  g.connect(dry); dry.connect(c.destination);
+  g.connect(wet); wet.connect(rv); rv.connect(c.destination);
+  o1.start(c.currentTime + start); o2.start(c.currentTime + start);
+  o1.stop(c.currentTime + start + dur + 0.4); o2.stop(c.currentTime + start + dur + 0.4);
+}
+var _PUNTO_REWARD_KEYS = [0, 2, 4, 7];
+function playPuntoCompleteSound(){
+  try {
+    var c = _getAudioCtx();
+    if(!c) return;
+    var rv = _makeReverb(c, 3.2, 1.3);
+    var shift = _PUNTO_REWARD_KEYS[Math.floor(Math.random() * _PUNTO_REWARD_KEYS.length)];
+    var ratio = Math.pow(2, shift/12);
+    var root = 130.81 * ratio;
+    _deepWhoosh(c, rv, 0, 2.0, 50*ratio, 130*ratio);
+    _etherealVoice(c, rv, 0.10, root, 0.09, 0.7, 2.0, 'sine');
+    _etherealVoice(c, rv, 0.35, root*Math.pow(2,4/12), 0.08, 0.7, 1.8, 'sine');
+    _etherealVoice(c, rv, 0.60, root*Math.pow(2,7/12), 0.08, 0.7, 1.6, 'sine');
+    _etherealVoice(c, rv, 0.85, root*Math.pow(2,11/12), 0.07, 0.7, 1.4, 'sine');
+    _etherealVoice(c, rv, 1.10, root*Math.pow(2,18/12), 0.06, 0.5, 1.1, 'triangle');
+  } catch(e){}
+}
+function _showPuntoReward(){
+  var ov = document.getElementById('punto-reward-ov');
+  if(!ov) return;
+  ov.classList.remove('show');
+  void ov.offsetWidth;
+  ov.classList.add('show');
+  setTimeout(function(){ ov.classList.remove('show'); }, 2300);
+  playPuntoCompleteSound();
 }
 function _marcarTickEnDOM(resultEl){
   var wrap = resultEl.closest('.jgame-collapsible');
