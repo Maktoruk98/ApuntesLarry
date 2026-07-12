@@ -562,6 +562,16 @@ html,body{height:100%;overflow:hidden}
   text-align: center;
 }
 .jgame-tick{color:var(--green);font-weight:700;margin-left:2px}
+/* ── EXÁMENES ── */
+.exam-locked{pointer-events:none;opacity:.85}
+.reveal-correct{border:1px dashed var(--amber)!important;color:var(--amber)!important}
+.exam-tree label{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:13px;cursor:pointer}
+.exam-tree-children{margin-left:20px;border-left:1px solid var(--border);padding-left:12px}
+.exam-tree-node-label{font-weight:600}
+.exam-qcard{background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:22px;max-width:640px;margin:0 auto}
+.exam-progress-text{font-size:12px;color:var(--text-muted);margin-bottom:10px;text-align:center}
+.exam-weak-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);font-size:13px}
+.exam-weak-row:last-child{border-bottom:none}
 
 /* ── TRANSICIONES ENTRE ALTURAS ─────────────────────── */
 @keyframes alturaZoomIn{0%{opacity:0;transform:scale(.65);filter:blur(10px)}100%{opacity:1;transform:scale(1);filter:blur(0)}}
@@ -1210,6 +1220,7 @@ html,body{height:100%;overflow:hidden}
     <button class="nav-tab active" id="tab-home" onclick="nav('home')">Inicio</button>
     <button class="nav-tab" id="tab-apuntes" onclick="nav('apuntes')">Apuntes</button>
     <button class="nav-tab" id="tab-juegos" onclick="nav('juegos')">Juegos</button>
+    <button class="nav-tab" id="tab-examenes" onclick="nav('examenes')">Exámenes</button>
     <button onclick="gamingStart()" style="margin-left:6px;padding:5px 14px;border-radius:6px;border:none;background:#13161f;color:#2dd4bf;font-size:12px;font-weight:700;cursor:pointer;font-family:sans-serif;letter-spacing:.03em">Gaming Mode</button>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
@@ -1448,6 +1459,45 @@ html,body{height:100%;overflow:hidden}
     </div>
     <div style="margin:24px 0 12px;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-faint)">Minijuegos por punto</div>
     <div id="cajon-minijuegos"><div style="color:var(--text-muted);font-size:13px">Cargando minijuegos…</div></div>
+  </div>
+</div>
+
+<div class="page" id="page-examenes">
+  <div style="max-width:860px;margin:0 auto;padding:36px 40px 80px">
+    <h2 style="font-size:30px;font-weight:700;margin-bottom:8px">Exámenes</h2>
+    <p style="color:var(--text-muted);margin-bottom:20px">Una sola oportunidad por pregunta. Elige qué quieres que te pregunte.</p>
+
+    <div id="examen-view-setup">
+      <button class="btn-p" onclick="_examenSelectCompletados()" style="margin-bottom:20px">🎯 Diagnóstico: todo lo estudiado</button>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-faint);margin-bottom:8px">O elige el contenido a mano</div>
+      <div class="exam-tree" id="examen-tree" style="max-height:320px;overflow-y:auto;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px"></div>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px">
+        <span id="examen-count-label" style="font-size:13px;color:var(--text-muted)">0 puntos seleccionados</span>
+        <label style="font-size:13px;color:var(--text-muted)">Preguntas:
+          <select id="examen-num-preguntas" style="margin-left:6px;padding:6px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="todas">Todas</option>
+          </select>
+        </label>
+      </div>
+      <button id="examen-generar-btn" class="btn-p" onclick="_examenGenerar()" disabled>Generar examen</button>
+      <button class="btn-s" onclick="_examenLoadHistorial()">Ver historial</button>
+    </div>
+
+    <div id="examen-view-running" style="display:none">
+      <div id="examen-running-container"></div>
+    </div>
+
+    <div id="examen-view-resultado" style="display:none">
+      <div id="examen-resultado-container"></div>
+    </div>
+
+    <div id="examen-view-historial" style="display:none">
+      <button class="btn-s" onclick="_examenShowView('setup')" style="margin-bottom:16px">← Volver</button>
+      <div id="examen-historial-container"></div>
+    </div>
   </div>
 </div>
 
@@ -2333,9 +2383,15 @@ var _ALTURA_ORDER = ['apuntes','prof-isabel','prof-judith','modulo-bloques','lob
 var _currentPageId = 'home';
 
 function nav(id, skipAnim){
+  if(typeof _examen !== 'undefined' && _examen.active && id !== 'examenes'){
+    if(!confirm('¿Salir del examen? Perderás el progreso.')) return;
+    _examen.active = false;
+    if(_examen.observer) _examen.observer.disconnect();
+  }
   if(id === 'apuntes' && typeof renderLobbyProfesoras === 'function') renderLobbyProfesoras();
   if(id === 'juegos' && typeof cargarCajonMinijuegos === 'function') cargarCajonMinijuegos();
   if(id === 'admin' && typeof _admInit === 'function') _admInit();
+  if(id === 'examenes' && typeof _examenInit === 'function') _examenInit();
   var fromId = _currentPageId;
   var fromPage = document.getElementById('page-'+fromId);
   var toPage = document.getElementById('page-'+id);
@@ -3360,6 +3416,7 @@ function gameNervioso(){
 var _cState = {};
 
 function cClick(el, game) {
+  if (_jExamMode[game] === 'locked') return;
   if (el.classList.contains('ok')) return;
   var state = _cState[game] || { sel: null, count: 0, total: 0 };
   _cState[game] = state;
@@ -3391,7 +3448,23 @@ function cClick(el, game) {
           res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Completado!</span>';
         }
         _jCompletar('Conecta');
+        if (_jExamMode[game]) _jExamMode[game] = 'locked';
       }
+    } else if (_jExamMode[game]) {
+      // examen: fallo = fin de la pregunta, se revela el resto
+      first.classList.add('ko');
+      second.classList.add('ko');
+      _jFallo();
+      _jExamMode[game] = 'locked';
+      var allTiles = document.querySelectorAll('.conecta-item[data-id^="'+game+'l"], .conecta-item[data-id^="'+game+'r"]');
+      allTiles.forEach(function(t){
+        if (!t.classList.contains('ok')) {
+          t.classList.add('reveal-correct');
+          t.insertAdjacentHTML('beforeend', ' <b>#' + (parseInt(t.dataset.pair, 10) + 1) + '</b>');
+        }
+      });
+      var resFail = document.getElementById(game + '-result');
+      if (resFail) resFail.innerHTML = '<span style="color:var(--amber);font-weight:700">✗ Fallo — los números emparejan las parejas correctas restantes.</span>';
     } else {
       // incorrecto
       first.classList.add('ko');
@@ -5021,21 +5094,24 @@ function _jClasifica(gid, g) {
     '<div id="' + gid + '-result" class="jgame-result"></div>';
 }
 function gClasCheck(gid) {
+  if (_jExamMode[gid] === 'locked') return;
   var rewarded = _jChecked[gid];
   var chips = document.querySelectorAll('.clasifica-chip[data-game="' + gid + '"]');
   var res = document.getElementById(gid + '-result');
   var ok = 0, total = chips.length, inPool = 0;
+  var wrongChips = [];
   chips.forEach(function (chip) {
     if (chip.classList.contains('correct')) { ok++; return; }
     var zone = chip.closest('.clasifica-zone');
-    if (!zone) { inPool++; return; }
+    if (!zone) { inPool++; wrongChips.push(chip); return; }
     if (zone.dataset.cat === chip.dataset.cat) {
       chip.classList.add('correct'); chip.draggable = false; ok++;
       if (!rewarded) _jAcierto('Clasifica ' + ok + '/' + total);
     } else {
       chip.classList.add('wrong-place');
+      wrongChips.push(chip);
       if (!rewarded) _jFallo();
-      setTimeout(function () { chip.classList.remove('wrong-place'); }, 600);
+      if (!_jExamMode[gid]) setTimeout(function () { chip.classList.remove('wrong-place'); }, 600);
     }
   });
   if (ok === total && total > 0) {
@@ -5044,6 +5120,13 @@ function gClasCheck(gid) {
   } else {
     res.innerHTML = '<span style="color:var(--amber)">' + ok + '/' + total + ' correctos' +
       (inPool ? ', ' + inPool + ' sin clasificar' : '') + '. ¡Sigue!</span>';
+  }
+  if (_jExamMode[gid]) {
+    wrongChips.forEach(function (chip) {
+      chip.classList.add('reveal-correct');
+      chip.insertAdjacentHTML('beforeend', ' <b>→ ' + _jEsc(chip.dataset.cat) + '</b>');
+    });
+    _jExamMode[gid] = 'locked';
   }
   _jChecked[gid] = true;
 }
@@ -5121,16 +5204,22 @@ function rellDrop(e, gid, slotId) {
 /* Toque móvil: marca la palabra como seleccionada (luego se toca el hueco) */
 function rellTouchStart(e, gid, chipId) { rellPick(gid, chipId); }
 function gRellCheck(gid) {
+  if (_jExamMode[gid] === 'locked') return;
   var rewarded = _jChecked[gid];
   var slots = document.querySelectorAll('.rell-slot[id^="' + gid + '-s"]');
   var ok = 0, total = 0;
+  var wrongSlots = [];
   slots.forEach(function (s) {
     total++;
     var val = (s.textContent || '').trim().toLowerCase();
     var ans = (s.dataset.answer || '').trim().toLowerCase();
     s.classList.remove('ok', 'ko');
     if (val && val === ans) { s.classList.add('ok'); ok++; if (!rewarded) _jAcierto('Rellena ' + ok + '/' + total); }
-    else { s.classList.add('ko'); if (!rewarded) _jFallo(); (function (x) { setTimeout(function () { x.classList.remove('ko'); }, 600); })(s); }
+    else {
+      s.classList.add('ko'); wrongSlots.push(s);
+      if (!rewarded) _jFallo();
+      if (!_jExamMode[gid]) (function (x) { setTimeout(function () { x.classList.remove('ko'); }, 600); })(s);
+    }
   });
   var res = document.getElementById(gid + '-result');
   if (ok === total && total > 0) {
@@ -5138,6 +5227,13 @@ function gRellCheck(gid) {
     if (!rewarded) _jCompletar('Rellena');
   } else {
     res.innerHTML = '<span style="color:var(--amber)">' + ok + '/' + total + ' correctas. ¡Sigue!</span>';
+  }
+  if (_jExamMode[gid]) {
+    wrongSlots.forEach(function (s) {
+      s.classList.add('reveal-correct');
+      s.textContent = s.dataset.answer || '';
+    });
+    _jExamMode[gid] = 'locked';
   }
   _jChecked[gid] = true;
 }
@@ -5189,6 +5285,7 @@ function _ordRender(gid) {
   list.innerHTML = html;
 }
 function gOrdCheck(gid) {
+  if (_jExamMode[gid] === 'locked') return;
   var rewarded = _jChecked[gid];
   var items = window['_ord_' + gid];
   var list = document.getElementById(gid + '-list');
@@ -5205,6 +5302,18 @@ function gOrdCheck(gid) {
     if (!rewarded) _jCompletar('Ordenar');
   } else {
     res.innerHTML = '<span style="color:var(--amber)">' + ok + '/' + items.length + ' en su sitio. ¡Reordena!</span>';
+  }
+  if (_jExamMode[gid]) {
+    if (ok !== items.length) {
+      var correctOrder = items.slice().sort(function(a, b) { return a.correctIdx - b.correctIdx; });
+      var html = '';
+      correctOrder.forEach(function(it, i) {
+        html += '<div class="orden-item reveal-correct" data-game="' + gid + '" data-idx="' + i + '">' +
+          '<div class="orden-num">' + (i + 1) + '</div><div>' + _jEsc(it.texto) + '</div></div>';
+      });
+      list.innerHTML = html;
+    }
+    _jExamMode[gid] = 'locked';
   }
   _jChecked[gid] = true;
 }
@@ -5274,12 +5383,13 @@ function _descRender(gid, idx) {
   var html = '<div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">' + (idx + 1) + '/' + state.preguntas.length + ' — <b style="color:var(--text-primary)">' + _jEsc(p.grupo || 'Encuentra el intruso') + '</b></div>';
   html += '<div class="desc-options">';
   opts.forEach(function(o) {
-    html += '<div class="desc-opt" onclick="descClick(\'' + gid + '\',this,' + (o.intruso ? 'true' : 'false') + ')">' + _jEsc(o.texto) + '</div>';
+    html += '<div class="desc-opt" data-intruso="' + (o.intruso ? 'true' : 'false') + '" onclick="descClick(\'' + gid + '\',this,' + (o.intruso ? 'true' : 'false') + ')">' + _jEsc(o.texto) + '</div>';
   });
   html += '</div>';
   return html;
 }
 function descClick(gid, el, isIntruso) {
+  if (_jExamMode[gid] === 'locked') return;
   var state = window['_desc_' + gid];
   if (el.classList.contains('ok') || el.classList.contains('ko')) return;
   if (isIntruso) {
@@ -5292,10 +5402,20 @@ function descClick(gid, el, isIntruso) {
         var res = document.getElementById(gid + '-result');
         res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Perfecto!</span>';
         _jCompletar('Descarte');
+        if (_jExamMode[gid]) _jExamMode[gid] = 'locked';
       } else {
         document.getElementById(gid + '-content').innerHTML = _descRender(gid, state.current);
       }
     }, 500);
+  } else if (_jExamMode[gid]) {
+    // examen: fallo = fin de la pregunta, se revela el intruso correcto
+    el.classList.add('ko');
+    _jFallo();
+    _jExamMode[gid] = 'locked';
+    var correcto = document.querySelector('#' + gid + '-content .desc-opt[data-intruso="true"]');
+    if (correcto) correcto.classList.add('reveal-correct');
+    var resFail = document.getElementById(gid + '-result');
+    if (resFail) resFail.innerHTML = '<span style="color:var(--amber);font-weight:700">✗ Fallo — se ha marcado el intruso correcto.</span>';
   } else {
     el.classList.add('ko');
     _jFallo();
@@ -5459,6 +5579,8 @@ function _jAcierto(sub) {
     _gaming.xp += 5;
     _gaming.coins = (_gaming.coins || 0) + 3;
     _gamingUpdateHud();
+  } else if (_examen.active) {
+    // el examen otorga XP una sola vez al terminar, ver _examenFinish
   } else {
     addXP(5, '¡Correcto!', sub);
   }
@@ -5468,6 +5590,8 @@ function _jFallo() {
     _gaming.xp = Math.max(0, _gaming.xp - 5);
     _gaming.streak = 0;
     _gamingUpdateHud();
+  } else if (_examen.active) {
+    // sin penalización en vivo durante el examen
   }
 }
 function _jCompletar(sub) {
@@ -5477,6 +5601,8 @@ function _jCompletar(sub) {
     _gaming.xp += _gaming.streak;
     _gaming.coins = (_gaming.coins || 0) + 10;
     _gamingUpdateHud();
+  } else if (_examen.active) {
+    // el examen otorga XP una sola vez al terminar, ver _examenFinish
   } else {
     addXP(10, '¡Completado!', sub);
   }
@@ -5601,6 +5727,295 @@ function gamingExit() {
   if (_gaming.xp > 0) addXP(_gaming.xp, '¡Gaming Mode!', _gaming.idx + ' ejercicios');
   if (_gaming.coins > 0) addCoins(_gaming.coins);
   document.getElementById('gaming-overlay').classList.remove('active');
+}
+
+/* ══════════════════════════════════════════════════════
+   EXÁMENES — selección de alcance, examen estricto y diagnóstico
+   ══════════════════════════════════════════════════════ */
+var _examen = { active: false, queue: [], idx: 0, correctas: 0, total: 0, resultados: [], observer: null, scope: null };
+var _jExamMode = {};
+
+function _examenRender() {
+  if (_examen.idx >= _examen.queue.length) { _examenFinish(); return; }
+  var item = _examen.queue[_examen.idx];
+  var g = item.game;
+  var gid = 'exam_' + _examen.idx + '_' + Date.now();
+  _jExamMode[gid] = true;
+  var body = '', icon = (typeof _JTYPE_ICONS !== 'undefined' && _JTYPE_ICONS[g.tipo]) || '🎮';
+  if (g.tipo === 'conecta') body = _jConecta(gid, g);
+  else if (g.tipo === 'clasifica') body = _jClasifica(gid, g);
+  else if (g.tipo === 'rellena') body = _jRellena(gid, g);
+  else if (g.tipo === 'ordenar') body = _jOrdenar(gid, g);
+  else if (g.tipo === 'vf') body = _jVF(gid, g);
+  else if (g.tipo === 'descarte') body = _jDescarte(gid, g);
+  else { _examen.idx++; _examenRender(); return; }
+
+  var pct = Math.round((_examen.idx) / _examen.queue.length * 100);
+  var html = '<div class="exam-qcard">' +
+    '<div class="exam-progress-text">Pregunta ' + (_examen.idx + 1) + ' / ' + _examen.queue.length + (item.sistema ? ' · ' + _jEsc(item.sistema) : '') + '</div>' +
+    '<div class="progress-bar" style="margin-bottom:18px"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+    '<div style="font-size:15px;font-weight:700;margin-bottom:4px">' + icon + ' ' + _jEsc(g.titulo || '') + '</div>' +
+    (g.instruccion ? '<div class="jgame-instr">' + _jEsc(g.instruccion) + '</div>' : '') +
+    '<div class="jgame-body" id="' + gid + '-body">' + body + '</div>' +
+    '<div id="' + gid + '-next" style="text-align:center;margin-top:16px;display:none"><button class="btn-p" onclick="_examenNext()">Siguiente pregunta →</button></div>' +
+  '</div>';
+
+  var container = document.getElementById('examen-running-container');
+  if (container) container.innerHTML = html;
+
+  if (_examen.observer) _examen.observer.disconnect();
+  var resultEl = document.getElementById(gid + '-result');
+  if (!resultEl) return;
+  _examen.observer = new MutationObserver(function() {
+    var txt = resultEl.textContent || '';
+    if (!txt.trim()) return;
+    var correcta = txt.indexOf('🎉') !== -1;
+    _examen.resultados.push({ col: item.col, docId: item.docId, punto: item.punto, sistema: item.sistema, tipo: g.tipo, correcta: correcta });
+    if (correcta) _examen.correctas++;
+    var bodyEl = document.getElementById(gid + '-body');
+    if (bodyEl) bodyEl.classList.add('exam-locked');
+    var nextBtn = document.getElementById(gid + '-next');
+    if (nextBtn) nextBtn.style.display = 'block';
+    _examen.observer.disconnect();
+  });
+  _examen.observer.observe(resultEl, { childList: true, characterData: true, subtree: true });
+}
+function _examenNext() {
+  _examen.idx++;
+  _examenRender();
+}
+
+function _examenShowView(name) {
+  ['setup', 'running', 'resultado', 'historial'].forEach(function(v) {
+    var el = document.getElementById('examen-view-' + v);
+    if (el) el.style.display = (v === name) ? 'block' : 'none';
+  });
+}
+
+function _examenInit() {
+  _examenBuildTree();
+  _examenUpdateCount();
+  _examenShowView('setup');
+}
+
+var _examenNodeCounter = 0;
+function _examenNode(title, childrenHtml) {
+  if (!childrenHtml) return '';
+  return '<div class="exam-tree-node" style="margin:2px 0">' +
+    '<label><input type="checkbox" onchange="_examenToggleSubtree(this)"> <span class="exam-tree-node-label">' + _jEsc(title) + '</span></label>' +
+    '<div class="exam-tree-children">' + childrenHtml + '</div>' +
+  '</div>';
+}
+function _examenBuildPuntos(puntos, col, sistemaTitulo) {
+  var html = '';
+  (puntos || []).forEach(function(p) {
+    if (!p.firestoreId) return;
+    html += '<label><input type="checkbox" class="exam-leaf" data-col="' + _jEsc(col || '') + '" data-doc-id="' + _jEsc(p.firestoreId) +
+      '" data-punto="' + _jEsc(p.titulo || '') + '" data-sistema="' + _jEsc(sistemaTitulo || '') +
+      '" onchange="_examenUpdateCount()"> ' + _jEsc(p.titulo || p.firestoreId) + '</label>';
+  });
+  return html;
+}
+function _examenBuildModulos(profTemas) {
+  var html = '';
+  for (var modId in profTemas) {
+    var mod = profTemas[modId];
+    var children = '';
+    if (mod.tipo === 'modulo-firestore') {
+      children = _examenBuildPuntos(mod.puntos, mod.firestoreCol, mod.titulo || modId);
+    } else if (mod.bloques) {
+      for (var blqId in mod.bloques) {
+        var blq = mod.bloques[blqId];
+        var sisHtml = '';
+        for (var sisId in (blq.sistemas || {})) {
+          var sis = blq.sistemas[sisId];
+          sisHtml += _examenNode(sis.titulo || sisId, _examenBuildPuntos(sis.puntos, sis.firestoreCol, sis.titulo || sisId));
+        }
+        children += _examenNode(blq.titulo || blqId, sisHtml);
+      }
+    }
+    html += _examenNode(mod.titulo || modId, children);
+  }
+  return html;
+}
+function _examenBuildTree() {
+  var html = '';
+  if (window._TEMAS) {
+    for (var prof in window._TEMAS) {
+      html += _examenNode(prof.charAt(0).toUpperCase() + prof.slice(1), _examenBuildModulos(window._TEMAS[prof]));
+    }
+  }
+  var el = document.getElementById('examen-tree');
+  if (el) el.innerHTML = html || '<p style="color:var(--text-muted);font-size:13px">No hay contenido disponible.</p>';
+}
+function _examenToggleSubtree(checkboxEl) {
+  var node = checkboxEl.closest('.exam-tree-node');
+  if (!node) return;
+  var leaves = node.querySelectorAll('.exam-leaf');
+  leaves.forEach(function(l) { l.checked = checkboxEl.checked; });
+  _examenUpdateCount();
+}
+function _examenUpdateCount() {
+  var n = document.querySelectorAll('.exam-leaf:checked').length;
+  var el = document.getElementById('examen-count-label');
+  if (el) el.textContent = n + (n === 1 ? ' punto seleccionado' : ' puntos seleccionados');
+  var btn = document.getElementById('examen-generar-btn');
+  if (btn) btn.disabled = (n === 0);
+}
+function _examenSelectCompletados() {
+  var leaves = document.querySelectorAll('.exam-leaf');
+  var any = false;
+  leaves.forEach(function(l) {
+    var done = typeof esCompletado === 'function' && esCompletado('punto-completo:' + l.dataset.col + ':' + l.dataset.docId);
+    l.checked = !!done;
+    if (done) any = true;
+  });
+  _examenUpdateCount();
+  if (!any) alert('Todavía no has completado ningún punto. Elige el contenido a mano en la lista de abajo.');
+}
+
+function _examenGenerar() {
+  if (typeof db === 'undefined') { alert('Sin conexión a la base de datos.'); return; }
+  var leaves = Array.prototype.slice.call(document.querySelectorAll('.exam-leaf:checked'));
+  if (!leaves.length) { alert('Selecciona al menos un punto.'); return; }
+  var btn = document.getElementById('examen-generar-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Generando...'; }
+
+  var leafData = leaves.map(function(l) {
+    return { col: l.dataset.col, docId: l.dataset.docId, punto: l.dataset.punto, sistema: l.dataset.sistema };
+  });
+
+  Promise.all(leafData.map(function(l) {
+    return db.collection('temas').doc(l.col).collection('puntos').doc(l.docId).get().catch(function() { return null; });
+  })).then(function(docs) {
+    var pool = [];
+    docs.forEach(function(doc, i) {
+      if (!doc || !doc.exists) return;
+      var d = doc.data();
+      var l = leafData[i];
+      (d.juegos || []).forEach(function(g) {
+        pool.push({ game: g, col: l.col, docId: l.docId, punto: l.punto, sistema: l.sistema });
+      });
+    });
+    if (!pool.length) {
+      alert('Los puntos seleccionados todavía no tienen minijuegos.');
+      if (btn) { btn.disabled = false; btn.textContent = 'Generar examen'; }
+      return;
+    }
+    pool = _jShuffle(pool);
+    var reqSel = document.getElementById('examen-num-preguntas');
+    var reqVal = reqSel ? reqSel.value : 'todas';
+    var reqN = (reqVal === 'todas') ? pool.length : parseInt(reqVal, 10);
+    var n = Math.min(reqN, pool.length);
+    if (reqVal !== 'todas' && reqN > pool.length) {
+      alert('Solo hay ' + pool.length + ' preguntas disponibles con esta selección (pediste ' + reqN + '). El examen tendrá ' + pool.length + '.');
+    }
+    var scopeNombres = [];
+    leafData.forEach(function(l) {
+      var s = l.sistema || l.punto;
+      if (scopeNombres.indexOf(s) === -1) scopeNombres.push(s);
+    });
+    _examen = {
+      active: true, queue: pool.slice(0, n), idx: 0, correctas: 0, total: n, resultados: [], observer: null,
+      scope: scopeNombres.slice(0, 5).join(', ') + (scopeNombres.length > 5 ? '…' : '')
+    };
+    if (btn) { btn.disabled = false; btn.textContent = 'Generar examen'; }
+    _examenShowView('running');
+    _examenRender();
+  });
+}
+
+function _examenFinish() {
+  _examen.active = false;
+  var total = _examen.total, correctas = _examen.correctas;
+  var porcentaje = total > 0 ? Math.round(correctas / total * 100) : 0;
+
+  var groups = {};
+  _examen.resultados.forEach(function(r) {
+    var key = r.sistema || r.punto || 'General';
+    if (!groups[key]) groups[key] = { nombre: key, ok: 0, total: 0 };
+    groups[key].total++;
+    if (r.correcta) groups[key].ok++;
+  });
+  var groupList = [];
+  for (var k in groups) groupList.push(groups[k]);
+  groupList.sort(function(a, b) { return (a.ok / a.total) - (b.ok / b.total); });
+
+  var html = '<div class="exam-qcard">' +
+    '<div style="text-align:center;margin-bottom:20px">' +
+      '<div class="stat-n" style="font-size:44px">' + porcentaje + '%</div>' +
+      '<div class="stat-l">' + correctas + ' / ' + total + ' correctas</div>' +
+    '</div>';
+
+  if (groupList.length > 1) {
+    html += '<div style="margin:20px 0"><div style="font-weight:700;margin-bottom:8px">🎯 Puntos débiles</div>';
+    groupList.forEach(function(g) {
+      var pct = Math.round(g.ok / g.total * 100);
+      var color = pct === 100 ? 'var(--green)' : (pct >= 50 ? 'var(--amber)' : 'var(--rose)');
+      html += '<div class="exam-weak-row"><span>' + _jEsc(g.nombre) + '</span><span style="color:' + color + ';font-weight:700">' + g.ok + '/' + g.total + '</span></div>';
+    });
+    html += '</div>';
+  }
+
+  html += '<div style="display:flex;gap:10px;justify-content:center;margin-top:20px">' +
+    '<button class="btn-p" onclick="_examenInit()">Nuevo examen</button>' +
+    '<button class="btn-s" onclick="_examenLoadHistorial()">Ver historial</button>' +
+  '</div></div>';
+
+  var container = document.getElementById('examen-resultado-container');
+  if (container) container.innerHTML = html;
+  _examenShowView('resultado');
+
+  var perfecto = (total > 0 && correctas === total);
+  var xp = Math.round(correctas * 6) + (perfecto ? 15 : 0);
+  if (xp > 0) addXP(xp, 'Examen completado', correctas + '/' + total);
+
+  if (window.S && S.uid && typeof db !== 'undefined') {
+    var debiles = groupList.filter(function(g) { return g.ok < g.total; }).map(function(g) {
+      return { nombre: g.nombre, ok: g.ok, total: g.total };
+    });
+    db.collection('examenes').add({
+      uid: S.uid,
+      nombre: S.name || '',
+      fecha: new Date().toISOString(),
+      total: total,
+      correctas: correctas,
+      porcentaje: porcentaje,
+      alcance: _examen.scope || '',
+      debiles: debiles
+    }).catch(function(e) { console.log('Error guardando examen:', e); });
+  }
+}
+
+function _examenLoadHistorial() {
+  _examenShowView('historial');
+  var el = document.getElementById('examen-historial-container');
+  if (!el) return;
+  el.innerHTML = '<p style="color:var(--text-muted);font-size:13px">Cargando...</p>';
+  if (!window.S || !S.uid || typeof db === 'undefined') {
+    el.innerHTML = '<p style="color:var(--text-muted);font-size:13px">Inicia sesión para ver tu historial.</p>';
+    return;
+  }
+  db.collection('examenes').where('uid', '==', S.uid).get().then(function(snap) {
+    var items = [];
+    snap.forEach(function(doc) { items.push(doc.data()); });
+    items.sort(function(a, b) { return (b.fecha || '').localeCompare(a.fecha || ''); });
+    if (!items.length) {
+      el.innerHTML = '<p style="color:var(--text-muted);font-size:13px">Todavía no has hecho ningún examen.</p>';
+      return;
+    }
+    var html = '';
+    items.forEach(function(it) {
+      var fecha = it.fecha ? new Date(it.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+      var color = it.porcentaje === 100 ? 'var(--green)' : (it.porcentaje >= 50 ? 'var(--amber)' : 'var(--rose)');
+      html += '<div class="exam-weak-row"><span>' + _jEsc(fecha) + ' — ' + _jEsc(it.alcance || 'Examen') + '</span>' +
+        '<span style="color:' + color + ';font-weight:700">' + it.correctas + '/' + it.total + ' (' + it.porcentaje + '%)</span></div>';
+    });
+    el.innerHTML = html;
+  }).catch(function(e) {
+    el.innerHTML = '<p style="color:var(--rose);font-size:13px">Error cargando el historial.</p>';
+    console.log('Error historial examenes:', e);
+  });
 }
 
 /* ══════════════════════════════════════════════════════
