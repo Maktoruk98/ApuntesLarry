@@ -572,6 +572,12 @@ html,body{height:100%;overflow:hidden}
 .exam-progress-text{font-size:12px;color:var(--text-muted);margin-bottom:10px;text-align:center}
 .exam-weak-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);font-size:13px}
 .exam-weak-row:last-child{border-bottom:none}
+/* ── TICKER DE NOTICIAS ── */
+.news-ticker{position:fixed;left:0;right:0;bottom:0;height:42px;background:var(--bg-surface);border-top:1px solid var(--border);display:none;align-items:center;overflow:hidden;z-index:380}
+.news-ticker-tag{flex-shrink:0;padding:0 14px;font-size:11px;font-weight:700;color:#0a0f14;height:100%;display:flex;align-items:center;white-space:nowrap}
+.news-ticker-body{flex:1;position:relative;height:100%;overflow:hidden}
+.news-ticker-text{position:absolute;top:50%;white-space:nowrap;font-size:13px;color:var(--text-primary);transform:translateY(-50%)}
+.news-ticker-close{flex-shrink:0;background:none;border:none;color:var(--text-faint);font-size:16px;cursor:pointer;padding:0 14px;height:100%}
 
 /* ── TRANSICIONES ENTRE ALTURAS ─────────────────────── */
 @keyframes alturaZoomIn{0%{opacity:0;transform:scale(.65);filter:blur(10px)}100%{opacity:1;transform:scale(1);filter:blur(0)}}
@@ -1887,6 +1893,15 @@ html,body{height:100%;overflow:hidden}
   <div class="punto-reward-ring"></div>
 </div>
 
+<!-- TICKER DE NOTICIAS -->
+<div class="news-ticker" id="news-ticker">
+  <span class="news-ticker-tag" id="news-ticker-tag">NOTICIAS</span>
+  <div class="news-ticker-body">
+    <span class="news-ticker-text" id="news-ticker-text"></span>
+  </div>
+  <button class="news-ticker-close" onclick="_tickerClose()">×</button>
+</div>
+
 <!-- LEVEL UP -->
 <div class="lu-ov" id="lu-ov">
   <div style="font-size:12px;letter-spacing:.2em;color:#a78bfa;text-transform:uppercase;margin-bottom:6px">Subida de nivel!</div>
@@ -1965,6 +1980,7 @@ function enterApp(name, avatar, xp, isFirebase, uid, photoURL, email, mii, coins
   if (isFirebase && uid) {
     listenRanking();
     listenMyProfile(uid);
+    if (typeof _tickerInit === 'function') _tickerInit();
   }
 }
 
@@ -2161,6 +2177,9 @@ function addXP(amt,title,sub){
     setTimeout(function(){showLU(newLv);},1200);
     var lvCoins = 20 + 5 * (newLv + 1);
     addCoins(lvCoins);
+    var lvNombre = typeof getLVName === 'function' ? getLVName(newLv) : ('Nivel ' + (newLv + 1));
+    if (typeof _tickerLogEvento === 'function') _tickerLogEvento('nivel', lvNombre);
+    if (typeof _tickerShowImmediate === 'function') _tickerShowImmediate('nivel', (window.S && S.name) || 'Alguien', lvNombre);
   }
   // Guardar en Firebase si está disponible
   if(typeof window.saveXPToFirebase==='function') {
@@ -4176,6 +4195,34 @@ function _checkPuntoCompletado(col, firestoreId, total){
   }
   marcarCompletado(key);
   _showPuntoReward();
+  if (typeof _findPuntoRoute === 'function') _checkBloqueSistemaCompletado(col, firestoreId);
+}
+function _checkBloqueSistemaCompletado(col, firestoreId) {
+  var route = _findPuntoRoute(col, firestoreId);
+  if (!route || !route.bloque || !route.sis) return;
+  var mod = window._TEMAS[route.prof][route.mod];
+  var bloque = mod.bloques[route.bloque];
+  var sis = bloque.sistemas[route.sis];
+
+  var sisKey = 'sistema-completo:' + (sis.firestoreCol || route.sis);
+  if (!esCompletado(sisKey)) {
+    var prSis = _progresoSistema(sis);
+    if (prSis.total > 0 && prSis.done === prSis.total) {
+      marcarCompletado(sisKey);
+      if (typeof _tickerLogEvento === 'function') _tickerLogEvento('sistema', sis.titulo || route.sis);
+      if (typeof _tickerShowImmediate === 'function') _tickerShowImmediate('sistema', (window.S && S.name) || 'Alguien', sis.titulo || route.sis);
+    }
+  }
+
+  var bloqueKey = 'bloque-completo:' + route.mod + ':' + route.bloque;
+  if (!esCompletado(bloqueKey)) {
+    var prBlq = _progresoBloque(bloque);
+    if (prBlq.total > 0 && prBlq.done === prBlq.total) {
+      marcarCompletado(bloqueKey);
+      if (typeof _tickerLogEvento === 'function') _tickerLogEvento('bloque', bloque.titulo || route.bloque);
+      if (typeof _tickerShowImmediate === 'function') _tickerShowImmediate('bloque', (window.S && S.name) || 'Alguien', bloque.titulo || route.bloque);
+    }
+  }
 }
 // ── PREMIO SENSORIAL: PUNTO COMPLETADO (whoosh profundo, arpegio Lidio en tonalidad aleatoria) ──
 function _deepWhoosh(c, rv, start, dur, subStart, subEnd){
@@ -5350,6 +5397,7 @@ function vfAnswer(gid, idx, answer) {
     el.classList.add('ko');
     if (answer) btns[0].classList.add('sel-f'); else btns[1].classList.add('sel-v');
     _jFallo();
+    if (typeof _tickerLogEvento === 'function' && item.texto) _tickerLogEvento('vf_fallo', item.texto);
     setTimeout(function() { el.classList.remove('ko'); }, 600);
   }
   var done = items.filter(function(f) { return f._done; }).length;
@@ -6016,6 +6064,139 @@ function _examenLoadHistorial() {
     el.innerHTML = '<p style="color:var(--rose);font-size:13px">Error cargando el historial.</p>';
     console.log('Error historial examenes:', e);
   });
+}
+
+/* ══════════════════════════════════════════════════════
+   TICKER DE NOTICIAS — humor médico + eventos reales de todos los usuarios
+   ══════════════════════════════════════════════════════ */
+var _ticker = { pool: [], history: [], timer: null, hideTimer: null };
+
+var _TICKER_TEMPLATES = {
+  vf_fallo: [
+    '🚨 ÚLTIMA HORA: A {nombre} le han bajado el sueldo por confundir «{texto}» con la realidad.',
+    '📰 Comité de ética convocado de urgencia después de que {nombre} defendiera que «{texto}».',
+    '⚠️ {nombre} sigue convencido de que «{texto}». El jefe de servicio, sin palabras.',
+    '🩺 {nombre} suspendido temporalmente de guardias por asegurar que «{texto}».',
+    '🗞️ Se filtra un audio de {nombre} diciendo que «{texto}». RRHH ya lo está revisando.',
+    '🚑 Ambulancia enviada por error tras insistir {nombre} en que «{texto}».'
+  ],
+  nivel: [
+    '🎉 ¡{nombre} asciende a {texto}! Aplausos en el hospital, algunos con sarcasmo.',
+    '🏆 Nuevo rango desbloqueado: {nombre} ya es {texto}. Que no se le suba a la cabeza.',
+    '🔔 Comunicado oficial: {nombre} asciende a {texto}. Café gratis para celebrarlo (es broma).'
+  ],
+  bloque: [
+    '✅ {nombre} acaba de dominar {texto}. Sus neuronas arden, en el buen sentido.',
+    '🧠 Informe de guardia: {nombre} ya controla {texto} de arriba a abajo.',
+    '🎯 {nombre} se apunta {texto} completo. El resto del hospital, tomando nota.'
+  ],
+  sistema: [
+    '✅ {nombre} acaba de dominar {texto}. Sus neuronas arden, en el buen sentido.',
+    '🧠 Informe de guardia: {nombre} ya controla {texto} de arriba a abajo.',
+    '🎯 {nombre} se apunta {texto} completo. El resto del hospital, tomando nota.'
+  ]
+};
+var _TICKER_GENERICO = [
+  '🏥 La máquina de café de la sala de personal se estropea por sexta vez esta semana.',
+  '📰 Un paciente confunde la sala de espera con una cafetería. Nadie se sorprende ya.',
+  '🧴 Alerta: se ha agotado el gel hidroalcohólico de la entrada. Pánico moderado.',
+  '🚪 La puerta de la sala 3 vuelve a atrancarse. El de mantenimiento, en paradero desconocido.',
+  '📠 El fax de admisión sigue vivo y nadie sabe cómo apagarlo.',
+  '🩹 Turno de noche: se ha agotado todo el esparadrapo del almacén, otra vez.',
+  '🖊️ Guerra fría en el control de enfermería por el último bolígrafo que sí escribe.',
+  '🔊 La megafonía llama al Dr. García por cuarta vez. El Dr. García no existe.',
+  '🧻 Desaparece el papel higiénico de la planta 2. Se abre investigación.',
+  '🛗 El ascensor de servicio se queda atascado entre plantas. Otra vez.',
+  '🥼 Alguien ha dejado su bata en la lavandería equivocada. Cunde el pánico leve.',
+  '📺 La sala de espera sigue con el mismo anuncio desde el año pasado.',
+  '🐜 Aparece una hormiga en la cafetería. Se declara alerta sanitaria (es broma).',
+  '🔋 El desfibrilador de prácticas se queda sin pilas justo antes del simulacro.'
+];
+var _TICKER_TAGS = { vf_fallo: 'ÚLTIMA HORA', nivel: 'EN DIRECTO', bloque: 'EN DIRECTO', sistema: 'EN DIRECTO', generico: 'NOTICIAS' };
+var _TICKER_TAG_COLOR = { vf_fallo: 'var(--rose)', nivel: 'var(--green)', bloque: 'var(--green)', sistema: 'var(--green)', generico: 'var(--accent)' };
+
+function _tickerFill(tpl, data) {
+  return tpl.replace('{nombre}', data.nombre || 'Alguien').replace('{texto}', data.texto || '');
+}
+
+function _tickerLogEvento(tipo, texto) {
+  if (!window.S || !S.uid || typeof db === 'undefined') return;
+  db.collection('ticker_eventos').add({
+    uid: S.uid, nombre: S.name || 'Alguien', tipo: tipo, texto: texto, fecha: new Date().toISOString()
+  }).catch(function(e) { console.log('Error guardando evento ticker:', e); });
+}
+
+function _tickerRender(tag, tagColor, texto) {
+  var bar = document.getElementById('news-ticker');
+  if (!bar) return;
+  var tagEl = document.getElementById('news-ticker-tag');
+  var textEl = document.getElementById('news-ticker-text');
+  if (_ticker.hideTimer) clearTimeout(_ticker.hideTimer);
+
+  bar.style.display = 'flex';
+  tagEl.textContent = tag;
+  tagEl.style.background = tagColor;
+  textEl.textContent = texto;
+  textEl.style.transition = 'none';
+  textEl.style.left = '100%';
+  void textEl.offsetWidth;
+
+  var dur = Math.max(7, texto.length * 0.09);
+  textEl.style.transition = 'left ' + dur + 's linear';
+  textEl.style.left = '-90%';
+
+  _ticker.hideTimer = setTimeout(function() { bar.style.display = 'none'; }, dur * 1000 + 300);
+}
+function _tickerClose() {
+  var bar = document.getElementById('news-ticker');
+  if (bar) bar.style.display = 'none';
+  if (_ticker.hideTimer) clearTimeout(_ticker.hideTimer);
+}
+
+function _tickerShowImmediate(tipo, nombre, texto) {
+  var templates = _TICKER_TEMPLATES[tipo];
+  if (!templates) return;
+  var tpl = templates[Math.floor(Math.random() * templates.length)];
+  var msg = _tickerFill(tpl, { nombre: nombre, texto: texto });
+  _tickerRender(_TICKER_TAGS[tipo] || 'NOTICIAS', _TICKER_TAG_COLOR[tipo] || 'var(--accent)', msg);
+}
+
+function _tickerFire() {
+  var last2 = _ticker.history.slice(-2);
+  var blockedUid = (last2.length === 2 && last2[0] && last2[0] === last2[1]) ? last2[0] : null;
+  var usable = _ticker.pool.filter(function(e) { return e.uid !== blockedUid; });
+  var useReal = usable.length > 0 && Math.random() < 0.6;
+  if (useReal) {
+    var ev = usable[Math.floor(Math.random() * usable.length)];
+    var templates = _TICKER_TEMPLATES[ev.tipo] || _TICKER_TEMPLATES.vf_fallo;
+    var tpl = templates[Math.floor(Math.random() * templates.length)];
+    var msg = _tickerFill(tpl, { nombre: ev.nombre, texto: ev.texto });
+    _tickerRender(_TICKER_TAGS[ev.tipo] || 'NOTICIAS', _TICKER_TAG_COLOR[ev.tipo] || 'var(--accent)', msg);
+    _ticker.history.push(ev.uid);
+  } else {
+    var texto = _TICKER_GENERICO[Math.floor(Math.random() * _TICKER_GENERICO.length)];
+    _tickerRender('NOTICIAS', 'var(--accent)', texto);
+    _ticker.history.push(null);
+  }
+  if (_ticker.history.length > 10) _ticker.history.shift();
+}
+
+function _tickerScheduleNext() {
+  var delay = (3 + Math.random() * 5) * 60 * 1000;
+  _ticker.timer = setTimeout(function() {
+    _tickerFire();
+    _tickerScheduleNext();
+  }, delay);
+}
+
+function _tickerInit() {
+  if (!window.S || !S.uid || typeof db === 'undefined') return;
+  db.collection('ticker_eventos').orderBy('fecha', 'desc').limit(50).get().then(function(snap) {
+    var pool = [];
+    snap.forEach(function(doc) { pool.push(doc.data()); });
+    _ticker.pool = pool;
+  }).catch(function(e) { console.log('Error cargando eventos ticker:', e); });
+  if (!_ticker.timer) _tickerScheduleNext();
 }
 
 /* ══════════════════════════════════════════════════════
