@@ -573,10 +573,10 @@ html,body{height:100%;overflow:hidden}
 .exam-weak-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);font-size:13px}
 .exam-weak-row:last-child{border-bottom:none}
 /* ── TICKER DE NOTICIAS ── */
-.news-ticker{position:fixed;left:0;right:0;bottom:0;height:42px;background:var(--bg-surface);border-top:1px solid var(--border);display:none;align-items:center;overflow:hidden;z-index:380}
+.news-ticker{position:fixed;left:0;right:0;bottom:0;height:63px;background:var(--bg-surface);border-top:1px solid var(--border);display:none;align-items:center;overflow:hidden;z-index:380}
 .news-ticker-tag{flex-shrink:0;padding:0 14px;font-size:11px;font-weight:700;color:#0a0f14;height:100%;display:flex;align-items:center;white-space:nowrap}
 .news-ticker-body{flex:1;position:relative;height:100%;overflow:hidden}
-.news-ticker-text{position:absolute;top:50%;white-space:nowrap;font-size:13px;color:var(--text-primary);transform:translateY(-50%)}
+.news-ticker-text{position:absolute;top:50%;white-space:nowrap;font-size:15px;color:var(--text-primary);transform:translateY(-50%)}
 .news-ticker-close{flex-shrink:0;background:none;border:none;color:var(--text-faint);font-size:16px;cursor:pointer;padding:0 14px;height:100%}
 
 /* ── TRANSICIONES ENTRE ALTURAS ─────────────────────── */
@@ -6069,7 +6069,7 @@ function _examenLoadHistorial() {
 /* ══════════════════════════════════════════════════════
    TICKER DE NOTICIAS — humor médico + eventos reales de todos los usuarios
    ══════════════════════════════════════════════════════ */
-var _ticker = { pool: [], history: [], timer: null, hideTimer: null };
+var _ticker = { pool: [], history: [], timer: null, hideTimer: null, phaseTimer: null };
 
 var _TICKER_TEMPLATES = {
   vf_fallo: [
@@ -6132,6 +6132,7 @@ function _tickerRender(tag, tagColor, texto) {
   var tagEl = document.getElementById('news-ticker-tag');
   var textEl = document.getElementById('news-ticker-text');
   if (_ticker.hideTimer) clearTimeout(_ticker.hideTimer);
+  if (_ticker.phaseTimer) clearTimeout(_ticker.phaseTimer);
 
   bar.style.display = 'flex';
   tagEl.textContent = tag;
@@ -6141,16 +6142,34 @@ function _tickerRender(tag, tagColor, texto) {
   textEl.style.left = '100%';
   void textEl.offsetWidth;
 
-  var dur = Math.max(7, texto.length * 0.09);
-  textEl.style.transition = 'left ' + dur + 's linear';
-  textEl.style.left = '-90%';
+  var dur = Math.max(7, texto.length * 0.09) * 2.5; // 60% más lento
+  var durMs = dur * 1000;
 
-  _ticker.hideTimer = setTimeout(function() { bar.style.display = 'none'; }, dur * 1000 + 300);
+  function pasada(cb) {
+    textEl.style.transition = 'none';
+    textEl.style.left = '100%';
+    void textEl.offsetWidth;
+    textEl.style.transition = 'left ' + dur + 's linear';
+    textEl.style.left = '-90%';
+    _ticker.phaseTimer = setTimeout(cb, durMs);
+  }
+
+  // Fase 1: barra levantada, texto quieto 1s antes de arrancar
+  _ticker.phaseTimer = setTimeout(function() {
+    // Fase 2 y 3: dos pasadas completas
+    pasada(function() {
+      pasada(function() {
+        // Fase 4: se queda quieta 1s y desaparece
+        _ticker.hideTimer = setTimeout(function() { bar.style.display = 'none'; }, 1000);
+      });
+    });
+  }, 1000);
 }
 function _tickerClose() {
   var bar = document.getElementById('news-ticker');
   if (bar) bar.style.display = 'none';
   if (_ticker.hideTimer) clearTimeout(_ticker.hideTimer);
+  if (_ticker.phaseTimer) clearTimeout(_ticker.phaseTimer);
 }
 
 function _tickerShowImmediate(tipo, nombre, texto) {
