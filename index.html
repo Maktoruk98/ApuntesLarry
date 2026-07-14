@@ -572,6 +572,8 @@ html,body{height:100%;overflow:hidden}
 .exam-progress-text{font-size:12px;color:var(--text-muted);margin-bottom:10px;text-align:center}
 .exam-weak-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);font-size:13px}
 .exam-weak-row:last-child{border-bottom:none}
+.dominio-track{width:100%;height:8px;border-radius:99px;background:rgba(128,128,128,.22);overflow:hidden}
+.dominio-fill{height:100%;border-radius:99px;transition:width .3s}
 /* ── TICKER DE NOTICIAS ── */
 .news-ticker{position:fixed;left:0;right:0;bottom:0;height:63px;background:var(--bg-surface);border-top:1px solid var(--border);display:none;align-items:center;overflow:hidden;z-index:380}
 .news-ticker-tag{flex-shrink:0;padding:0 14px;font-size:11px;font-weight:700;color:#0a0f14;height:100%;display:flex;align-items:center;white-space:nowrap}
@@ -1490,6 +1492,7 @@ html,body{height:100%;overflow:hidden}
       </div>
       <button id="examen-generar-btn" class="btn-p" onclick="_examenGenerar()" disabled>Generar examen</button>
       <button class="btn-s" onclick="_examenLoadHistorial()">Ver historial</button>
+      <button class="btn-s" onclick="_examenVerDominio('general')">📊 Ver dominio</button>
     </div>
 
     <div id="examen-view-running" style="display:none">
@@ -1508,6 +1511,11 @@ html,body{height:100%;overflow:hidden}
     <div id="examen-view-revision" style="display:none">
       <button class="btn-s" onclick="_examenShowView('historial')" style="margin-bottom:16px">← Volver al historial</button>
       <div id="examen-revision-container"></div>
+    </div>
+
+    <div id="examen-view-dominio" style="display:none">
+      <button class="btn-s" onclick="_examenShowView('setup')" style="margin-bottom:16px">← Volver</button>
+      <div id="examen-dominio-container"></div>
     </div>
   </div>
 </div>
@@ -5824,7 +5832,7 @@ function _examenRender() {
     var txt = resultEl.textContent || '';
     if (!txt.trim()) return;
     var correcta = txt.indexOf('🎉') !== -1;
-    _examen.resultados.push({ col: item.col, docId: item.docId, punto: item.punto, sistema: item.sistema, tipo: g.tipo, titulo: g.titulo || '', correcta: correcta });
+    _examen.resultados.push({ col: item.col, docId: item.docId, punto: item.punto, sistema: item.sistema, modulo: item.modulo, bloque: item.bloque, tipo: g.tipo, titulo: g.titulo || '', correcta: correcta });
     if (correcta) _examen.correctas++;
     var bodyEl = document.getElementById(gid + '-body');
     if (bodyEl) bodyEl.classList.add('exam-locked');
@@ -5840,7 +5848,7 @@ function _examenNext() {
 }
 
 function _examenShowView(name) {
-  ['setup', 'running', 'resultado', 'historial', 'revision'].forEach(function(v) {
+  ['setup', 'running', 'resultado', 'historial', 'revision', 'dominio'].forEach(function(v) {
     var el = document.getElementById('examen-view-' + v);
     if (el) el.style.display = (v === name) ? 'block' : 'none';
   });
@@ -5867,6 +5875,78 @@ function _examenVerRevision(idx) {
   _examenShowView('revision');
 }
 
+var _examenDominioNivel = 'general';
+var _examenDominioCache = null;
+function _examenVerDominio(nivel) {
+  if (nivel) _examenDominioNivel = nivel;
+  _examenShowView('dominio');
+  var el = document.getElementById('examen-dominio-container');
+  if (!el) return;
+  if (_examenDominioCache) { _examenRenderDominio(_examenDominioCache); return; }
+  el.innerHTML = '<p style="color:var(--text-muted);font-size:13px">Cargando...</p>';
+  if (!window.S || !S.uid || typeof db === 'undefined') {
+    el.innerHTML = '<p style="color:var(--text-muted);font-size:13px">Inicia sesión para ver tu dominio.</p>';
+    return;
+  }
+  db.collection('examenes').where('uid', '==', S.uid).get().then(function(snap) {
+    var preguntas = [];
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      (d.preguntas || []).forEach(function(p) { preguntas.push(p); });
+    });
+    _examenDominioCache = preguntas;
+    _examenRenderDominio(preguntas);
+  }).catch(function(e) {
+    el.innerHTML = '<p style="color:var(--rose);font-size:13px">Error cargando el dominio.</p>';
+    console.log('Error cargando dominio:', e);
+  });
+}
+function _examenRenderDominio(preguntas) {
+  var el = document.getElementById('examen-dominio-container');
+  if (!el) return;
+  var tabs = ['general', 'modulo', 'bloque', 'sistema', 'punto'];
+  var tabLabels = { general: 'General', modulo: 'Módulos', bloque: 'Bloques', sistema: 'Sistemas', punto: 'Puntos' };
+  var nivel = _examenDominioNivel;
+  var tabsHtml = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">';
+  tabs.forEach(function(t) {
+    var active = t === nivel;
+    tabsHtml += '<button class="' + (active ? 'btn-p' : 'btn-s') + '" style="font-size:12px;padding:6px 14px" onclick="_examenVerDominio(\'' + t + '\')">' + tabLabels[t] + '</button>';
+  });
+  tabsHtml += '</div>';
+
+  if (!preguntas.length) {
+    el.innerHTML = tabsHtml + '<p style="color:var(--text-muted);font-size:13px">Todavía no hay exámenes con detalle por pregunta. Haz un examen nuevo para empezar a ver tu dominio.</p>';
+    return;
+  }
+
+  var groups = {};
+  preguntas.forEach(function(p) {
+    var key = nivel === 'general' ? 'General' : (p[nivel] || (nivel === 'punto' ? (p.titulo || 'Pregunta') : 'Sin clasificar'));
+    if (!groups[key]) groups[key] = { nombre: key, ok: 0, total: 0 };
+    groups[key].total++;
+    if (p.correcta) groups[key].ok++;
+  });
+  var list = [];
+  for (var k in groups) list.push(groups[k]);
+  list.sort(function(a, b) { return (a.ok / a.total) - (b.ok / b.total); });
+
+  var rowsHtml = '<div style="max-height:400px;overflow-y:auto">';
+  list.forEach(function(g) {
+    var pct = Math.round(g.ok / g.total * 100);
+    var color = pct === 100 ? 'var(--green)' : (pct >= 50 ? 'var(--amber)' : 'var(--rose)');
+    rowsHtml += '<div style="margin-bottom:14px">' +
+      '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">' +
+        '<span>' + _jEsc(g.nombre) + '</span>' +
+        '<span style="color:' + color + ';font-weight:700">' + g.ok + '/' + g.total + ' (' + pct + '%)</span>' +
+      '</div>' +
+      '<div class="dominio-track"><div class="dominio-fill" style="width:' + pct + '%;background:' + color + '"></div></div>' +
+    '</div>';
+  });
+  rowsHtml += '</div>';
+
+  el.innerHTML = tabsHtml + rowsHtml;
+}
+
 function _examenInit() {
   _examenBuildTree();
   _examenUpdateCount();
@@ -5881,12 +5961,13 @@ function _examenNode(title, childrenHtml) {
     '<div class="exam-tree-children">' + childrenHtml + '</div>' +
   '</div>';
 }
-function _examenBuildPuntos(puntos, col, sistemaTitulo) {
+function _examenBuildPuntos(puntos, col, sistemaTitulo, moduloTitulo, bloqueTitulo) {
   var html = '';
   (puntos || []).forEach(function(p) {
     if (!p.firestoreId) return;
     html += '<label><input type="checkbox" class="exam-leaf" data-col="' + _jEsc(col || '') + '" data-doc-id="' + _jEsc(p.firestoreId) +
       '" data-punto="' + _jEsc(p.titulo || '') + '" data-sistema="' + _jEsc(sistemaTitulo || '') +
+      '" data-modulo="' + _jEsc(moduloTitulo || '') + '" data-bloque="' + _jEsc(bloqueTitulo || '') +
       '" onchange="_examenUpdateCount()"> ' + _jEsc(p.titulo || p.firestoreId) + '</label>';
   });
   return html;
@@ -5897,14 +5978,14 @@ function _examenBuildModulos(profTemas) {
     var mod = profTemas[modId];
     var children = '';
     if (mod.tipo === 'modulo-firestore') {
-      children = _examenBuildPuntos(mod.puntos, mod.firestoreCol, mod.titulo || modId);
+      children = _examenBuildPuntos(mod.puntos, mod.firestoreCol, mod.titulo || modId, mod.titulo || modId, '');
     } else if (mod.bloques) {
       for (var blqId in mod.bloques) {
         var blq = mod.bloques[blqId];
         var sisHtml = '';
         for (var sisId in (blq.sistemas || {})) {
           var sis = blq.sistemas[sisId];
-          sisHtml += _examenNode(sis.titulo || sisId, _examenBuildPuntos(sis.puntos, sis.firestoreCol, sis.titulo || sisId));
+          sisHtml += _examenNode(sis.titulo || sisId, _examenBuildPuntos(sis.puntos, sis.firestoreCol, sis.titulo || sisId, mod.titulo || modId, blq.titulo || blqId));
         }
         children += _examenNode(blq.titulo || blqId, sisHtml);
       }
@@ -5957,7 +6038,7 @@ function _examenGenerar() {
   if (btn) { btn.disabled = true; btn.textContent = 'Generando...'; }
 
   var leafData = leaves.map(function(l) {
-    return { col: l.dataset.col, docId: l.dataset.docId, punto: l.dataset.punto, sistema: l.dataset.sistema };
+    return { col: l.dataset.col, docId: l.dataset.docId, punto: l.dataset.punto, sistema: l.dataset.sistema, modulo: l.dataset.modulo, bloque: l.dataset.bloque };
   });
 
   Promise.all(leafData.map(function(l) {
@@ -5969,7 +6050,7 @@ function _examenGenerar() {
       var d = doc.data();
       var l = leafData[i];
       (d.juegos || []).forEach(function(g) {
-        pool.push({ game: g, col: l.col, docId: l.docId, punto: l.punto, sistema: l.sistema });
+        pool.push({ game: g, col: l.col, docId: l.docId, punto: l.punto, sistema: l.sistema, modulo: l.modulo, bloque: l.bloque });
       });
     });
     if (!pool.length) {
@@ -6002,6 +6083,7 @@ function _examenGenerar() {
 
 function _examenFinish() {
   _examen.active = false;
+  _examenDominioCache = null;
   var total = _examen.total, correctas = _examen.correctas;
   var porcentaje = total > 0 ? Math.round(correctas / total * 100) : 0;
 
@@ -6035,6 +6117,7 @@ function _examenFinish() {
   html += '<div style="display:flex;gap:10px;justify-content:center;margin-top:20px">' +
     '<button class="btn-p" onclick="_examenInit()">Nuevo examen</button>' +
     '<button class="btn-s" onclick="_examenLoadHistorial()">Ver historial</button>' +
+    '<button class="btn-s" onclick="_examenVerDominio(\'general\')">📊 Ver dominio</button>' +
   '</div></div>';
 
   var container = document.getElementById('examen-resultado-container');
@@ -6050,7 +6133,7 @@ function _examenFinish() {
       return { nombre: g.nombre, ok: g.ok, total: g.total };
     });
     var preguntas = _examen.resultados.map(function(r) {
-      return { titulo: r.titulo || '', tipo: r.tipo || '', sistema: r.sistema || '', punto: r.punto || '', correcta: !!r.correcta };
+      return { titulo: r.titulo || '', tipo: r.tipo || '', sistema: r.sistema || '', punto: r.punto || '', modulo: r.modulo || '', bloque: r.bloque || '', correcta: !!r.correcta };
     });
     db.collection('examenes').add({
       uid: S.uid,
