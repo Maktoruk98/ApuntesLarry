@@ -2435,6 +2435,8 @@ function nav(id, skipAnim){
     _examen.active = false;
     if(_examen.observer) _examen.observer.disconnect();
   }
+  if(id === 'home' && typeof _homeMelodyStart === 'function') _homeMelodyStart();
+  else if(typeof _homeMelodyStop === 'function') _homeMelodyStop();
   if(id === 'apuntes' && typeof renderLobbyProfesoras === 'function') renderLobbyProfesoras();
   if(id === 'juegos' && typeof cargarCajonMinijuegos === 'function') cargarCajonMinijuegos();
   if(id === 'admin' && typeof _admInit === 'function') _admInit();
@@ -6347,6 +6349,51 @@ function _homeInitEmbers() {
     e.style.height = size + 'px';
     box.appendChild(e);
   }
+}
+
+// ── MELODÍA DE FONDO DE LA PORTADA (bucle, modo oscuro) ──
+var _HOME_MELODY_ROOT = 130.81;
+var _HOME_MELODY_NOTES = [
+  {s:0,  t:0.00}, {s:7,  t:0.86}, {s:3,  t:1.68}, {s:10, t:2.58},
+  {s:0,  t:7.18}, {s:7,  t:8.02}, {s:3,  t:8.81}, {s:10, t:9.63},
+  {s:14, t:10.56, dur:1.6}
+];
+var _HOME_MELODY_CYCLE = 14.0;
+var _homeMelodyTimer = null;
+var _homeMelodyPlaying = false;
+function _homeMelodyTone(c, rv, start, freq, peak, dur) {
+  var o = c.createOscillator(), g = c.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(freq, c.currentTime + start);
+  g.gain.setValueAtTime(0.0001, c.currentTime + start);
+  g.gain.linearRampToValueAtTime(peak, c.currentTime + start + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + start + dur);
+  var dry = c.createGain(); dry.gain.value = 0.3;
+  var wet = c.createGain(); wet.gain.value = 0.7;
+  o.connect(g); g.connect(dry); dry.connect(c.destination);
+  g.connect(wet); wet.connect(rv); rv.connect(c.destination);
+  o.start(c.currentTime + start); o.stop(c.currentTime + start + dur + 0.3);
+}
+function _homeMelodyScheduleCycle() {
+  var c = _getAudioCtx();
+  if (!c) return;
+  var rv = _makeReverb(c, 3.2, 1.5);
+  _HOME_MELODY_NOTES.forEach(function(n) {
+    var dur = n.dur || 0.8;
+    var freq = _HOME_MELODY_ROOT * Math.pow(2, n.s / 12);
+    _homeMelodyTone(c, rv, n.t, freq, 0.15, dur);
+    _homeMelodyTone(c, rv, n.t + 0.18, freq, 0.06, dur * 0.75);
+  });
+}
+function _homeMelodyStart() {
+  if (_homeMelodyPlaying) return;
+  _homeMelodyPlaying = true;
+  _homeMelodyScheduleCycle();
+  _homeMelodyTimer = setInterval(_homeMelodyScheduleCycle, _HOME_MELODY_CYCLE * 1000);
+}
+function _homeMelodyStop() {
+  _homeMelodyPlaying = false;
+  if (_homeMelodyTimer) { clearInterval(_homeMelodyTimer); _homeMelodyTimer = null; }
 }
 
 function _homeGroupBy(preguntas, key) {
