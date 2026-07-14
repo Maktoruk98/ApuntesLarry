@@ -600,6 +600,8 @@ html,body{height:100%;overflow:hidden}
 @keyframes carruselFloat{0%{opacity:0;transform:translateY(22px) scale(0)}25%{opacity:.85}75%{opacity:.3}100%{opacity:0;transform:translateY(-95px) scale(1.2)}}
 @keyframes carruselScan{0%{opacity:1;top:18%}100%{opacity:0;top:82%}}
 @keyframes carruselBgPulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
+@keyframes homeEmberRise{0%{transform:translateY(0) translateX(0);opacity:0}8%{opacity:.9}55%{transform:translateY(-220px) translateX(14px);opacity:.55}100%{transform:translateY(-460px) translateX(-10px);opacity:0}}
+.home-ember{position:absolute;border-radius:50%;background:#ff6b5e;box-shadow:0 0 8px 2px rgba(226,72,74,.65);animation-name:homeEmberRise;animation-timing-function:linear;animation-iteration-count:infinite}
 
 .carrusel-ring{position:absolute;inset:-1px;border-radius:14px;padding:1px;background:conic-gradient(from var(--ang,0deg),transparent 0%,var(--accent) 8%,transparent 16%);opacity:0;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
 .carrusel-card[data-pos="2"] .carrusel-ring.show{opacity:1;animation:carruselSpin 3s linear infinite}
@@ -1290,39 +1292,40 @@ html,body{height:100%;overflow:hidden}
 
 <!-- HOME -->
 <div class="page active" id="page-home">
-  <div style="background:radial-gradient(ellipse at top, #2b1616 0%, var(--bg-base) 55%);padding:56px 40px 48px">
-    <div style="max-width:640px;margin:0 auto">
+  <div style="position:relative;overflow:hidden;background:radial-gradient(ellipse at top, #2b1616 0%, var(--bg-base) 55%);padding:56px 40px 48px">
+    <div id="home-embers" style="position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0"></div>
+    <div style="position:relative;z-index:1;max-width:900px;margin:0 auto">
 
-      <div style="font-size:11px;letter-spacing:.15em;color:var(--accent);text-transform:uppercase;margin-bottom:18px">Recepcion Sanitaria - Ciclo Formativo</div>
+      <div style="font-size:11px;letter-spacing:.15em;color:var(--accent);text-transform:uppercase;margin-bottom:20px">Recepcion Sanitaria - Ciclo Formativo</div>
 
-      <div style="background:var(--bg-surface);border:1px solid #e2484633;border-radius:14px;padding:22px;text-align:center;margin-bottom:16px">
-        <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#f09595;margin-bottom:8px">Recta final</div>
-        <div style="font-size:44px;font-weight:700;color:var(--text-primary);line-height:1"><span id="home-countdown-dias">—</span> <span style="font-size:20px;color:var(--text-muted);font-weight:400">días para el examen</span></div>
+      <div style="background:var(--bg-surface);border:1px solid #e2484633;border-radius:16px;padding:28px;text-align:center;margin-bottom:20px">
+        <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#f09595;margin-bottom:10px">Recta final</div>
+        <div style="font-size:56px;font-weight:700;color:var(--text-primary);line-height:1"><span id="home-countdown-dias">—</span> <span style="font-size:24px;color:var(--text-muted);font-weight:400">días para el examen</span></div>
       </div>
 
-      <button class="btn-p" onclick="_homeExamenDebilidades()" style="width:100%;padding:16px;background:#e24b4a;color:#fff;font-size:15px;margin-bottom:16px">🎯 Hacer examen de mis puntos débiles</button>
+      <button class="btn-p" onclick="_homeExamenDebilidades()" style="width:100%;padding:18px;background:#e24b4a;color:#fff;font-size:17px;margin-bottom:20px">🎯 Hacer examen de mis puntos débiles</button>
 
-      <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px 18px;margin-bottom:16px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <button onclick="_homeCarouselGo(-1)" style="background:none;border:1px solid var(--border);color:var(--text-muted);width:26px;height:26px;border-radius:50%;cursor:pointer">‹</button>
-          <div id="home-carousel-title" style="font-size:12px;color:var(--text-primary);font-weight:700;text-align:center">Cargando…</div>
-          <button onclick="_homeCarouselGo(1)" style="background:none;border:1px solid var(--border);color:var(--text-muted);width:26px;height:26px;border-radius:50%;cursor:pointer">›</button>
+      <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;padding:22px 24px 24px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <button onclick="_homeCarouselGo(-1)" style="background:none;border:1px solid var(--border);color:var(--text-muted);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px">‹</button>
+          <div id="home-carousel-title" style="font-size:15px;color:var(--text-primary);font-weight:700;text-align:center">Cargando…</div>
+          <button onclick="_homeCarouselGo(1)" style="background:none;border:1px solid var(--border);color:var(--text-muted);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px">›</button>
         </div>
         <div id="home-carousel-wrap">
-          <div id="home-carousel-chart-wrap" style="position:relative;height:260px;display:flex;align-items:center;justify-content:center">
+          <div id="home-carousel-chart-wrap" style="position:relative;height:360px;display:flex;align-items:center;justify-content:center">
             <canvas id="home-carousel-canvas"></canvas>
           </div>
-          <div id="home-carousel-empty" style="display:none;text-align:center;color:var(--text-faint);font-size:12px;padding:40px 0"></div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:10px;margin-bottom:4px">Tus puntos más débiles de este módulo:</div>
-          <div id="home-carousel-debiles" style="display:flex;flex-direction:column;gap:4px"></div>
-          <div id="home-carousel-dots" style="display:flex;gap:5px;justify-content:center;margin-top:12px"></div>
+          <div id="home-carousel-empty" style="display:none;text-align:center;color:var(--text-faint);font-size:13px;padding:60px 0"></div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:14px;margin-bottom:6px">Tus puntos más débiles de este módulo:</div>
+          <div id="home-carousel-debiles" style="display:flex;flex-direction:column;gap:6px;font-size:13px"></div>
+          <div id="home-carousel-dots" style="display:flex;gap:6px;justify-content:center;margin-top:16px"></div>
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
-        <div class="stat-card"><div class="stat-n" style="color:var(--accent)" id="home-examenes">—</div><div class="stat-l">Exámenes hechos</div></div>
-        <div class="stat-card"><div class="stat-n" style="color:#4ade80" id="home-media">—</div><div class="stat-l">Media general</div></div>
-        <div class="stat-card"><div class="stat-n" style="color:#f59e0b" id="home-rank">—</div><div class="stat-l">Posicion</div></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px">
+        <div class="stat-card" style="padding:20px"><div class="stat-n" style="color:var(--accent);font-size:32px" id="home-examenes">—</div><div class="stat-l">Exámenes hechos</div></div>
+        <div class="stat-card" style="padding:20px"><div class="stat-n" style="color:#4ade80;font-size:32px" id="home-media">—</div><div class="stat-l">Media general</div></div>
+        <div class="stat-card" style="padding:20px"><div class="stat-n" style="color:#f59e0b;font-size:32px" id="home-rank">—</div><div class="stat-l">Posicion</div></div>
       </div>
 
       <div style="display:flex;gap:12px;flex-wrap:wrap">
@@ -2029,6 +2032,7 @@ function enterApp(name, avatar, xp, isFirebase, uid, photoURL, email, mii, coins
   if (typeof nav === 'function') nav('home');
 
   if (typeof _homeUpdateCountdown === 'function') _homeUpdateCountdown();
+  if (typeof _homeInitEmbers === 'function') _homeInitEmbers();
   if (isFirebase && uid) {
     listenRanking();
     listenMyProfile(uid);
@@ -6322,6 +6326,27 @@ function _homeUpdateCountdown() {
   var examen = new Date(_HOME_FECHA_EXAMEN + 'T00:00:00');
   var dias = Math.ceil((examen - new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())) / 86400000);
   el.textContent = dias > 0 ? dias : (dias === 0 ? 'Hoy' : 'Pasado');
+}
+
+var _homeEmbersInit = false;
+function _homeInitEmbers() {
+  var box = document.getElementById('home-embers');
+  if (!box || _homeEmbersInit) return;
+  _homeEmbersInit = true;
+  var n = 26;
+  for (var i = 0; i < n; i++) {
+    var e = document.createElement('div');
+    e.className = 'home-ember';
+    e.style.left = (Math.random() * 100) + '%';
+    e.style.bottom = (-10 - Math.random() * 30) + 'px';
+    var dur = 7 + Math.random() * 7;
+    e.style.animationDuration = dur + 's';
+    e.style.animationDelay = (-Math.random() * dur) + 's';
+    var size = 2 + Math.random() * 3;
+    e.style.width = size + 'px';
+    e.style.height = size + 'px';
+    box.appendChild(e);
+  }
 }
 
 function _homeGroupBy(preguntas, key) {
