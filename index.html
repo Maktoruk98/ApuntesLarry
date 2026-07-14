@@ -6069,7 +6069,7 @@ function _examenLoadHistorial() {
 /* ══════════════════════════════════════════════════════
    TICKER DE NOTICIAS — humor médico + eventos reales de todos los usuarios
    ══════════════════════════════════════════════════════ */
-var _ticker = { pool: [], history: [], timer: null, hideTimer: null, phaseTimer: null };
+var _ticker = { pool: [], history: [], timer: null, hideTimer: null, phaseTimer: null, liveUnsub: null };
 
 var _TICKER_TEMPLATES = {
   vf_fallo: [
@@ -6216,6 +6216,25 @@ function _tickerInit() {
     _ticker.pool = pool;
   }).catch(function(e) { console.log('Error cargando eventos ticker:', e); });
   if (!_ticker.timer) _tickerScheduleNext();
+  _tickerListenLive();
+}
+function _tickerListenLive() {
+  if (!window.S || !S.uid || typeof db === 'undefined' || _ticker.liveUnsub) return;
+  var startTime = new Date().toISOString();
+  _ticker.liveUnsub = db.collection('ticker_eventos').orderBy('fecha', 'desc').limit(1)
+    .onSnapshot(function(snap) {
+      snap.docChanges().forEach(function(change) {
+        if (change.type !== 'added') return;
+        var d = change.doc.data();
+        if (!d || !d.fecha || d.fecha <= startTime) return;
+        _ticker.pool.unshift(d);
+        if (_ticker.pool.length > 50) _ticker.pool.pop();
+        // "En directo" se emite al instante a TODO el mundo, no solo a quien lo logró
+        if (d.tipo === 'nivel' || d.tipo === 'bloque' || d.tipo === 'sistema') {
+          _tickerShowImmediate(d.tipo, d.nombre, d.texto);
+        }
+      });
+    }, function(e) { console.log('Error escuchando ticker_eventos:', e); });
 }
 
 /* ══════════════════════════════════════════════════════
