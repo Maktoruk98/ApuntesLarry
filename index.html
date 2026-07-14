@@ -1504,6 +1504,11 @@ html,body{height:100%;overflow:hidden}
       <button class="btn-s" onclick="_examenShowView('setup')" style="margin-bottom:16px">← Volver</button>
       <div id="examen-historial-container"></div>
     </div>
+
+    <div id="examen-view-revision" style="display:none">
+      <button class="btn-s" onclick="_examenShowView('historial')" style="margin-bottom:16px">← Volver al historial</button>
+      <div id="examen-revision-container"></div>
+    </div>
   </div>
 </div>
 
@@ -5781,6 +5786,7 @@ function gamingExit() {
    EXÁMENES — selección de alcance, examen estricto y diagnóstico
    ══════════════════════════════════════════════════════ */
 var _examen = { active: false, queue: [], idx: 0, correctas: 0, total: 0, resultados: [], observer: null, scope: null };
+var _examenHistorialCache = [];
 var _jExamMode = {};
 
 function _examenRender() {
@@ -5818,7 +5824,7 @@ function _examenRender() {
     var txt = resultEl.textContent || '';
     if (!txt.trim()) return;
     var correcta = txt.indexOf('🎉') !== -1;
-    _examen.resultados.push({ col: item.col, docId: item.docId, punto: item.punto, sistema: item.sistema, tipo: g.tipo, correcta: correcta });
+    _examen.resultados.push({ col: item.col, docId: item.docId, punto: item.punto, sistema: item.sistema, tipo: g.tipo, titulo: g.titulo || '', correcta: correcta });
     if (correcta) _examen.correctas++;
     var bodyEl = document.getElementById(gid + '-body');
     if (bodyEl) bodyEl.classList.add('exam-locked');
@@ -5834,10 +5840,31 @@ function _examenNext() {
 }
 
 function _examenShowView(name) {
-  ['setup', 'running', 'resultado', 'historial'].forEach(function(v) {
+  ['setup', 'running', 'resultado', 'historial', 'revision'].forEach(function(v) {
     var el = document.getElementById('examen-view-' + v);
     if (el) el.style.display = (v === name) ? 'block' : 'none';
   });
+}
+function _examenVerRevision(idx) {
+  var it = _examenHistorialCache[idx];
+  var el = document.getElementById('examen-revision-container');
+  if (!it || !el) return;
+  var icons = { conecta: '🔗', clasifica: '🗂️', rellena: '✏️', ordenar: '🔢', vf: '✅', descarte: '❌' };
+  var fecha = it.fecha ? new Date(it.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+  var html = '<div style="margin-bottom:14px">' +
+    '<div style="font-weight:700">' + _jEsc(it.alcance || 'Examen') + '</div>' +
+    '<div style="font-size:12px;color:var(--text-muted)">' + _jEsc(fecha) + ' · ' + it.correctas + '/' + it.total + ' (' + it.porcentaje + '%)</div>' +
+  '</div>';
+  (it.preguntas || []).forEach(function(p, i) {
+    var color = p.correcta ? 'var(--green)' : 'var(--rose)';
+    var marca = p.correcta ? '✓' : '✗';
+    var icon = icons[p.tipo] || '🎮';
+    html += '<div class="exam-weak-row"><span>' + icon + ' ' + (i + 1) + '. ' + _jEsc(p.titulo || 'Pregunta') +
+      (p.sistema ? ' <span style="color:var(--text-muted)">(' + _jEsc(p.sistema) + ')</span>' : '') + '</span>' +
+      '<span style="color:' + color + ';font-weight:700">' + marca + '</span></div>';
+  });
+  el.innerHTML = html;
+  _examenShowView('revision');
 }
 
 function _examenInit() {
@@ -6022,6 +6049,9 @@ function _examenFinish() {
     var debiles = groupList.filter(function(g) { return g.ok < g.total; }).map(function(g) {
       return { nombre: g.nombre, ok: g.ok, total: g.total };
     });
+    var preguntas = _examen.resultados.map(function(r) {
+      return { titulo: r.titulo || '', tipo: r.tipo || '', sistema: r.sistema || '', punto: r.punto || '', correcta: !!r.correcta };
+    });
     db.collection('examenes').add({
       uid: S.uid,
       nombre: S.name || '',
@@ -6030,7 +6060,8 @@ function _examenFinish() {
       correctas: correctas,
       porcentaje: porcentaje,
       alcance: _examen.scope || '',
-      debiles: debiles
+      debiles: debiles,
+      preguntas: preguntas
     }).catch(function(e) { console.log('Error guardando examen:', e); });
   }
 }
@@ -6048,15 +6079,17 @@ function _examenLoadHistorial() {
     var items = [];
     snap.forEach(function(doc) { items.push(doc.data()); });
     items.sort(function(a, b) { return (b.fecha || '').localeCompare(a.fecha || ''); });
+    _examenHistorialCache = items;
     if (!items.length) {
       el.innerHTML = '<p style="color:var(--text-muted);font-size:13px">Todavía no has hecho ningún examen.</p>';
       return;
     }
     var html = '';
-    items.forEach(function(it) {
+    items.forEach(function(it, i) {
       var fecha = it.fecha ? new Date(it.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
       var color = it.porcentaje === 100 ? 'var(--green)' : (it.porcentaje >= 50 ? 'var(--amber)' : 'var(--rose)');
-      html += '<div class="exam-weak-row"><span>' + _jEsc(fecha) + ' — ' + _jEsc(it.alcance || 'Examen') + '</span>' +
+      var clickable = (it.preguntas && it.preguntas.length) ? ' onclick="_examenVerRevision(' + i + ')" style="cursor:pointer"' : '';
+      html += '<div class="exam-weak-row"' + clickable + '><span>' + _jEsc(fecha) + ' — ' + _jEsc(it.alcance || 'Examen') + '</span>' +
         '<span style="color:' + color + ';font-weight:700">' + it.correctas + '/' + it.total + ' (' + it.porcentaje + '%)</span></div>';
     });
     el.innerHTML = html;
