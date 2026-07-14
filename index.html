@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ApuntesLarry</title>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 /* ── TEMAS DE COLOR ─────────────────────────── */
 :root {
@@ -1492,7 +1493,7 @@ html,body{height:100%;overflow:hidden}
       </div>
       <button id="examen-generar-btn" class="btn-p" onclick="_examenGenerar()" disabled>Generar examen</button>
       <button class="btn-s" onclick="_examenLoadHistorial()">Ver historial</button>
-      <button class="btn-s" onclick="_examenVerDominio('general')">📊 Ver dominio</button>
+      <button class="btn-s" onclick="_examenAbrirDominio()">📊 Ver dominio</button>
     </div>
 
     <div id="examen-view-running" style="display:none">
@@ -1913,6 +1914,16 @@ html,body{height:100%;overflow:hidden}
     <span class="news-ticker-text" id="news-ticker-text"></span>
   </div>
   <button class="news-ticker-close" onclick="_tickerClose()">×</button>
+</div>
+
+<!-- AVISO DOMINIO -->
+<div class="modal-ov" id="dominio-info-modal">
+  <div class="modal-box" style="max-width:420px;text-align:center">
+    <button class="modal-close" onclick="_examenCerrarInfoDominio()">✕</button>
+    <div style="font-size:32px;margin-bottom:12px">📊</div>
+    <p style="font-size:14px;color:var(--text-secondary);line-height:1.6">Esta herramienta evalúa tu progreso en función de los exámenes. De esta manera, podrás ver tus puntos débiles y fuertes reales.</p>
+    <button class="btn-p" onclick="_examenCerrarInfoDominio()" style="margin-top:10px">Entendido</button>
+  </div>
 </div>
 
 <!-- LEVEL UP -->
@@ -5877,12 +5888,23 @@ function _examenVerRevision(idx) {
 
 var _examenDominioNivel = 'general';
 var _examenDominioCache = null;
+var _examenDominioExams = null;
+var _examenChartInstance = null;
+function _examenAbrirDominio() {
+  var modal = document.getElementById('dominio-info-modal');
+  if (modal) modal.classList.add('open');
+  _examenVerDominio('general');
+}
+function _examenCerrarInfoDominio() {
+  var modal = document.getElementById('dominio-info-modal');
+  if (modal) modal.classList.remove('open');
+}
 function _examenVerDominio(nivel) {
   if (nivel) _examenDominioNivel = nivel;
   _examenShowView('dominio');
   var el = document.getElementById('examen-dominio-container');
   if (!el) return;
-  if (_examenDominioCache) { _examenRenderDominio(_examenDominioCache); return; }
+  if (_examenDominioCache) { _examenRenderDominio(); return; }
   el.innerHTML = '<p style="color:var(--text-muted);font-size:13px">Cargando...</p>';
   if (!window.S || !S.uid || typeof db === 'undefined') {
     el.innerHTML = '<p style="color:var(--text-muted);font-size:13px">Inicia sesión para ver tu dominio.</p>';
@@ -5890,38 +5912,28 @@ function _examenVerDominio(nivel) {
   }
   db.collection('examenes').where('uid', '==', S.uid).get().then(function(snap) {
     var preguntas = [];
+    var exams = [];
     snap.forEach(function(doc) {
       var d = doc.data();
+      exams.push({ fecha: d.fecha || '', porcentaje: d.porcentaje || 0 });
       (d.preguntas || []).forEach(function(p) { preguntas.push(p); });
     });
+    exams.sort(function(a, b) { return a.fecha.localeCompare(b.fecha); });
     _examenDominioCache = preguntas;
-    _examenRenderDominio(preguntas);
+    _examenDominioExams = exams;
+    _examenRenderDominio();
   }).catch(function(e) {
     el.innerHTML = '<p style="color:var(--rose);font-size:13px">Error cargando el dominio.</p>';
     console.log('Error cargando dominio:', e);
   });
 }
-function _examenRenderDominio(preguntas) {
-  var el = document.getElementById('examen-dominio-container');
-  if (!el) return;
-  var tabs = ['general', 'modulo', 'bloque', 'sistema', 'punto'];
-  var tabLabels = { general: 'General', modulo: 'Módulos', bloque: 'Bloques', sistema: 'Sistemas', punto: 'Puntos' };
-  var nivel = _examenDominioNivel;
-  var tabsHtml = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">';
-  tabs.forEach(function(t) {
-    var active = t === nivel;
-    tabsHtml += '<button class="' + (active ? 'btn-p' : 'btn-s') + '" style="font-size:12px;padding:6px 14px" onclick="_examenVerDominio(\'' + t + '\')">' + tabLabels[t] + '</button>';
-  });
-  tabsHtml += '</div>';
-
-  if (!preguntas.length) {
-    el.innerHTML = tabsHtml + '<p style="color:var(--text-muted);font-size:13px">Todavía no hay exámenes con detalle por pregunta. Haz un examen nuevo para empezar a ver tu dominio.</p>';
-    return;
-  }
-
+function _examenColorFor(pct) {
+  return pct === 100 ? '#4ade80' : (pct >= 50 ? '#f59e0b' : '#f87171');
+}
+function _examenGroupBy(preguntas, nivel) {
   var groups = {};
   preguntas.forEach(function(p) {
-    var key = nivel === 'general' ? 'General' : (p[nivel] || (nivel === 'punto' ? (p.titulo || 'Pregunta') : 'Sin clasificar'));
+    var key = p[nivel] || (nivel === 'punto' ? (p.titulo || 'Pregunta') : 'Sin clasificar');
     if (!groups[key]) groups[key] = { nombre: key, ok: 0, total: 0 };
     groups[key].total++;
     if (p.correcta) groups[key].ok++;
@@ -5929,22 +5941,127 @@ function _examenRenderDominio(preguntas) {
   var list = [];
   for (var k in groups) list.push(groups[k]);
   list.sort(function(a, b) { return (a.ok / a.total) - (b.ok / b.total); });
-
-  var rowsHtml = '<div style="max-height:400px;overflow-y:auto">';
-  list.forEach(function(g) {
+  return list;
+}
+function _examenHeatmapHTML(groups) {
+  var html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;max-height:420px;overflow-y:auto;padding:4px">';
+  groups.forEach(function(g) {
     var pct = Math.round(g.ok / g.total * 100);
-    var color = pct === 100 ? 'var(--green)' : (pct >= 50 ? 'var(--amber)' : 'var(--rose)');
-    rowsHtml += '<div style="margin-bottom:14px">' +
-      '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">' +
-        '<span>' + _jEsc(g.nombre) + '</span>' +
-        '<span style="color:' + color + ';font-weight:700">' + g.ok + '/' + g.total + ' (' + pct + '%)</span>' +
-      '</div>' +
-      '<div class="dominio-track"><div class="dominio-fill" style="width:' + pct + '%;background:' + color + '"></div></div>' +
+    var color = _examenColorFor(pct);
+    html += '<div style="border-radius:8px;padding:10px 8px;text-align:center;background:' + color + '22;border:1px solid ' + color + '">' +
+      '<div style="font-size:14px;font-weight:700;color:' + color + '">' + pct + '%</div>' +
+      '<div style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.3">' + _jEsc(g.nombre) + '</div>' +
+      '<div style="font-size:9px;color:var(--text-faint)">' + g.ok + '/' + g.total + '</div>' +
     '</div>';
   });
-  rowsHtml += '</div>';
+  html += '</div>';
+  return html;
+}
+function _examenRenderDominio() {
+  var el = document.getElementById('examen-dominio-container');
+  if (!el) return;
+  var tabs = ['general', 'modulo', 'bloque', 'sistema', 'punto', 'progreso'];
+  var tabLabels = { general: 'General', modulo: 'Módulos', bloque: 'Bloques', sistema: 'Sistemas', punto: 'Puntos', progreso: 'Progreso' };
+  var nivel = _examenDominioNivel;
+  var tabsHtml = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">';
+  tabs.forEach(function(t) {
+    var active = t === nivel;
+    tabsHtml += '<button class="' + (active ? 'btn-p' : 'btn-s') + '" style="font-size:12px;padding:6px 14px" onclick="_examenVerDominio(\'' + t + '\')">' + tabLabels[t] + '</button>';
+  });
+  tabsHtml += '</div>';
 
-  el.innerHTML = tabsHtml + rowsHtml;
+  if (_examenChartInstance) { _examenChartInstance.destroy(); _examenChartInstance = null; }
+
+  if (nivel === 'progreso') {
+    var exams = _examenDominioExams || [];
+    if (!exams.length) {
+      el.innerHTML = tabsHtml + '<p style="color:var(--text-muted);font-size:13px">Todavía no has hecho ningún examen.</p>';
+      return;
+    }
+    el.innerHTML = tabsHtml + '<div style="position:relative;height:260px"><canvas id="examen-dominio-canvas"></canvas></div>';
+    var labels = exams.map(function(e) { return e.fecha ? new Date(e.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }) : ''; });
+    var data = exams.map(function(e) { return e.porcentaje; });
+    _examenChartInstance = new Chart(document.getElementById('examen-dominio-canvas'), {
+      type: 'line',
+      data: { labels: labels, datasets: [{ data: data, borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,.15)', fill: true, tension: .3, pointRadius: 4, pointBackgroundColor: '#a78bfa' }] },
+      options: {
+        scales: {
+          y: { min: 0, max: 100, ticks: { color: '#8b93a7' }, grid: { color: 'rgba(128,128,128,.15)' } },
+          x: { ticks: { color: '#8b93a7' }, grid: { display: false } }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+    return;
+  }
+
+  var preguntas = _examenDominioCache || [];
+  if (!preguntas.length) {
+    el.innerHTML = tabsHtml + '<p style="color:var(--text-muted);font-size:13px">Todavía no hay exámenes con detalle por pregunta. Haz un examen nuevo para empezar a ver tu dominio.</p>';
+    return;
+  }
+
+  if (nivel === 'general') {
+    var ok = 0;
+    preguntas.forEach(function(p) { if (p.correcta) ok++; });
+    el.innerHTML = tabsHtml +
+      '<div style="position:relative;height:220px;max-width:260px;margin:0 auto"><canvas id="examen-dominio-canvas"></canvas></div>' +
+      '<div style="text-align:center;margin-top:10px;font-size:13px;color:var(--text-muted)">' + ok + ' / ' + preguntas.length + ' preguntas correctas en total</div>';
+    _examenChartInstance = new Chart(document.getElementById('examen-dominio-canvas'), {
+      type: 'doughnut',
+      data: { labels: ['Correctas', 'Falladas'], datasets: [{ data: [ok, preguntas.length - ok], backgroundColor: ['#4ade80', '#f87171'] }] },
+      options: { plugins: { legend: { position: 'bottom', labels: { color: '#8b93a7', font: { size: 11 } } } } }
+    });
+    return;
+  }
+
+  if (nivel === 'punto') {
+    el.innerHTML = tabsHtml + _examenHeatmapHTML(_examenGroupBy(preguntas, 'punto'));
+    return;
+  }
+
+  var list = _examenGroupBy(preguntas, nivel);
+  var labels2 = list.map(function(g) { return g.nombre; });
+  var pcts = list.map(function(g) { return Math.round(g.ok / g.total * 100); });
+  var colors = pcts.map(_examenColorFor);
+  el.innerHTML = tabsHtml + '<div style="position:relative;height:280px"><canvas id="examen-dominio-canvas"></canvas></div>';
+  var ctx = document.getElementById('examen-dominio-canvas');
+
+  if (nivel === 'modulo') {
+    _examenChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: labels2, datasets: [{ data: pcts, backgroundColor: colors }] },
+      options: {
+        scales: {
+          y: { min: 0, max: 100, ticks: { color: '#8b93a7' }, grid: { color: 'rgba(128,128,128,.15)' } },
+          x: { ticks: { color: '#8b93a7', font: { size: 10 } }, grid: { display: false } }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+  } else if (nivel === 'bloque') {
+    _examenChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: labels2, datasets: [{ data: pcts, backgroundColor: colors }] },
+      options: {
+        indexAxis: 'y',
+        scales: {
+          x: { min: 0, max: 100, ticks: { color: '#8b93a7' }, grid: { color: 'rgba(128,128,128,.15)' } },
+          y: { ticks: { color: '#8b93a7', font: { size: 10 } }, grid: { display: false } }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+  } else if (nivel === 'sistema') {
+    _examenChartInstance = new Chart(ctx, {
+      type: 'radar',
+      data: { labels: labels2, datasets: [{ data: pcts, backgroundColor: 'rgba(45,212,191,.25)', borderColor: '#2dd4bf', pointBackgroundColor: '#2dd4bf' }] },
+      options: {
+        scales: { r: { min: 0, max: 100, ticks: { display: false }, pointLabels: { color: '#8b93a7', font: { size: 10 } }, grid: { color: 'rgba(128,128,128,.2)' }, angleLines: { color: 'rgba(128,128,128,.2)' } } },
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
 }
 
 function _examenInit() {
@@ -6084,6 +6201,7 @@ function _examenGenerar() {
 function _examenFinish() {
   _examen.active = false;
   _examenDominioCache = null;
+  _examenDominioExams = null;
   var total = _examen.total, correctas = _examen.correctas;
   var porcentaje = total > 0 ? Math.round(correctas / total * 100) : 0;
 
@@ -6117,7 +6235,7 @@ function _examenFinish() {
   html += '<div style="display:flex;gap:10px;justify-content:center;margin-top:20px">' +
     '<button class="btn-p" onclick="_examenInit()">Nuevo examen</button>' +
     '<button class="btn-s" onclick="_examenLoadHistorial()">Ver historial</button>' +
-    '<button class="btn-s" onclick="_examenVerDominio(\'general\')">📊 Ver dominio</button>' +
+    '<button class="btn-s" onclick="_examenAbrirDominio()">📊 Ver dominio</button>' +
   '</div></div>';
 
   var container = document.getElementById('examen-resultado-container');
