@@ -1290,20 +1290,47 @@ html,body{height:100%;overflow:hidden}
 
 <!-- HOME -->
 <div class="page active" id="page-home">
-  <div style="padding:72px 40px 48px;max-width:860px;margin:0 auto">
-    <div style="font-size:11px;letter-spacing:.15em;color:var(--accent);text-transform:uppercase;margin-bottom:14px">Recepcion Sanitaria - Ciclo Formativo</div>
-    <h1 style="font-size:clamp(32px,5vw,60px);font-weight:700;line-height:1.08;margin-bottom:18px">Estudia.<br><span style="color:var(--accent)">Juega.</span><br>Aprueba.</h1>
-    <p style="font-size:16px;color:var(--text-muted);max-width:460px;margin-bottom:36px">Apuntes con imagenes reales, ejercicios integrados y minijuegos para Recepcionista en Centros Sanitarios.</p>
-    <div style="display:flex;gap:12px;flex-wrap:wrap">
-      <button class="btn-p" onclick="nav('apuntes')">Ver apuntes</button>
-      <button class="btn-s" onclick="nav('juegos')">Jugar ahora</button>
+  <div style="background:radial-gradient(ellipse at top, #2b1616 0%, var(--bg-base) 55%);padding:56px 40px 48px">
+    <div style="max-width:640px;margin:0 auto">
+
+      <div style="font-size:11px;letter-spacing:.15em;color:var(--accent);text-transform:uppercase;margin-bottom:18px">Recepcion Sanitaria - Ciclo Formativo</div>
+
+      <div style="background:var(--bg-surface);border:1px solid #e2484633;border-radius:14px;padding:22px;text-align:center;margin-bottom:16px">
+        <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#f09595;margin-bottom:8px">Recta final</div>
+        <div style="font-size:44px;font-weight:700;color:var(--text-primary);line-height:1"><span id="home-countdown-dias">—</span> <span style="font-size:20px;color:var(--text-muted);font-weight:400">días para el examen</span></div>
+      </div>
+
+      <button class="btn-p" onclick="_homeExamenDebilidades()" style="width:100%;padding:16px;background:#e24b4a;color:#fff;font-size:15px;margin-bottom:16px">🎯 Hacer examen de mis puntos débiles</button>
+
+      <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px 18px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <button onclick="_homeCarouselGo(-1)" style="background:none;border:1px solid var(--border);color:var(--text-muted);width:26px;height:26px;border-radius:50%;cursor:pointer">‹</button>
+          <div id="home-carousel-title" style="font-size:12px;color:var(--text-primary);font-weight:700;text-align:center">Cargando…</div>
+          <button onclick="_homeCarouselGo(1)" style="background:none;border:1px solid var(--border);color:var(--text-muted);width:26px;height:26px;border-radius:50%;cursor:pointer">›</button>
+        </div>
+        <div id="home-carousel-wrap">
+          <div id="home-carousel-chart-wrap" style="position:relative;height:260px;display:flex;align-items:center;justify-content:center">
+            <canvas id="home-carousel-canvas"></canvas>
+          </div>
+          <div id="home-carousel-empty" style="display:none;text-align:center;color:var(--text-faint);font-size:12px;padding:40px 0"></div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:10px;margin-bottom:4px">Tus puntos más débiles de este módulo:</div>
+          <div id="home-carousel-debiles" style="display:flex;flex-direction:column;gap:4px"></div>
+          <div id="home-carousel-dots" style="display:flex;gap:5px;justify-content:center;margin-top:12px"></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+        <div class="stat-card"><div class="stat-n" style="color:var(--accent)" id="home-examenes">—</div><div class="stat-l">Exámenes hechos</div></div>
+        <div class="stat-card"><div class="stat-n" style="color:#4ade80" id="home-media">—</div><div class="stat-l">Media general</div></div>
+        <div class="stat-card"><div class="stat-n" style="color:#f59e0b" id="home-rank">—</div><div class="stat-l">Posicion</div></div>
+      </div>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn-s" onclick="nav('apuntes')">Ver apuntes</button>
+        <button class="btn-s" onclick="nav('juegos')">Jugar ahora</button>
+      </div>
+
     </div>
-  </div>
-  <div style="padding:0 40px 48px;max-width:860px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-    <div class="stat-card"><div class="stat-n" style="color:var(--accent)" id="home-temas">—</div><div class="stat-l">Temas</div></div>
-    <div class="stat-card"><div class="stat-n" style="color:#a78bfa" id="home-minijuegos">—</div><div class="stat-l">Minijuegos</div></div>
-    <div class="stat-card"><div class="stat-n" style="color:#f59e0b" id="home-xp">120</div><div class="stat-l">Tu XP</div></div>
-    <div class="stat-card"><div class="stat-n" style="color:#f87171" id="home-rank">#4</div><div class="stat-l">Posicion</div></div>
   </div>
 </div>
 
@@ -2001,10 +2028,12 @@ function enterApp(name, avatar, xp, isFirebase, uid, photoURL, email, mii, coins
   if (typeof updateUI === 'function') updateUI();
   if (typeof nav === 'function') nav('home');
 
+  if (typeof _homeUpdateCountdown === 'function') _homeUpdateCountdown();
   if (isFirebase && uid) {
     listenRanking();
     listenMyProfile(uid);
     if (typeof _tickerInit === 'function') _tickerInit();
+    if (typeof _homeLoadCarousel === 'function') _homeLoadCarousel();
   }
 }
 
@@ -2121,35 +2150,7 @@ function updateUI(){
   document.getElementById('home-xp').textContent=S.xp;
   _updateCoinsUI();
   renderTemaSelector();
-  _updateHomeStats();
   renderLB();
-}
-
-var _homeStatsLoaded = false;
-function _updateHomeStats() {
-  var temasEl = document.getElementById('home-temas');
-  var miniEl = document.getElementById('home-minijuegos');
-  if (!temasEl || !miniEl) return;
-
-  var temas = 0;
-  if (window._TEMAS) {
-    for (var prof in window._TEMAS) {
-      for (var mod in window._TEMAS[prof]) { temas++; }
-    }
-  }
-  temasEl.textContent = temas || '—';
-
-  if (!_homeStatsLoaded && typeof db !== 'undefined') {
-    _homeStatsLoaded = true;
-    db.collectionGroup('puntos').get().then(function(snap) {
-      var count = 0;
-      snap.forEach(function(doc) {
-        var d = doc.data();
-        if (d && d.juegos && d.juegos.length) count += d.juegos.length;
-      });
-      miniEl.textContent = count;
-    }).catch(function() { miniEl.textContent = '—'; });
-  }
 }
 
 function renderLB(){
@@ -6251,7 +6252,7 @@ function _examenFinish() {
       return { nombre: g.nombre, ok: g.ok, total: g.total };
     });
     var preguntas = _examen.resultados.map(function(r) {
-      return { titulo: r.titulo || '', tipo: r.tipo || '', sistema: r.sistema || '', punto: r.punto || '', modulo: r.modulo || '', bloque: r.bloque || '', correcta: !!r.correcta };
+      return { titulo: r.titulo || '', tipo: r.tipo || '', sistema: r.sistema || '', punto: r.punto || '', modulo: r.modulo || '', bloque: r.bloque || '', col: r.col || '', docId: r.docId || '', correcta: !!r.correcta };
     });
     db.collection('examenes').add({
       uid: S.uid,
@@ -6298,6 +6299,180 @@ function _examenLoadHistorial() {
     el.innerHTML = '<p style="color:var(--rose);font-size:13px">Error cargando el historial.</p>';
     console.log('Error historial examenes:', e);
   });
+}
+
+/* ══════════════════════════════════════════════════════
+   PORTADA ÉPICA — cuenta atrás, examen de puntos débiles, carrusel de módulos
+   ══════════════════════════════════════════════════════ */
+var _HOME_FECHA_EXAMEN = '2026-07-23';
+var _homeModulosDef = [
+  { prof: 'judith', mod: 'm1', titulo: 'Sistema de Salud', corto: 'Módulo 1 · Sistema de Salud', nivel: 'punto' },
+  { prof: 'judith', mod: 'm2', titulo: 'El Cuerpo Humano y su Anatomía', corto: 'Módulo 2 · El Cuerpo Humano', nivel: 'bloque' },
+  { prof: 'judith', mod: 'm3', titulo: 'Patologías más Frecuentes', corto: 'Módulo 3 · Patologías', nivel: 'bloque' },
+  { prof: 'judith', mod: 'm4', titulo: 'Pruebas Médicas', corto: 'Módulo 4 · Pruebas Médicas', nivel: 'vacio' }
+];
+var _homeCarouselData = null;
+var _homeCarouselIdx = 0;
+var _homeCarouselChart = null;
+var _homeCarouselTimer = null;
+
+function _homeUpdateCountdown() {
+  var el = document.getElementById('home-countdown-dias');
+  if (!el) return;
+  var hoy = new Date();
+  var examen = new Date(_HOME_FECHA_EXAMEN + 'T00:00:00');
+  var dias = Math.ceil((examen - new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())) / 86400000);
+  el.textContent = dias > 0 ? dias : (dias === 0 ? 'Hoy' : 'Pasado');
+}
+
+function _homeGroupBy(preguntas, key) {
+  var groups = {};
+  preguntas.forEach(function(p) {
+    var groupKey, label;
+    if (key === 'punto') {
+      groupKey = p.col + ':' + p.docId;
+      label = p.punto || p.titulo || 'Pregunta';
+    } else {
+      groupKey = p[key] || 'Sin clasificar';
+      label = groupKey;
+    }
+    if (!groups[groupKey]) groups[groupKey] = { nombre: label, ok: 0, total: 0, col: p.col, docId: p.docId };
+    groups[groupKey].total++;
+    if (p.correcta) groups[groupKey].ok++;
+  });
+  var list = [];
+  for (var k in groups) list.push(groups[k]);
+  list.sort(function(a, b) { return (a.ok / a.total) - (b.ok / b.total); });
+  return list;
+}
+function _homeBuildModuloData(def, preguntas) {
+  var propias = preguntas.filter(function(p) { return p.modulo === def.titulo; });
+  if (!propias.length) return { def: def, vacio: true };
+  var radarGroups = _homeGroupBy(propias, def.nivel === 'punto' ? 'punto' : 'bloque');
+  var debiles = _homeGroupBy(propias, 'punto').slice(0, 3);
+  return {
+    def: def,
+    vacio: false,
+    labels: radarGroups.map(function(g) { return g.nombre; }),
+    data: radarGroups.map(function(g) { return Math.round(g.ok / g.total * 100); }),
+    debiles: debiles.map(function(g) { return { nombre: g.nombre, pct: Math.round(g.ok / g.total * 100), col: g.col, docId: g.docId }; })
+  };
+}
+
+function _homeLoadCarousel() {
+  var wrap = document.getElementById('home-carousel-wrap');
+  if (!wrap) return;
+  if (!window.S || !S.uid || typeof db === 'undefined') {
+    wrap.innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:30px 0">Inicia sesión para ver tu progreso por módulo.</p>';
+    return;
+  }
+  db.collection('examenes').where('uid', '==', S.uid).get().then(function(snap) {
+    var preguntas = [];
+    var totalPct = 0, nExams = 0;
+    snap.forEach(function(doc) {
+      var d = doc.data();
+      (d.preguntas || []).forEach(function(p) { preguntas.push(p); });
+      totalPct += (d.porcentaje || 0);
+      nExams++;
+    });
+    var examenesEl = document.getElementById('home-examenes');
+    var mediaEl = document.getElementById('home-media');
+    if (examenesEl) examenesEl.textContent = nExams;
+    if (mediaEl) mediaEl.textContent = nExams > 0 ? Math.round(totalPct / nExams) + '%' : '—';
+    _homeCarouselData = _homeModulosDef.map(function(def) {
+      if (def.nivel === 'vacio') return { def: def, vacio: true };
+      return _homeBuildModuloData(def, preguntas);
+    });
+    _homeCarouselIdx = 0;
+    _homeCarouselRender();
+    _homeCarouselAutoStart();
+  }).catch(function(e) {
+    wrap.innerHTML = '<p style="color:var(--rose);font-size:13px;text-align:center;padding:30px 0">Error cargando tu progreso.</p>';
+    console.log('Error cargando carrusel home:', e);
+  });
+}
+function _homeCarouselRender() {
+  if (!_homeCarouselData) return;
+  var m = _homeCarouselData[_homeCarouselIdx];
+  var titleEl = document.getElementById('home-carousel-title');
+  var canvasWrap = document.getElementById('home-carousel-chart-wrap');
+  var emptyEl = document.getElementById('home-carousel-empty');
+  var debilesEl = document.getElementById('home-carousel-debiles');
+  var dotsEl = document.getElementById('home-carousel-dots');
+  if (!titleEl) return;
+  titleEl.textContent = m.def.corto;
+
+  if (_homeCarouselChart) { _homeCarouselChart.destroy(); _homeCarouselChart = null; }
+
+  if (m.vacio) {
+    canvasWrap.style.display = 'none';
+    emptyEl.style.display = 'block';
+    emptyEl.textContent = m.def.nivel === 'vacio' ? 'Todavía sin contenido en este módulo.' : 'Todavía no has hecho ningún examen de este módulo.';
+    debilesEl.innerHTML = '';
+  } else {
+    canvasWrap.style.display = 'flex';
+    emptyEl.style.display = 'none';
+    var colors = m.data.map(function(v) { return v >= 80 ? '#4ade80' : (v >= 50 ? '#f59e0b' : '#f87171'); });
+    _homeCarouselChart = new Chart(document.getElementById('home-carousel-canvas'), {
+      type: 'radar',
+      data: { labels: m.labels, datasets: [{ data: m.data, backgroundColor: 'rgba(226,75,74,.2)', borderColor: '#e24b4a', pointBackgroundColor: colors }] },
+      options: {
+        layout: { padding: 18 },
+        scales: { r: { min: 0, max: 100, ticks: { display: false }, pointLabels: { color: '#8b93a7', font: { size: 10 } }, grid: { color: 'rgba(128,128,128,.2)' }, angleLines: { color: 'rgba(128,128,128,.2)' } } },
+        plugins: { legend: { display: false } }
+      }
+    });
+    debilesEl.innerHTML = m.debiles.map(function(d) {
+      var color = d.pct >= 80 ? 'var(--green)' : (d.pct >= 50 ? 'var(--amber)' : 'var(--rose)');
+      return '<a href="#" onclick="_homeIrAPuntoDebil(\'' + d.col + '\',\'' + d.docId + '\');return false" style="display:flex;justify-content:space-between;font-size:11px;color:#5dcaa5;text-decoration:none;padding:3px 0">' +
+        '<span>→ ' + _jEsc(d.nombre) + '</span><span style="color:' + color + '">' + d.pct + '%</span></a>';
+    }).join('') || '<p style="font-size:11px;color:var(--text-muted);margin:0">Todavía no hay suficientes datos.</p>';
+  }
+
+  dotsEl.innerHTML = _homeCarouselData.map(function(_, i) {
+    return '<span style="width:6px;height:6px;border-radius:50%;background:' + (i === _homeCarouselIdx ? '#e24b4a' : '#2a323d') + '"></span>';
+  }).join('');
+}
+function _homeCarouselGo(delta) {
+  if (!_homeCarouselData) return;
+  _homeCarouselIdx = (_homeCarouselIdx + delta + _homeCarouselData.length) % _homeCarouselData.length;
+  _homeCarouselRender();
+  _homeCarouselAutoStart();
+}
+function _homeCarouselAutoStart() {
+  if (_homeCarouselTimer) clearInterval(_homeCarouselTimer);
+  _homeCarouselTimer = setInterval(function() {
+    if (!_homeCarouselData) return;
+    _homeCarouselIdx = (_homeCarouselIdx + 1) % _homeCarouselData.length;
+    _homeCarouselRender();
+  }, 5000);
+}
+function _homeIrAPuntoDebil(col, docId) {
+  var route = _findPuntoRoute(col, docId);
+  if (!route) return;
+  navPunto(route.prof, route.mod, route.bloque, route.sis, route.punto);
+}
+function _homeExamenDebilidades() {
+  if (!_homeCarouselData) { nav('examenes'); return; }
+  var todas = [];
+  _homeCarouselData.forEach(function(m) {
+    if (!m.vacio) todas = todas.concat(m.debiles);
+  });
+  if (!todas.length) { nav('examenes'); return; }
+  todas.sort(function(a, b) { return a.pct - b.pct; });
+  var top = todas.slice(0, 8);
+  nav('examenes');
+  setTimeout(function() {
+    var leaves = document.querySelectorAll('.exam-leaf');
+    leaves.forEach(function(l) {
+      var match = top.some(function(t) { return t.col === l.dataset.col && t.docId === l.dataset.docId; });
+      l.checked = match;
+    });
+    _examenUpdateCount();
+    var sel = document.getElementById('examen-num-preguntas');
+    if (sel) sel.value = 'todas';
+    _examenGenerar();
+  }, 60);
 }
 
 /* ══════════════════════════════════════════════════════
