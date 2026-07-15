@@ -1952,6 +1952,10 @@ html,body{height:100%;overflow:hidden}
     <button class="modal-close" onclick="_examenCerrarInfoDominio()">✕</button>
     <div style="font-size:32px;margin-bottom:12px">📊</div>
     <p style="font-size:14px;color:var(--text-secondary);line-height:1.6">Esta herramienta evalúa tu progreso en función de los exámenes. De esta manera, podrás ver tus puntos débiles y fuertes reales.</p>
+    <p style="font-size:14px;color:var(--text-secondary);line-height:1.6;margin-top:10px">En la pestaña <b>Módulos</b> tienes un desplegable para elegir un módulo concreto: al seleccionarlo, las pestañas Bloques, Sistemas y Puntos se filtran para mostrar solo los datos de ese módulo.</p>
+    <label style="display:flex;align-items:center;gap:6px;justify-content:center;font-size:12px;color:var(--text-muted);margin-top:14px;cursor:pointer">
+      <input type="checkbox" id="dominio-info-no-mostrar"> No volver a mostrar
+    </label>
     <button class="btn-p" onclick="_examenCerrarInfoDominio()" style="margin-top:10px">Entendido</button>
   </div>
 </div>
@@ -5896,12 +5900,33 @@ var _examenDominioNivel = 'general';
 var _examenDominioCache = null;
 var _examenDominioExams = null;
 var _examenChartInstance = null;
+var _examenDominioModuloFiltro = '';
+function _examenDominioSetFiltro(v) {
+  _examenDominioModuloFiltro = v;
+  _examenRenderDominio();
+}
+function _examenDominioModulosDisponibles(preguntas) {
+  var set = {};
+  preguntas.forEach(function(p) { if (p.modulo) set[p.modulo] = true; });
+  var orden = (typeof _homeModulosDef !== 'undefined') ? _homeModulosDef.map(function(m) { return m.titulo; }) : [];
+  var ordenados = orden.filter(function(t) { return set[t]; });
+  for (var k in set) { if (ordenados.indexOf(k) === -1) ordenados.push(k); }
+  return ordenados;
+}
 function _examenAbrirDominio() {
-  var modal = document.getElementById('dominio-info-modal');
-  if (modal) modal.classList.add('open');
+  if (localStorage.getItem('apuntes_dominio_info_oculto') !== '1') {
+    var modal = document.getElementById('dominio-info-modal');
+    if (modal) modal.classList.add('open');
+  }
   _examenVerDominio('general');
 }
+function _examenMostrarInfoDominio() {
+  var modal = document.getElementById('dominio-info-modal');
+  if (modal) modal.classList.add('open');
+}
 function _examenCerrarInfoDominio() {
+  var chk = document.getElementById('dominio-info-no-mostrar');
+  if (chk && chk.checked) localStorage.setItem('apuntes_dominio_info_oculto', '1');
   var modal = document.getElementById('dominio-info-modal');
   if (modal) modal.classList.remove('open');
 }
@@ -5969,11 +5994,14 @@ function _examenRenderDominio() {
   var tabs = ['general', 'modulo', 'bloque', 'sistema', 'punto', 'progreso'];
   var tabLabels = { general: 'General', modulo: 'Módulos', bloque: 'Bloques', sistema: 'Sistemas', punto: 'Puntos', progreso: 'Progreso' };
   var nivel = _examenDominioNivel;
-  var tabsHtml = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">';
+  var tabsHtml = '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:20px">';
+  tabsHtml += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
   tabs.forEach(function(t) {
     var active = t === nivel;
     tabsHtml += '<button class="' + (active ? 'btn-p' : 'btn-s') + '" style="font-size:12px;padding:6px 14px" onclick="_examenVerDominio(\'' + t + '\')">' + tabLabels[t] + '</button>';
   });
+  tabsHtml += '</div>';
+  tabsHtml += '<button onclick="_examenMostrarInfoDominio()" aria-label="Ayuda" title="Ayuda" style="flex-shrink:0;width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted);font-size:13px;font-weight:700;font-style:italic;cursor:pointer;display:flex;align-items:center;justify-content:center">i</button>';
   tabsHtml += '</div>';
 
   if (_examenChartInstance) { _examenChartInstance.destroy(); _examenChartInstance = null; }
@@ -6021,16 +6049,44 @@ function _examenRenderDominio() {
     return;
   }
 
+  var filtroChip = '';
+  if (_examenDominioModuloFiltro && (nivel === 'bloque' || nivel === 'sistema' || nivel === 'punto')) {
+    filtroChip = '<div style="font-size:12px;color:var(--accent);margin-bottom:12px">Mostrando solo: <b>' + _jEsc(_examenDominioModuloFiltro) + '</b> &middot; <a href="#" onclick="_examenDominioSetFiltro(\'\');return false" style="color:var(--text-muted);text-decoration:underline">quitar filtro</a></div>';
+  }
+  var basePreguntas = preguntas;
+  if (_examenDominioModuloFiltro && (nivel === 'bloque' || nivel === 'sistema' || nivel === 'punto')) {
+    basePreguntas = preguntas.filter(function(p) { return p.modulo === _examenDominioModuloFiltro; });
+  }
+
   if (nivel === 'punto') {
-    el.innerHTML = tabsHtml + _examenHeatmapHTML(_examenGroupBy(preguntas, 'punto'));
+    if (!basePreguntas.length) {
+      el.innerHTML = tabsHtml + filtroChip + '<p style="color:var(--text-muted);font-size:13px">No hay preguntas registradas para este módulo.</p>';
+      return;
+    }
+    el.innerHTML = tabsHtml + filtroChip + _examenHeatmapHTML(_examenGroupBy(basePreguntas, 'punto'));
     return;
   }
 
-  var list = _examenGroupBy(preguntas, nivel);
+  if ((nivel === 'bloque' || nivel === 'sistema') && !basePreguntas.length) {
+    el.innerHTML = tabsHtml + filtroChip + '<p style="color:var(--text-muted);font-size:13px">No hay preguntas registradas para este módulo.</p>';
+    return;
+  }
+
+  var list = _examenGroupBy(basePreguntas, nivel);
   var labels2 = list.map(function(g) { return g.nombre; });
   var pcts = list.map(function(g) { return Math.round(g.ok / g.total * 100); });
   var colors = pcts.map(_examenColorFor);
-  el.innerHTML = tabsHtml + '<div style="position:relative;height:280px"><canvas id="examen-dominio-canvas"></canvas></div>';
+  var moduloSelectHtml = '';
+  if (nivel === 'modulo') {
+    var opciones = _examenDominioModulosDisponibles(preguntas);
+    moduloSelectHtml = '<div style="margin-bottom:14px">' +
+      '<label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Filtrar bloques, sistemas y puntos por módulo:</label>' +
+      '<select onchange="_examenDominioSetFiltro(this.value)" style="max-width:320px;padding:8px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;font-family:sans-serif">' +
+      '<option value=""' + (_examenDominioModuloFiltro === '' ? ' selected' : '') + '>Todos los módulos</option>' +
+      opciones.map(function(t) { return '<option value="' + _jEsc(t) + '"' + (t === _examenDominioModuloFiltro ? ' selected' : '') + '>' + _jEsc(t) + '</option>'; }).join('') +
+      '</select></div>';
+  }
+  el.innerHTML = tabsHtml + filtroChip + moduloSelectHtml + '<div style="position:relative;height:280px"><canvas id="examen-dominio-canvas"></canvas></div>';
   var ctx = document.getElementById('examen-dominio-canvas');
 
   if (nivel === 'modulo') {
