@@ -1329,13 +1329,15 @@ html,body{height:100%;overflow:hidden}
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px">
         <div class="stat-card" style="padding:20px"><div class="stat-n" style="color:var(--accent);font-size:32px" id="home-examenes">—</div><div class="stat-l">Exámenes hechos</div></div>
         <div class="stat-card" style="padding:20px"><div class="stat-n" style="color:#4ade80;font-size:32px" id="home-media">—</div><div class="stat-l">Media general</div></div>
-        <div class="stat-card" style="padding:20px"><div class="stat-n" style="color:#f59e0b;font-size:32px" id="home-rank">—</div><div class="stat-l">Posicion</div></div>
+        <button class="stat-card" id="home-continuar-btn" onclick="_homeContinuarDondeLoDejaste()" style="display:none;padding:20px;cursor:pointer;border:1px solid var(--border);background:var(--bg-surface);text-align:center;font-family:inherit;width:100%">
+          <div style="font-size:28px;line-height:1;margin-bottom:4px">↩️</div>
+          <div class="stat-l">Continúa donde lo dejaste</div>
+        </button>
       </div>
 
       <div style="display:flex;gap:12px;flex-wrap:wrap">
         <button class="btn-s" onclick="nav('apuntes')">Ver apuntes</button>
         <button class="btn-s" onclick="nav('juegos')">Jugar ahora</button>
-        <button class="btn-s" id="home-continuar-btn" onclick="_homeContinuarDondeLoDejaste()" style="display:none">↩️ Continúa donde lo dejaste</button>
       </div>
 
     </div>
@@ -2185,7 +2187,8 @@ function renderLB(){
   }
   var mr=0;
   for(var i=0;i<players.length;i++){if(players[i].me){mr=i+1;break;}}
-  if(mr>0)document.getElementById('home-rank').textContent='#'+mr;
+  var rankEl=document.getElementById('home-rank');
+  if(mr>0 && rankEl)rankEl.textContent='#'+mr;
   var colors=['#fbbf24','#9ca3af','#b45309'];
   var html='';
   for(var i=0;i<players.length;i++){
