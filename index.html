@@ -1286,6 +1286,10 @@ html,body{height:100%;overflow:hidden}
     <button class="btn-s" style="width:100%;font-size:13px;margin-bottom:8px" onclick="openShop()">🪙 Tienda</button>
     <button id="btn-admin" onclick="nav('admin')" style="display:none;width:100%;padding:9px;background:rgba(45,212,191,.08);border:1px solid var(--accent);border-radius:8px;color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;font-family:sans-serif;margin-bottom:8px">⚙️ Panel Admin</button>
     <button onclick="resetearProgreso()" style="width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:sans-serif;margin-bottom:8px">🔄 Reiniciar progreso de estudio</button>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-faint);margin:12px 0 8px">Preferencias</div>
+    <button id="pref-music-btn" onclick="_prefToggleMusic()" style="width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:sans-serif;margin-bottom:8px">🎵 Desactivar música</button>
+    <button id="pref-sound-btn" onclick="_prefToggleSound()" style="width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:sans-serif;margin-bottom:8px">🔇 Desactivar sonido</button>
+    <button id="pref-ticker-btn" onclick="_prefToggleTicker()" style="width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:sans-serif;margin-bottom:8px">📰 Desactivar panel de noticias</button>
     <button onclick="window.logOut&&window.logOut()" style="width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:sans-serif">Cerrar sesion</button>
   </div>
 </div>
@@ -1331,6 +1335,7 @@ html,body{height:100%;overflow:hidden}
       <div style="display:flex;gap:12px;flex-wrap:wrap">
         <button class="btn-s" onclick="nav('apuntes')">Ver apuntes</button>
         <button class="btn-s" onclick="nav('juegos')">Jugar ahora</button>
+        <button class="btn-s" id="home-continuar-btn" onclick="_homeContinuarDondeLoDejaste()" style="display:none">↩️ Continúa donde lo dejaste</button>
       </div>
 
     </div>
@@ -2439,8 +2444,10 @@ function nav(id, skipAnim){
     _examen.active = false;
     if(_examen.observer) _examen.observer.disconnect();
   }
-  if(id === 'home' && typeof _homeMelodyStart === 'function') _homeMelodyStart();
-  else if(typeof _homeMelodyStop === 'function') _homeMelodyStop();
+  if(id === 'home'){
+    if(typeof _homeMelodyEnterHome === 'function') _homeMelodyEnterHome();
+    if(typeof _homeUpdateContinuarBtn === 'function') _homeUpdateContinuarBtn();
+  }
   if(id === 'apuntes' && typeof renderLobbyProfesoras === 'function') renderLobbyProfesoras();
   if(id === 'juegos' && typeof cargarCajonMinijuegos === 'function') cargarCajonMinijuegos();
   if(id === 'admin' && typeof _admInit === 'function') _admInit();
@@ -2592,7 +2599,41 @@ var ppOpen=false;
 function togglePP(){
   ppOpen=!ppOpen;
   document.getElementById('pp').classList.toggle('open',ppOpen);
-  if(ppOpen) actualizarSelectorTema();
+  if(ppOpen){ actualizarSelectorTema(); _prefRefreshButtons(); }
+}
+
+// ── PREFERENCIAS: MÚSICA / SONIDO / TICKER ──────
+function _prefRefreshButtons(){
+  var m = document.getElementById('pref-music-btn');
+  if(m) m.textContent = (localStorage.getItem('al_music_disabled')==='1' ? '🎵 Activar música' : '🎵 Desactivar música');
+  var s = document.getElementById('pref-sound-btn');
+  if(s) s.textContent = (localStorage.getItem('al_sound_disabled')==='1' ? '🔊 Activar sonido' : '🔇 Desactivar sonido');
+  var t = document.getElementById('pref-ticker-btn');
+  if(t) t.textContent = (localStorage.getItem('al_ticker_disabled')==='1' ? '📰 Activar panel de noticias' : '📰 Desactivar panel de noticias');
+}
+function _prefToggleMusic(){
+  var disabled = localStorage.getItem('al_music_disabled') === '1';
+  localStorage.setItem('al_music_disabled', disabled ? '0' : '1');
+  if(!disabled && typeof _homeMelodyCutCurrent === 'function') _homeMelodyCutCurrent();
+  _prefRefreshButtons();
+}
+function _prefToggleSound(){
+  var disabled = localStorage.getItem('al_sound_disabled') === '1';
+  localStorage.setItem('al_sound_disabled', disabled ? '0' : '1');
+  if(!disabled && typeof _homeMelodyCutCurrent === 'function') _homeMelodyCutCurrent();
+  _prefRefreshButtons();
+}
+function _prefToggleTicker(){
+  var disabled = localStorage.getItem('al_ticker_disabled') === '1';
+  localStorage.setItem('al_ticker_disabled', disabled ? '0' : '1');
+  if(!disabled){
+    if(typeof _tickerClose === 'function') _tickerClose();
+    if(typeof _ticker !== 'undefined'){
+      if(_ticker.timer){ clearTimeout(_ticker.timer); _ticker.timer = null; }
+      if(_ticker.liveUnsub){ _ticker.liveUnsub(); _ticker.liveUnsub = null; }
+    }
+  }
+  _prefRefreshButtons();
 }
 
 // ── TEMAS Y MODO ──────────────────────────────
@@ -3994,6 +4035,7 @@ function navPunto(prof, moduloId, bloqueId, sistemaId, puntoIdx) {
   window._currentSistema = sistemaId;
   window._currentPunto = puntoIdx;
   marcarVisitado('punto:'+prof+':'+moduloId+':'+(bloqueId||'-')+':'+(sistemaId||'-')+':'+puntoIdx);
+  localStorage.setItem('al_last_punto', JSON.stringify({prof:prof, moduloId:moduloId, bloqueId:bloqueId, sistemaId:sistemaId, puntoIdx:puntoIdx}));
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});
   var tabApuntes = document.getElementById('tab-apuntes');
@@ -4021,6 +4063,7 @@ function renderLobbyProfesoras() {
 var _audioCtx = null;
 var _sharedReverb = null;
 function _getAudioCtx(){
+  if(localStorage.getItem('al_sound_disabled') === '1') return null;
   if(!_audioCtx){
     try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ return null; }
   }
@@ -6407,47 +6450,150 @@ function _homeInitEmbers() {
   }
 }
 
-// ── MELODÍA DE FONDO DE LA PORTADA (bucle) ──
+// ── CONTINÚA DONDE LO DEJASTE ──
+function _homeContinuarDondeLoDejaste() {
+  var raw = localStorage.getItem('al_last_punto');
+  if (!raw) return;
+  try {
+    var d = JSON.parse(raw);
+    navPunto(d.prof, d.moduloId, d.bloqueId, d.sistemaId, d.puntoIdx);
+  } catch (e) {}
+}
+function _homeUpdateContinuarBtn() {
+  var btn = document.getElementById('home-continuar-btn');
+  if (!btn) return;
+  btn.style.display = localStorage.getItem('al_last_punto') ? 'inline-block' : 'none';
+}
+
+// ── MELODÍA DE FONDO DE LA PORTADA (una vez, se corta y reinicia si vuelves a entrar) ──
 var _HOME_MELODY_ROOT = 130.81;
 var _HOME_MELODY_NOTES = [
-  {s:10, t:0.00}, {s:17, t:1.15}, {s:9, t:2.36}, {s:7, t:3.51}
+  {s:21,t:0.00,d:1.0}, {s:14,t:1.10,d:0.8}, {s:17,t:1.75,d:0.75}, {s:16,t:2.30,d:0.75}, {s:14,t:2.90,d:0.9},
+  {s:17,t:3.90,d:0.7}, {s:19,t:4.55,d:0.7}, {s:22,t:5.20,d:0.9}, {s:21,t:6.05,d:0.7}, {s:19,t:6.65,d:0.7}, {s:17,t:7.25,d:0.9},
+  {s:16,t:8.10,d:0.7}, {s:14,t:8.75,d:1.6},
+  {s:14,t:11.00,d:0.8}, {s:17,t:11.80,d:0.75}, {s:21,t:12.50,d:0.9}, {s:19,t:13.30,d:0.75}, {s:17,t:13.90,d:0.9},
+  {s:14,t:14.90,d:0.7}, {s:16,t:15.55,d:0.7}, {s:17,t:16.20,d:0.7}, {s:14,t:16.90,d:2.6},
+  {s:21,t:19.60,d:0.8}, {s:17,t:20.35,d:0.8}, {s:14,t:21.10,d:2.4}
 ];
-var _HOME_MELODY_CYCLE = 5.0;
-var _homeMelodyTimer = null;
+var _HOME_MELODY_HARMONY = [
+  {semis:[2,9],   t:11.00, peakStart:0.02, peakEnd:0.06, dur:3.80},
+  {semis:[2,5,9], t:14.90, peakStart:0.03, peakEnd:0.09, dur:4.60},
+  {semis:[10],    t:16.20, peakStart:0.03, peakEnd:0.10, dur:3.30}
+];
+var _HOME_MELODY_ECHO = [
+  {s:21, t:23.80, peak:0.05,  dur:1.0},
+  {s:17, t:24.60, peak:0.045, dur:1.0},
+  {s:14, t:25.40, peak:0.06,  dur:2.6}
+];
+var _HOME_MELODY_DURATION = 28.5;
 var _homeMelodyPlaying = false;
-function _homeMelodyTone(c, rv, start, freq, peak, dur) {
+var _homeMelodyEndTimer = null;
+var _homeMelodyDelayTimer = null;
+var _homeMelodyReverb = null;
+var _homeMelodyMasterGain = null;
+
+function _homeMelodySt(n) { return _HOME_MELODY_ROOT * Math.pow(2, n / 12); }
+function _homeMelodyGetReverb(c) {
+  if (!_homeMelodyReverb) _homeMelodyReverb = _makeReverb(c, 3.4, 1.4);
+  return _homeMelodyReverb;
+}
+function _homeMelodyGetMasterGain(c) {
+  if (!_homeMelodyMasterGain) {
+    _homeMelodyMasterGain = c.createGain();
+    _homeMelodyMasterGain.gain.value = 1;
+    _homeMelodyMasterGain.connect(c.destination);
+  }
+  return _homeMelodyMasterGain;
+}
+function _homeMelodyTone(c, rv, mg, start, freq, peak, dur, wetAmt) {
   var o = c.createOscillator(), g = c.createGain();
   o.type = 'sine';
   o.frequency.setValueAtTime(freq, c.currentTime + start);
   g.gain.setValueAtTime(0.0001, c.currentTime + start);
   g.gain.linearRampToValueAtTime(peak, c.currentTime + start + 0.012);
   g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + start + dur);
-  var dry = c.createGain(); dry.gain.value = 0.3;
-  var wet = c.createGain(); wet.gain.value = 0.7;
-  o.connect(g); g.connect(dry); dry.connect(c.destination);
-  g.connect(wet); wet.connect(rv); rv.connect(c.destination);
+  var dry = c.createGain(); dry.gain.value = 1 - (wetAmt || 0.6);
+  var wet = c.createGain(); wet.gain.value = wetAmt || 0.6;
+  o.connect(g); g.connect(dry); dry.connect(mg);
+  g.connect(wet); wet.connect(rv);
   o.start(c.currentTime + start); o.stop(c.currentTime + start + dur + 0.3);
 }
-function _homeMelodyScheduleCycle() {
-  var c = _getAudioCtx();
-  if (!c) return;
-  var rv = _getSharedReverb(c);
-  _HOME_MELODY_NOTES.forEach(function(n) {
-    var dur = n.dur || 0.8;
-    var freq = _HOME_MELODY_ROOT * Math.pow(2, n.s / 12);
-    _homeMelodyTone(c, rv, n.t, freq, 0.15, dur);
-    _homeMelodyTone(c, rv, n.t + 0.18, freq, 0.06, dur * 0.75);
+function _homeMelodyToneEcho(c, rv, mg, start, freq, peak, dur) {
+  _homeMelodyTone(c, rv, mg, start, freq, peak, dur, 0.6);
+  _homeMelodyTone(c, rv, mg, start + 0.15, freq, peak * 0.35, dur * 0.7, 0.6);
+}
+function _homeMelodyPad(c, rv, mg, start, semis, peakStart, peakEnd, dur) {
+  semis.forEach(function(s) {
+    [1, 1.006].forEach(function(detune) {
+      var o = c.createOscillator(), g = c.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(_homeMelodySt(s) * detune, c.currentTime + start);
+      g.gain.setValueAtTime(0.0001, c.currentTime + start);
+      g.gain.linearRampToValueAtTime(peakStart, c.currentTime + start + 0.6);
+      g.gain.linearRampToValueAtTime(peakEnd, c.currentTime + start + dur * 0.92);
+      g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + start + dur + 0.3);
+      var dry = c.createGain(); dry.gain.value = 0.22;
+      var wet = c.createGain(); wet.gain.value = 0.82;
+      o.connect(g); g.connect(dry); dry.connect(mg);
+      g.connect(wet); wet.connect(rv);
+      o.start(c.currentTime + start); o.stop(c.currentTime + start + dur + 0.6);
+    });
   });
 }
-function _homeMelodyStart() {
-  if (_homeMelodyPlaying) return;
-  _homeMelodyPlaying = true;
-  _homeMelodyScheduleCycle();
-  _homeMelodyTimer = setInterval(_homeMelodyScheduleCycle, _HOME_MELODY_CYCLE * 1000);
+function _homeMelodyVoiceNote(c, rv, mg, start, freq, peak, dur) {
+  [1, 1.006].forEach(function(detune) {
+    var o = c.createOscillator(), g = c.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(freq * detune, c.currentTime + start);
+    g.gain.setValueAtTime(0.0001, c.currentTime + start);
+    g.gain.linearRampToValueAtTime(peak, c.currentTime + start + 0.35);
+    g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + start + dur);
+    var dry = c.createGain(); dry.gain.value = 0.25;
+    var wet = c.createGain(); wet.gain.value = 0.82;
+    o.connect(g); g.connect(dry); dry.connect(mg);
+    g.connect(wet); wet.connect(rv);
+    o.start(c.currentTime + start); o.stop(c.currentTime + start + dur + 0.4);
+  });
 }
-function _homeMelodyStop() {
+function _homeMelodyPlayOnce() {
+  if (localStorage.getItem('al_music_disabled') === '1') return;
+  var c = _getAudioCtx();
+  if (!c) return;
+  var rv = _homeMelodyGetReverb(c);
+  var mg = _homeMelodyGetMasterGain(c);
+  rv.connect(mg);
+  mg.gain.cancelScheduledValues(c.currentTime);
+  mg.gain.setValueAtTime(1, c.currentTime);
+
+  _HOME_MELODY_NOTES.forEach(function(n) {
+    _homeMelodyToneEcho(c, rv, mg, n.t, _homeMelodySt(n.s), 0.15, n.d);
+  });
+  _HOME_MELODY_HARMONY.forEach(function(h) {
+    _homeMelodyPad(c, rv, mg, h.t, h.semis, h.peakStart, h.peakEnd, h.dur);
+  });
+  _HOME_MELODY_ECHO.forEach(function(e) {
+    _homeMelodyVoiceNote(c, rv, mg, e.t, _homeMelodySt(e.s), e.peak, e.dur);
+  });
+
+  _homeMelodyPlaying = true;
+  if (_homeMelodyEndTimer) clearTimeout(_homeMelodyEndTimer);
+  _homeMelodyEndTimer = setTimeout(function() { _homeMelodyPlaying = false; }, _HOME_MELODY_DURATION * 1000);
+}
+function _homeMelodyCutCurrent() {
+  var c = _getAudioCtx();
+  if (!c || !_homeMelodyMasterGain) { _homeMelodyPlaying = false; return; }
+  _homeMelodyMasterGain.gain.cancelScheduledValues(c.currentTime);
+  _homeMelodyMasterGain.gain.setValueAtTime(0, c.currentTime);
   _homeMelodyPlaying = false;
-  if (_homeMelodyTimer) { clearInterval(_homeMelodyTimer); _homeMelodyTimer = null; }
+  if (_homeMelodyEndTimer) { clearTimeout(_homeMelodyEndTimer); _homeMelodyEndTimer = null; }
+}
+function _homeMelodyEnterHome() {
+  if (_homeMelodyDelayTimer) clearTimeout(_homeMelodyDelayTimer);
+  _homeMelodyDelayTimer = setTimeout(function() {
+    if (typeof _currentPageId !== 'undefined' && _currentPageId !== 'home') return;
+    if (_homeMelodyPlaying) _homeMelodyCutCurrent();
+    _homeMelodyPlayOnce();
+  }, 1500);
 }
 
 function _homeGroupBy(preguntas, key) {
@@ -6743,6 +6889,7 @@ function _tickerScheduleNext() {
 }
 
 function _tickerInit() {
+  if (localStorage.getItem('al_ticker_disabled') === '1') return;
   if (!window.S || !S.uid || typeof db === 'undefined') return;
   db.collection('ticker_eventos').orderBy('fecha', 'desc').limit(50).get().then(function(snap) {
     var pool = [];
