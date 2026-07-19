@@ -1530,6 +1530,9 @@ html,body{height:100%;overflow:hidden}
 
     <div id="examen-view-running" style="display:none">
       <div id="examen-running-container"></div>
+      <div style="text-align:center;margin-top:20px">
+        <button class="btn-s" onclick="_examenFinalizarConfirm()" style="font-size:12px;color:var(--text-muted)">Finalizar examen</button>
+      </div>
     </div>
 
     <div id="examen-view-resultado" style="display:none">
@@ -3518,6 +3521,13 @@ function cClick(el, game) {
     state.total = document.querySelectorAll('[data-id^="'+game+'l"]').length;
   }
 
+  if (state.sel === el) {
+    // clic sobre el mismo elemento ya seleccionado: deseleccionar, no cuenta como fallo
+    el.classList.remove('sel');
+    state.sel = null;
+    return;
+  }
+
   if (!state.sel) {
     // primera selección
     el.classList.add('sel');
@@ -5431,6 +5441,8 @@ function gOrdCheck(gid) {
   if (ok === items.length) {
     res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Perfecto!</span>';
     if (!rewarded) _jCompletar('Ordenar');
+  } else if (_jExamMode[gid]) {
+    res.innerHTML = '<span style="color:var(--amber);font-weight:700">✗ Fallo — este era el orden correcto.</span>';
   } else {
     res.innerHTML = '<span style="color:var(--amber)">' + ok + '/' + items.length + ' en su sitio. ¡Reordena!</span>';
   }
@@ -5547,7 +5559,9 @@ function descClick(gid, el, isIntruso) {
     var correcto = document.querySelector('#' + gid + '-content .desc-opt[data-intruso="true"]');
     if (correcto) correcto.classList.add('reveal-correct');
     var resFail = document.getElementById(gid + '-result');
-    if (resFail) resFail.innerHTML = '<span style="color:var(--amber);font-weight:700">✗ Fallo — se ha marcado el intruso correcto.</span>';
+    var pFail = state.preguntas[state.current];
+    var explicacionHtml = (pFail && pFail.explicacion) ? '<div style="font-size:13px;color:var(--text-muted);margin-top:6px;font-weight:400">' + _jEsc(pFail.explicacion) + '</div>' : '';
+    if (resFail) resFail.innerHTML = '<span style="color:var(--amber);font-weight:700">✗ Fallo — se ha marcado el intruso correcto.</span>' + explicacionHtml;
   } else {
     el.classList.add('ko');
     _jFallo();
@@ -5735,6 +5749,7 @@ function _jCompletar(sub) {
     _gamingUpdateHud();
   } else if (_examen.active) {
     // el examen otorga XP una sola vez al terminar, ver _examenFinish
+    if (typeof playExerciseCompleteSound === 'function') playExerciseCompleteSound();
   } else {
     addXP(10, '¡Completado!', sub);
   }
@@ -5903,7 +5918,7 @@ function _examenRender() {
     var txt = resultEl.textContent || '';
     if (!txt.trim()) return;
     var correcta = txt.indexOf('🎉') !== -1;
-    _examen.resultados.push({ col: item.col, docId: item.docId, punto: item.punto, sistema: item.sistema, modulo: item.modulo, bloque: item.bloque, tipo: g.tipo, titulo: g.titulo || '', correcta: correcta });
+    _examen.resultados.push({ col: item.col, docId: item.docId, punto: item.punto, sistema: item.sistema, modulo: item.modulo, bloque: item.bloque, tipo: g.tipo, titulo: g.titulo || '', correcta: correcta, game: g });
     if (correcta) _examen.correctas++;
     var bodyEl = document.getElementById(gid + '-body');
     if (bodyEl) bodyEl.classList.add('exam-locked');
@@ -5916,6 +5931,20 @@ function _examenRender() {
 function _examenNext() {
   _examen.idx++;
   _examenRender();
+}
+function _examenFinalizarConfirm() {
+  if (!_examen.active) return;
+  var respondidas = _examen.resultados.length;
+  var total = _examen.queue.length;
+  if (respondidas < total) {
+    var faltan = total - respondidas;
+    if (!confirm('¿Seguro que quieres acabar el examen? Hay ' + faltan + ' pregunta' + (faltan === 1 ? '' : 's') + ' sin responder.')) return;
+  }
+  if (_examen.observer) { _examen.observer.disconnect(); _examen.observer = null; }
+  _examen.earlyFinish = respondidas < total;
+  _examen.total = respondidas;
+  _examen.correctas = _examen.resultados.filter(function(r) { return r.correcta; }).length;
+  _examenFinish();
 }
 
 function _examenShowView(name) {
@@ -6301,13 +6330,31 @@ function _examenGenerar() {
       if (scopeNombres.indexOf(s) === -1) scopeNombres.push(s);
     });
     _examen = {
-      active: true, queue: pool.slice(0, n), idx: 0, correctas: 0, total: n, resultados: [], observer: null,
+      active: true, queue: pool.slice(0, n), idx: 0, correctas: 0, total: n, resultados: [], observer: null, earlyFinish: false,
       scope: scopeNombres.slice(0, 5).join(', ') + (scopeNombres.length > 5 ? '…' : '')
     };
     if (btn) { btn.disabled = false; btn.textContent = 'Generar examen'; }
     _examenShowView('running');
     _examenRender();
   });
+}
+function _examenRepasarFallos() {
+  var fallos = _examen.resultados.filter(function(r) { return !r.correcta; });
+  if (!fallos.length) return;
+  var queue = fallos.map(function(r) {
+    return { game: r.game, col: r.col, docId: r.docId, punto: r.punto, sistema: r.sistema, modulo: r.modulo, bloque: r.bloque };
+  });
+  var scopeNombres = [];
+  fallos.forEach(function(r) {
+    var s = r.sistema || r.punto;
+    if (scopeNombres.indexOf(s) === -1) scopeNombres.push(s);
+  });
+  _examen = {
+    active: true, queue: queue, idx: 0, correctas: 0, total: queue.length, resultados: [], observer: null, earlyFinish: false,
+    scope: scopeNombres.slice(0, 5).join(', ') + (scopeNombres.length > 5 ? '…' : '')
+  };
+  _examenShowView('running');
+  _examenRender();
 }
 
 function _examenFinish() {
@@ -6328,8 +6375,11 @@ function _examenFinish() {
   for (var k in groups) groupList.push(groups[k]);
   groupList.sort(function(a, b) { return (a.ok / a.total) - (b.ok / b.total); });
 
-  var html = '<div class="exam-qcard">' +
-    '<div style="text-align:center;margin-bottom:20px">' +
+  var html = '<div class="exam-qcard">';
+  if (_examen.earlyFinish) {
+    html += '<div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--text-muted);text-align:center">No te preocupes, el examen cuenta sobre el total de ejercicios hechos (' + total + ').</div>';
+  }
+  html += '<div style="text-align:center;margin-bottom:20px">' +
       '<div class="stat-n" style="font-size:44px">' + porcentaje + '%</div>' +
       '<div class="stat-l">' + correctas + ' / ' + total + ' correctas</div>' +
     '</div>';
@@ -6344,8 +6394,10 @@ function _examenFinish() {
     html += '</div>';
   }
 
-  html += '<div style="display:flex;gap:10px;justify-content:center;margin-top:20px">' +
-    '<button class="btn-p" onclick="_examenInit()">Nuevo examen</button>' +
+  var fallos = _examen.resultados.filter(function(r) { return !r.correcta; });
+  html += '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px">' +
+    (fallos.length ? '<button class="btn-p" onclick="_examenRepasarFallos()">🔁 Repasar solo mis fallos (' + fallos.length + ')</button>' : '') +
+    '<button class="btn-s" onclick="_examenInit()">Nuevo examen</button>' +
     '<button class="btn-s" onclick="_examenLoadHistorial()">Ver historial</button>' +
     '<button class="btn-s" onclick="_examenAbrirDominio()">📊 Ver dominio</button>' +
   '</div></div>';
@@ -7467,6 +7519,7 @@ function _admRenderJuegos() {
       (g.preguntas || []).forEach(function(pr, pi) {
         html += '<div style="margin-bottom:12px;padding:10px;background:var(--bg-surface);border-radius:8px">';
         html += '<div class="adm-pair-row"><input value="' + _jEsc(pr.grupo||'') + '" onchange="_adm.juegos[' + idx + '].preguntas[' + pi + '].grupo=this.value" placeholder="Nombre del grupo" style="flex:1"><button class="adm-pair-del" onclick="_admDelDescPregunta(' + idx + ',' + pi + ')">✕</button></div>';
+        html += '<div class="adm-pair-row"><input value="' + _jEsc(pr.explicacion||'') + '" onchange="_adm.juegos[' + idx + '].preguntas[' + pi + '].explicacion=this.value" placeholder="Por qué es el intruso (se muestra al fallar)" style="flex:1"></div>';
         (pr.opciones || []).forEach(function(o, oi) {
           html += '<div class="adm-pair-row" style="margin-left:16px"><input value="' + _jEsc(o.texto) + '" onchange="_adm.juegos[' + idx + '].preguntas[' + pi + '].opciones[' + oi + '].texto=this.value" placeholder="Opción" style="flex:1">';
           html += '<select onchange="_adm.juegos[' + idx + '].preguntas[' + pi + '].opciones[' + oi + '].intruso=(this.value===\'true\')" style="padding:4px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;font-size:11px;color:' + (o.intruso ? 'var(--rose)' : 'var(--green)') + ';width:70px">';
@@ -7494,7 +7547,7 @@ function _admAddPaso(gi) { _adm.juegos[gi].pasos = _adm.juegos[gi].pasos || []; 
 function _admDelPaso(gi, pi) { _adm.juegos[gi].pasos.splice(pi, 1); _admRenderJuegos(); }
 function _admAddVF(gi) { _adm.juegos[gi].frases = _adm.juegos[gi].frases || []; _adm.juegos[gi].frases.push({texto:'',esVerdadero:true}); _admRenderJuegos(); }
 function _admDelVF(gi, fi) { _adm.juegos[gi].frases.splice(fi, 1); _admRenderJuegos(); }
-function _admAddDescPregunta(gi) { _adm.juegos[gi].preguntas = _adm.juegos[gi].preguntas || []; _adm.juegos[gi].preguntas.push({grupo:'',opciones:[{texto:'',intruso:false}]}); _admRenderJuegos(); }
+function _admAddDescPregunta(gi) { _adm.juegos[gi].preguntas = _adm.juegos[gi].preguntas || []; _adm.juegos[gi].preguntas.push({grupo:'',explicacion:'',opciones:[{texto:'',intruso:false}]}); _admRenderJuegos(); }
 function _admDelDescPregunta(gi, pi) { _adm.juegos[gi].preguntas.splice(pi, 1); _admRenderJuegos(); }
 function _admAddDescOpc(gi, pi) { _adm.juegos[gi].preguntas[pi].opciones.push({texto:'',intruso:false}); _admRenderJuegos(); }
 function _admDelDescOpc(gi, pi, oi) { _adm.juegos[gi].preguntas[pi].opciones.splice(oi, 1); _admRenderJuegos(); }
@@ -7516,7 +7569,7 @@ function _admCreateJuego(tipo) {
   if (tipo === 'rellena') { g.titulo = 'Rellena los huecos'; g.instruccion = 'Arrastra (o toca la palabra y luego el hueco) para completar.'; g.banco = ['respuesta1','respuesta2','distractor']; g.frases = [{texto:'La ___ es la respuesta correcta.',respuestas:['respuesta1']}]; }
   if (tipo === 'ordenar') { g.titulo = 'Ordena los pasos'; g.instruccion = 'Arrastra los elementos para ordenarlos correctamente.'; g.pasos = ['Primer paso','Segundo paso','Tercer paso']; }
   if (tipo === 'vf') { g.titulo = 'Verdadero o falso'; g.instruccion = 'Indica si cada afirmación es verdadera o falsa.'; g.frases = [{texto:'Esta afirmación es verdadera.',esVerdadero:true},{texto:'Esta afirmación es falsa.',esVerdadero:false}]; }
-  if (tipo === 'descarte') { g.titulo = 'Encuentra el intruso'; g.instruccion = 'Selecciona el elemento que NO pertenece al grupo.'; g.preguntas = [{grupo:'Grupo de ejemplo',opciones:[{texto:'Pertenece',intruso:false},{texto:'Pertenece',intruso:false},{texto:'NO pertenece',intruso:true},{texto:'Pertenece',intruso:false}]}]; }
+  if (tipo === 'descarte') { g.titulo = 'Encuentra el intruso'; g.instruccion = 'Selecciona el elemento que NO pertenece al grupo.'; g.preguntas = [{grupo:'Grupo de ejemplo',explicacion:'',opciones:[{texto:'Pertenece',intruso:false},{texto:'Pertenece',intruso:false},{texto:'NO pertenece',intruso:true},{texto:'Pertenece',intruso:false}]}]; }
   _adm.juegos.push(g);
   document.getElementById('adm-add-panel').style.display = 'none';
   _admRenderJuegos();
