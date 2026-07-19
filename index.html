@@ -1509,6 +1509,18 @@ html,body{height:100%;overflow:hidden}
     <p style="color:var(--text-muted);margin-bottom:20px">Una sola oportunidad por pregunta. Elige qué quieres que te pregunte.</p>
 
     <div id="examen-view-setup">
+      <div style="display:flex;gap:8px;margin-bottom:20px">
+        <button class="btn-p" id="examen-modo-mini" onclick="_examenSetModo('mini')" style="flex:1">🎮 Con minijuegos</button>
+        <button class="btn-s" id="examen-modo-test" onclick="_examenSetModo('test')" style="flex:1">📝 Tipo test</button>
+      </div>
+      <div id="examen-dificultad-selector" style="display:none;margin-bottom:16px">
+        <span style="font-size:13px;color:var(--text-muted);margin-right:8px">Dificultad del vocabulario:</span>
+        <select id="examen-dificultad" style="padding:6px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px">
+          <option value="simple">Simple</option>
+          <option value="normal" selected>Normal</option>
+          <option value="real">Real</option>
+        </select>
+      </div>
       <button class="btn-p" onclick="_examenSelectCompletados()" style="margin-bottom:20px">🎯 Diagnóstico: todo lo estudiado</button>
       <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-faint);margin-bottom:8px">O elige el contenido a mano</div>
       <div class="exam-tree" id="examen-tree" style="max-height:320px;overflow-y:auto;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px"></div>
@@ -1523,7 +1535,7 @@ html,body{height:100%;overflow:hidden}
           </select>
         </label>
       </div>
-      <button id="examen-generar-btn" class="btn-p" onclick="_examenGenerar()" disabled>Generar examen</button>
+      <button id="examen-generar-btn" class="btn-p" onclick="_examenGenerarClick()" disabled>Generar examen</button>
       <button class="btn-s" onclick="_examenLoadHistorial()">Ver historial</button>
       <button class="btn-s" onclick="_examenAbrirDominio()">📊 Ver dominio</button>
     </div>
@@ -5569,8 +5581,42 @@ function descClick(gid, el, isIntruso) {
   }
 }
 
+/* ---------- EXAMEN TIPO TEST (pregunta con 4 opciones, solo examen) ---------- */
+function _jTest(gid, g) {
+  var opciones = (g.opciones || []).map(function(texto, idx) { return { texto: texto, idx: idx }; });
+  opciones = _jShuffle(opciones);
+  window['_test_' + gid] = { correcta: g.correcta };
+  var html = '<div style="font-size:15px;margin-bottom:14px;font-weight:500">' + _jEsc(g.pregunta || '') + '</div>';
+  html += '<div class="desc-options" id="' + gid + '-opts">';
+  opciones.forEach(function(o) {
+    html += '<div class="desc-opt" data-idx="' + o.idx + '" onclick="testClick(\'' + gid + '\',this,' + o.idx + ')">' + _jEsc(o.texto) + '</div>';
+  });
+  html += '</div><div id="' + gid + '-result" class="jgame-result"></div>';
+  return html;
+}
+function testClick(gid, el, idx) {
+  if (_jExamMode[gid] === 'locked') return;
+  if (el.classList.contains('ok') || el.classList.contains('ko')) return;
+  var state = window['_test_' + gid];
+  var isCorrect = (idx === state.correcta);
+  var res = document.getElementById(gid + '-result');
+  if (isCorrect) {
+    el.classList.add('ok');
+    _jAcierto('Test');
+    _jCompletar('Test');
+    if (res) res.innerHTML = '<span style="color:var(--green);font-weight:700">🎉 ¡Correcto!</span>';
+  } else {
+    el.classList.add('ko');
+    _jFallo();
+    var correctEl = document.querySelector('#' + gid + '-opts [data-idx="' + state.correcta + '"]');
+    if (correctEl) correctEl.classList.add('reveal-correct');
+    if (res) res.innerHTML = '<span style="color:var(--amber);font-weight:700">✗ Fallo — se ha marcado la respuesta correcta.</span>';
+  }
+  if (_jExamMode[gid]) _jExamMode[gid] = 'locked';
+}
+
 /* ---------- RENDERIZADOR: pinta los juegos de un punto ---------- */
-var _JTYPE_ICONS = { conecta:'🔗', clasifica:'🗂️', rellena:'✏️', ordenar:'🔢', vf:'✅', descarte:'❌' };
+var _JTYPE_ICONS = { conecta:'🔗', clasifica:'🗂️', rellena:'✏️', ordenar:'🔢', vf:'✅', descarte:'❌', test:'📝' };
 function renderPodcast(url) {
   if (!url) return '';
   return '<div class="punto-podcast">' +
@@ -5882,6 +5928,24 @@ function gamingExit() {
 var _examen = { active: false, queue: [], idx: 0, correctas: 0, total: 0, resultados: [], observer: null, scope: null };
 var _examenHistorialCache = [];
 var _jExamMode = {};
+var _examenModo = 'mini';
+function _examenSetModo(modo) {
+  _examenModo = modo;
+  var btnMini = document.getElementById('examen-modo-mini');
+  var btnTest = document.getElementById('examen-modo-test');
+  if (btnMini) btnMini.className = modo === 'mini' ? 'btn-p' : 'btn-s';
+  if (btnTest) btnTest.className = modo === 'test' ? 'btn-p' : 'btn-s';
+  var dif = document.getElementById('examen-dificultad-selector');
+  if (dif) dif.style.display = modo === 'test' ? 'block' : 'none';
+}
+function _examenGenerarClick() {
+  if (_examenModo === 'test') {
+    var difSel = document.getElementById('examen-dificultad');
+    _examenGenerarTest(difSel ? difSel.value : 'normal');
+  } else {
+    _examenGenerar();
+  }
+}
 
 function _examenRender() {
   if (_examen.idx >= _examen.queue.length) { _examenFinish(); return; }
@@ -5896,6 +5960,7 @@ function _examenRender() {
   else if (g.tipo === 'ordenar') body = _jOrdenar(gid, g);
   else if (g.tipo === 'vf') body = _jVF(gid, g);
   else if (g.tipo === 'descarte') body = _jDescarte(gid, g);
+  else if (g.tipo === 'test') body = _jTest(gid, g);
   else { _examen.idx++; _examenRender(); return; }
 
   var pct = Math.round((_examen.idx) / _examen.queue.length * 100);
@@ -6313,6 +6378,60 @@ function _examenGenerar() {
     });
     if (!pool.length) {
       alert('Los puntos seleccionados todavía no tienen minijuegos.');
+      if (btn) { btn.disabled = false; btn.textContent = 'Generar examen'; }
+      return;
+    }
+    pool = _jShuffle(pool);
+    var reqSel = document.getElementById('examen-num-preguntas');
+    var reqVal = reqSel ? reqSel.value : 'todas';
+    var reqN = (reqVal === 'todas') ? pool.length : parseInt(reqVal, 10);
+    var n = Math.min(reqN, pool.length);
+    if (reqVal !== 'todas' && reqN > pool.length) {
+      alert('Solo hay ' + pool.length + ' preguntas disponibles con esta selección (pediste ' + reqN + '). El examen tendrá ' + pool.length + '.');
+    }
+    var scopeNombres = [];
+    leafData.forEach(function(l) {
+      var s = l.sistema || l.punto;
+      if (scopeNombres.indexOf(s) === -1) scopeNombres.push(s);
+    });
+    _examen = {
+      active: true, queue: pool.slice(0, n), idx: 0, correctas: 0, total: n, resultados: [], observer: null, earlyFinish: false,
+      scope: scopeNombres.slice(0, 5).join(', ') + (scopeNombres.length > 5 ? '…' : '')
+    };
+    if (btn) { btn.disabled = false; btn.textContent = 'Generar examen'; }
+    _examenShowView('running');
+    _examenRender();
+  });
+}
+function _examenGenerarTest(dificultad) {
+  if (typeof db === 'undefined') { alert('Sin conexión a la base de datos.'); return; }
+  var leaves = Array.prototype.slice.call(document.querySelectorAll('.exam-leaf:checked'));
+  if (!leaves.length) { alert('Selecciona al menos un punto.'); return; }
+  var btn = document.getElementById('examen-generar-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Generando...'; }
+
+  var leafData = leaves.map(function(l) {
+    return { col: l.dataset.col, docId: l.dataset.docId, punto: l.dataset.punto, sistema: l.dataset.sistema, modulo: l.dataset.modulo, bloque: l.dataset.bloque };
+  });
+
+  Promise.all(leafData.map(function(l) {
+    return db.collection('temas').doc(l.col).collection('puntos').doc(l.docId).get().catch(function() { return null; });
+  })).then(function(docs) {
+    var pool = [];
+    docs.forEach(function(doc, i) {
+      if (!doc || !doc.exists) return;
+      var d = doc.data();
+      var l = leafData[i];
+      var preguntas = (d.test && d.test[dificultad]) || [];
+      preguntas.forEach(function(q) {
+        pool.push({
+          game: { tipo: 'test', titulo: 'Pregunta tipo test', pregunta: q.pregunta, opciones: q.opciones, correcta: q.correcta },
+          col: l.col, docId: l.docId, punto: l.punto, sistema: l.sistema, modulo: l.modulo, bloque: l.bloque
+        });
+      });
+    });
+    if (!pool.length) {
+      alert('Los puntos seleccionados todavía no tienen preguntas tipo test en esta dificultad.');
       if (btn) { btn.disabled = false; btn.textContent = 'Generar examen'; }
       return;
     }
