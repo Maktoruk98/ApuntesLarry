@@ -2520,7 +2520,7 @@ function renderLobbyModulosJudith(){
     { emoji: '🏥', label: 'Módulo 1', title: 'Sistema de Salud', sub: '8 puntos', locked: false, progreso: _progresoModulo(window._TEMAS.judith.m1), visitId: 'modulo:judith:m1', _mod: 'm1' },
     { emoji: '🫀', label: 'Módulo 2', title: 'El Cuerpo Humano y su Anatomía', sub: '4 bloques', locked: false, progreso: _progresoModulo(window._TEMAS.judith.m2), visitId: 'modulo:judith:m2', _mod: 'm2' },
     { emoji: '🩺', label: 'Módulo 3', title: 'Patologías más Frecuentes', sub: '3 bloques', locked: false, progreso: _progresoModulo(window._TEMAS.judith.m3), visitId: 'modulo:judith:m3', _mod: 'm3' },
-    { emoji: '🔬', label: 'Módulo 4', title: 'Pruebas Médicas', sub: 'Pendiente', locked: true, _mod: 'm4' }
+    { emoji: '🔬', label: 'Módulo 4', title: 'Pruebas Médicas', sub: '7 puntos', locked: false, progreso: _progresoModulo(window._TEMAS.judith.m4), visitId: 'modulo:judith:m4', _mod: 'm4' }
   ];
   _buildCarrusel('lobby-modulos-judith-lista', items, function(idx){
     navModulo('judith', items[idx]._mod);
@@ -3959,8 +3959,17 @@ window._TEMAS = {
     },
     m4: {
       titulo: 'Pruebas Médicas',
-      tipo: 'modulo-simple',
-      puntos: [{ titulo: 'Contenido pendiente', html: PLACEHOLDER }]
+      tipo: 'modulo-firestore',
+      firestoreCol: 'judith-m4-pruebas-medicas',
+      puntos: [
+        { titulo: 'Introducción a las Pruebas Médicas', firestoreId: '01-introduccion-pruebas-medicas' },
+        { titulo: 'Ecografía y Resonancia Magnética', firestoreId: '02-ecografia-y-rm' },
+        { titulo: 'Radiografía Simple y Densitometría Ósea', firestoreId: '03-radiografia-y-densitometria' },
+        { titulo: 'Pruebas con Contraste', firestoreId: '04-pruebas-con-contraste' },
+        { titulo: 'TC y Medicina Nuclear', firestoreId: '05-tc-y-medicina-nuclear' },
+        { titulo: 'Analítica de Sangre', firestoreId: '06-analitica-de-sangre' },
+        { titulo: 'Legislación y Derechos del Paciente', firestoreId: '07-legislacion-y-derechos' }
+      ]
     }
   },
   isabel: {
@@ -6411,7 +6420,7 @@ var _homeModulosDef = [
   { prof: 'judith', mod: 'm1', titulo: 'Sistema de Salud', corto: 'Módulo 1 · Sistema de Salud', nivel: 'punto' },
   { prof: 'judith', mod: 'm2', titulo: 'El Cuerpo Humano y su Anatomía', corto: 'Módulo 2 · El Cuerpo Humano', nivel: 'bloque' },
   { prof: 'judith', mod: 'm3', titulo: 'Patologías más Frecuentes', corto: 'Módulo 3 · Patologías', nivel: 'bloque' },
-  { prof: 'judith', mod: 'm4', titulo: 'Pruebas Médicas', corto: 'Módulo 4 · Pruebas Médicas', nivel: 'vacio' }
+  { prof: 'judith', mod: 'm4', titulo: 'Pruebas Médicas', corto: 'Módulo 4 · Pruebas Médicas', nivel: 'punto' }
 ];
 var _homeCarouselData = null;
 var _homeCarouselIdx = 0;
