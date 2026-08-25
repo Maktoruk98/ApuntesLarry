@@ -1343,7 +1343,7 @@ html,body{height:100%;overflow:hidden}
 <div class="page" id="page-apuntes">
 <div style="max-width:900px;margin:0 auto;padding:24px 40px 80px">
   <div class="carrusel-sup" style="padding-left:0">// apuntes</div>
-  <h2 style="font-size:22px;font-weight:600;margin-bottom:24px">Selecciona tu profesora</h2>
+  <h2 style="font-size:22px;font-weight:600;margin-bottom:24px">Selecciona tu categoría</h2>
   <div id="lobby-profesoras-lista"></div>
 </div>
 </div>
@@ -1367,6 +1367,17 @@ html,body{height:100%;overflow:hidden}
     <div class="carrusel-sup" style="padding-left:0">// judith</div>
   </div>
   <div id="lobby-modulos-judith-lista"></div>
+</div>
+</div>
+
+<!-- LOBBY JAPONÉS -->
+<div class="page" id="page-prof-japones">
+<div style="max-width:900px;margin:0 auto;padding:24px 40px 80px">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+    <button onclick="nav('apuntes')" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-muted);cursor:pointer;font-size:14px;padding:6px 12px;border-radius:8px;font-family:sans-serif">← Volver</button>
+    <div class="carrusel-sup" style="padding-left:0">// japones</div>
+  </div>
+  <div id="lobby-modulos-japones-lista"></div>
 </div>
 </div>
 
@@ -2448,7 +2459,7 @@ function toggleTema(id){
 var NAV_MAIN = ['home','apuntes','juegos'];
 
 // Orden de alturas para saber si vamos hacia dentro o hacia fuera
-var _ALTURA_ORDER = ['apuntes','prof-isabel','prof-judith','modulo-bloques','lobby-sistemas','lobby-puntos','punto'];
+var _ALTURA_ORDER = ['apuntes','prof-isabel','prof-judith','prof-japones','modulo-bloques','lobby-sistemas','lobby-puntos','punto'];
 var _currentPageId = 'home';
 
 function nav(id, skipAnim){
@@ -2457,6 +2468,7 @@ function nav(id, skipAnim){
     _examen.active = false;
     if(_examen.observer) _examen.observer.disconnect();
   }
+  if(_currentPageId === 'punto' && id !== 'punto' && typeof _cerrarSesionPunto === 'function') _cerrarSesionPunto();
   if(id === 'home'){
     if(typeof _homeMelodyEnterHome === 'function') _homeMelodyEnterHome();
     if(typeof _homeUpdateContinuarBtn === 'function') _homeUpdateContinuarBtn();
@@ -2516,6 +2528,7 @@ function nav(id, skipAnim){
 function navProf(prof){
   if(prof === 'isabel') renderLobbyModulosIsabel();
   else if(prof === 'judith') renderLobbyModulosJudith();
+  else if(prof === 'japones') renderLobbyModulosJapones();
   nav('prof-'+prof);
 }
 
@@ -2542,6 +2555,15 @@ function renderLobbyModulosJudith(){
   }, { intensity: 'modulo' });
 }
 
+function renderLobbyModulosJapones(){
+  var items = [
+    { emoji: '🎌', label: 'Módulo 1', title: 'Japonés de Viaje', sub: window._TEMAS.japones.m1.puntos.length+' lecciones', locked: false, progreso: _progresoModulo(window._TEMAS.japones.m1), visitId: 'modulo:japones:m1', _mod: 'm1' }
+  ];
+  _buildCarrusel('lobby-modulos-japones-lista', items, function(idx){
+    navModulo('japones', items[idx]._mod);
+  }, { intensity: 'modulo' });
+}
+
 function capitalizeFirst(s){ return s ? s.charAt(0).toUpperCase()+s.slice(1) : ''; }
 
 var _cajaCounter = 0;
@@ -2563,7 +2585,7 @@ function toggleCaja(id) {
   body.style.display = open ? 'none' : '';
   if(arrow) arrow.style.transform = open ? 'rotate(-90deg)' : 'rotate(0deg)';
 }
-function mdToHtml(mdText) {
+function mdToHtml(mdText, prof) {
   if(typeof marked === 'undefined') return '<p style="color:#f87171">Error: marked.js no cargado.</p>';
   var sections = mdText.split(/\n(?=## )/);
   var html = '';
@@ -2581,7 +2603,8 @@ function mdToHtml(mdText) {
     } else if(firstLine.indexOf('🎯') !== -1) {
       cajasHtml += _makeCaja('caja-ponte', '🎯 Ponte a prueba', '#a78bfa', body);
     } else if(firstLine.indexOf('👁') !== -1) {
-      cajasHtml += _makeCaja('caja-ojo', '👁 Ojo — Corrección', '#f87171', body);
+      var ojoLabel = (prof === 'japones') ? '👁 Confusión típica' : '👁 Ojo — Corrección';
+      cajasHtml += _makeCaja('caja-ojo', ojoLabel, '#f87171', body);
     } else if(firstLine.indexOf('## Desarrollo') !== -1) {
       mainHtml += '<div class="md-content" style="margin:20px 0">'+marked.parse(body)+'</div>';
     } else {
@@ -4004,6 +4027,28 @@ window._TEMAS = {
     ] },
     m2: { titulo: 'Atención al Usuario', tipo: 'modulo-simple', puntos: [{ titulo: 'Contenido pendiente', html: PLACEHOLDER }] },
     m3: { titulo: 'Comunicación Oral y Escrita', tipo: 'modulo-simple', puntos: [{ titulo: 'Contenido pendiente', html: PLACEHOLDER }] }
+  },
+  japones: {
+    m1: { titulo: 'Japonés de Viaje', tipo: 'modulo-firestore', firestoreCol: 'japones-viaje', puntos: [
+      { titulo: 'Día 1 · Fundamentos y cortesía', firestoreId: '01-fundamentos-y-cortesia' },
+      { titulo: 'Día 2 · Saludos y presentarte', firestoreId: '02-saludos-y-presentarte' },
+      { titulo: 'Día 3 · Pedir ayuda básica', firestoreId: '03-pedir-ayuda-basica' },
+      { titulo: 'Día 4 · Contadores', firestoreId: '04-contadores' },
+      { titulo: 'Día 5 · Restaurantes I', firestoreId: '05-restaurantes-i' },
+      { titulo: 'Día 6 · Restaurantes II', firestoreId: '06-restaurantes-ii' },
+      { titulo: 'Día 7 · Repaso + quiz (días 1-6)', firestoreId: '07-repaso-dias-1-6' },
+      { titulo: 'Día 8 · Transporte I', firestoreId: '08-transporte-i' },
+      { titulo: 'Día 9 · Transporte II', firestoreId: '09-transporte-ii' },
+      { titulo: 'Día 10 · Alojamiento', firestoreId: '10-alojamiento' },
+      { titulo: 'Día 11 · Compras I', firestoreId: '11-compras-i' },
+      { titulo: 'Día 12 · Compras II', firestoreId: '12-compras-ii' },
+      { titulo: 'Día 13 · Repaso + quiz (días 8-12)', firestoreId: '13-repaso-dias-8-12' },
+      { titulo: 'Día 14 · Salud y emergencias', firestoreId: '14-salud-y-emergencias' },
+      { titulo: 'Día 15 · Cultura práctica', firestoreId: '15-cultura-practica' },
+      { titulo: 'Día 16 · Vida diaria', firestoreId: '16-vida-diaria' },
+      { titulo: 'Día 17 · Repaso general', firestoreId: '17-repaso-general' },
+      { titulo: 'Día 18 · Quiz final + chuleta', firestoreId: '18-quiz-final-y-chuleta' }
+    ] }
   }
 };
 
@@ -4063,6 +4108,7 @@ function navPunto(prof, moduloId, bloqueId, sistemaId, puntoIdx) {
   window._currentBloque = bloqueId;
   window._currentSistema = sistemaId;
   window._currentPunto = puntoIdx;
+  _currentPageId = 'punto';
   marcarVisitado('punto:'+prof+':'+moduloId+':'+(bloqueId||'-')+':'+(sistemaId||'-')+':'+puntoIdx);
   localStorage.setItem('al_last_punto', JSON.stringify({prof:prof, moduloId:moduloId, bloqueId:bloqueId, sistemaId:sistemaId, puntoIdx:puntoIdx}));
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
@@ -4079,7 +4125,8 @@ function navPunto(prof, moduloId, bloqueId, sistemaId, puntoIdx) {
 function renderLobbyProfesoras() {
   var items = [
     { emoji: '👩‍🏫', label: 'Profesora', title: 'Isabel', sub: 'Habilidades · Atención · Comunicación', locked: false, _prof: 'isabel' },
-    { emoji: '👩‍⚕️', label: 'Profesora', title: 'Judith', sub: 'Salud · Cuerpo Humano · Patologías', locked: false, _prof: 'judith' }
+    { emoji: '👩‍⚕️', label: 'Profesora', title: 'Judith', sub: 'Salud · Cuerpo Humano · Patologías', locked: false, _prof: 'judith' },
+    { emoji: '🎌', label: 'Curso', title: 'Japonés de Viaje', sub: 'Supervivencia · 18 días · Japón', locked: false, _prof: 'japones' }
   ];
   _buildCarrusel('lobby-profesoras-lista', items, function(idx){
     navProf(items[idx]._prof);
@@ -5049,6 +5096,10 @@ function renderPunto(prof, moduloId, bloqueId, sistemaId, puntoIdx) {
   }
   var punto = puntos[puntoIdx] || {};
 
+  window._currentPuntoCol = sistema.firestoreCol || null;
+  window._currentPuntoFirestoreId = punto.firestoreId || null;
+  if(typeof _iniciarSesionPunto === 'function') _iniciarSesionPunto(prof, sistema.firestoreCol, punto.firestoreId);
+
   // Breadcrumb
   var bc = document.getElementById('punto-breadcrumb');
   if(bc) {
@@ -5082,7 +5133,7 @@ function renderPunto(prof, moduloId, bloqueId, sistemaId, puntoIdx) {
       .get()
       .then(function(doc) {
         if(doc.exists) {
-          cont.innerHTML = mdToHtml(doc.data().contenido || doc.data().content);
+          cont.innerHTML = mdToHtml(doc.data().contenido || doc.data().content, prof);
           if (typeof renderPodcast === 'function' && doc.data().podcast) { cont.innerHTML += renderPodcast(doc.data().podcast); }
           if (typeof renderJuegos === 'function' && doc.data().juegos) {
             cont.innerHTML += renderJuegos(doc.data().juegos, punto.firestoreId, false, sistema.firestoreCol);
@@ -5662,7 +5713,8 @@ var _CAJON_COLORS = ['teal', 'amber', 'blue', 'violet', 'rose'];
 var _CAJON_TEMAS = {
   'isabel-m1-comunicacion': 'Comunicación',
   'judith-t1': 'Sistema Sanitario',
-  'judith-t2': 'El Cuerpo Humano'
+  'judith-t2': 'El Cuerpo Humano',
+  'japones-viaje': 'Japonés de Viaje'
 };
 function _temaLabel(col) {
   if (_CAJON_TEMAS[col]) return _CAJON_TEMAS[col];
@@ -5775,6 +5827,7 @@ function _jAcierto(sub) {
     // el examen otorga XP una sola vez al terminar, ver _examenFinish
   } else {
     addXP(5, '¡Correcto!', sub);
+    _logIntento('acierto', sub);
   }
 }
 function _jFallo() {
@@ -5798,8 +5851,51 @@ function _jCompletar(sub) {
     if (typeof playExerciseCompleteSound === 'function') playExerciseCompleteSound();
   } else {
     addXP(10, '¡Completado!', sub);
+    _logIntento('completado', sub);
   }
 }
+
+/* ── Seguimiento de progreso: intentos y tiempo por punto ──
+   Requiere reglas Firestore para users/{uid}/intentos y users/{uid}/sesiones
+   (no existen todavía — ver aviso al usuario). Si faltan, falla en silencio
+   y no afecta al resto de la app. */
+function _logIntento(tipo, sub) {
+  try {
+    if (!window.S || !window.S.uid || !window.S.isFirebase || typeof db === 'undefined') return;
+    if (!window._currentPuntoCol || !window._currentPuntoFirestoreId) return;
+    db.collection('users').doc(window.S.uid).collection('intentos').add({
+      prof: window._currentProf || null,
+      col: window._currentPuntoCol,
+      puntoId: window._currentPuntoFirestoreId,
+      tipo: tipo,
+      sub: sub || null,
+      ts: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(function(e) { console.warn('_logIntento: no se pudo guardar (¿faltan reglas Firestore?)', e.message); });
+  } catch (e) { /* no bloquear la UI si falla el log */ }
+}
+var _sesionPunto = { start: null, col: null, id: null, prof: null };
+function _iniciarSesionPunto(prof, col, id) {
+  _cerrarSesionPunto();
+  _sesionPunto = { start: Date.now(), col: col || null, id: id || null, prof: prof || null };
+}
+function _cerrarSesionPunto() {
+  var s = _sesionPunto;
+  _sesionPunto = { start: null, col: null, id: null, prof: null };
+  if (!s || !s.start || !s.col || !s.id) return;
+  var segundos = Math.round((Date.now() - s.start) / 1000);
+  if (segundos < 3) return;
+  try {
+    if (!window.S || !window.S.uid || !window.S.isFirebase || typeof db === 'undefined') return;
+    db.collection('users').doc(window.S.uid).collection('sesiones').add({
+      prof: s.prof,
+      col: s.col,
+      puntoId: s.id,
+      segundos: segundos,
+      ts: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(function(e) { console.warn('_cerrarSesionPunto: no se pudo guardar (¿faltan reglas Firestore?)', e.message); });
+  } catch (e) { /* no bloquear la UI si falla el log */ }
+}
+window.addEventListener('beforeunload', function(){ if(typeof _cerrarSesionPunto === 'function') _cerrarSesionPunto(); });
 
 /* ══════════════════════════════════════════════════════
    MODO GAMING — lógica de maratón
@@ -7349,7 +7445,7 @@ function _admOnPto() {
 
 function _admPreview() {
   var md = document.getElementById('adm-md').value;
-  var html = typeof mdToHtml === 'function' ? mdToHtml(md) : (typeof marked !== 'undefined' ? marked.parse(md) : md);
+  var html = typeof mdToHtml === 'function' ? mdToHtml(md, _adm.prof) : (typeof marked !== 'undefined' ? marked.parse(md) : md);
   document.getElementById('adm-preview').innerHTML = html;
 }
 
