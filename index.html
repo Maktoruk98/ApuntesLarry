@@ -2557,7 +2557,8 @@ function renderLobbyModulosJudith(){
 
 function renderLobbyModulosJapones(){
   var items = [
-    { emoji: '🎌', label: 'Módulo 1', title: 'Japonés de Viaje', sub: window._TEMAS.japones.m1.puntos.length+' lecciones', locked: false, progreso: _progresoModulo(window._TEMAS.japones.m1), visitId: 'modulo:japones:m1', _mod: 'm1' }
+    { emoji: '🎌', label: 'Módulo 1', title: 'Japonés de Viaje', sub: window._TEMAS.japones.m1.puntos.length+' lecciones', locked: false, progreso: _progresoModulo(window._TEMAS.japones.m1), visitId: 'modulo:japones:m1', _mod: 'm1' },
+    { emoji: '📅', label: 'Módulo 2', title: 'Semana 1', sub: '5 días · 3 categorías', locked: false, progreso: _progresoModulo(window._TEMAS.japones.m2), visitId: 'modulo:japones:m2', _mod: 'm2' }
   ];
   _buildCarrusel('lobby-modulos-japones-lista', items, function(idx){
     navModulo('japones', items[idx]._mod);
@@ -4032,11 +4033,6 @@ window._TEMAS = {
     m1: { titulo: 'Japonés de Viaje', tipo: 'modulo-firestore', firestoreCol: 'japones-viaje', puntos: [
       { titulo: 'Día 1 · Fundamentos y cortesía', firestoreId: '01-fundamentos-y-cortesia' },
       { titulo: 'Día 2 · Saludos y presentarte', firestoreId: '02-saludos-y-presentarte' },
-      { titulo: 'Día 3 · Pedir ayuda básica', firestoreId: '03-pedir-ayuda-basica' },
-      { titulo: 'Día 4 · Contadores', firestoreId: '04-contadores' },
-      { titulo: 'Día 5 · Restaurantes I', firestoreId: '05-restaurantes-i' },
-      { titulo: 'Día 6 · Restaurantes II', firestoreId: '06-restaurantes-ii' },
-      { titulo: 'Día 7 · Repaso + quiz (días 1-6)', firestoreId: '07-repaso-dias-1-6' },
       { titulo: 'Día 8 · Transporte I', firestoreId: '08-transporte-i' },
       { titulo: 'Día 9 · Transporte II', firestoreId: '09-transporte-ii' },
       { titulo: 'Día 10 · Alojamiento', firestoreId: '10-alojamiento' },
@@ -4048,7 +4044,94 @@ window._TEMAS = {
       { titulo: 'Día 16 · Vida diaria', firestoreId: '16-vida-diaria' },
       { titulo: 'Día 17 · Repaso general', firestoreId: '17-repaso-general' },
       { titulo: 'Día 18 · Quiz final + chuleta', firestoreId: '18-quiz-final-y-chuleta' }
-    ] }
+    ] },
+    m2: { titulo: 'Semana 1', tipo: 'modulo-bloques', bloques: {
+      dia3: { titulo: 'Día 3 · Pedir ayuda y orientarte', emoji: '🆘', sistemas: {
+        'palabras-comunes': { titulo: 'Palabras comunes', firestoreCol: 'japones-semana1', puntos: [
+          { titulo: 'Verbos y frases de no entender', firestoreId: 'd3-pc-1' },
+          { titulo: 'Lugares para orientarte', firestoreId: 'd3-pc-2' },
+          { titulo: 'Pedir ayuda urgente', firestoreId: 'd3-pc-3' }
+        ] },
+        'frases-cotidianas': { titulo: 'Frases cotidianas', firestoreCol: 'japones-semana1', puntos: [
+          { titulo: 'Cuando no entiendes algo', firestoreId: 'd3-fc-1' },
+          { titulo: 'Preguntar si hablan tu idioma', firestoreId: 'd3-fc-2' },
+          { titulo: 'Decir que estás perdido', firestoreId: 'd3-fc-3' }
+        ] },
+        'costumbres': { titulo: 'Costumbres', firestoreCol: 'japones-semana1', puntos: [
+          { titulo: 'La indirecta japonesa', firestoreId: 'd3-co-1' },
+          { titulo: 'El gesto de disculpa constante', firestoreId: 'd3-co-2' },
+          { titulo: 'Cómo reaccionan ante un turista perdido', firestoreId: 'd3-co-3' }
+        ] }
+      } },
+      dia4: { titulo: 'Día 4 · Contadores y cantidades', emoji: '🔢', sistemas: {
+        'palabras-comunes': { titulo: 'Palabras comunes', firestoreCol: 'japones-semana1', puntos: [
+          { titulo: 'Contadores de objetos (1-10)', firestoreId: 'd4-pc-1' },
+          { titulo: 'Contadores de personas (1-10)', firestoreId: 'd4-pc-2' },
+          { titulo: 'Preguntar cantidad', firestoreId: 'd4-pc-3' }
+        ] },
+        'frases-cotidianas': { titulo: 'Frases cotidianas', firestoreCol: 'japones-semana1', puntos: [
+          { titulo: 'Pedir varias unidades de algo', firestoreId: 'd4-fc-1' },
+          { titulo: 'Decir cuántos sois en un grupo', firestoreId: 'd4-fc-2' },
+          { titulo: 'Preguntar precio de varias unidades', firestoreId: 'd4-fc-3' }
+        ] },
+        'costumbres': { titulo: 'Costumbres', firestoreCol: 'japones-semana1', puntos: [
+          { titulo: 'Los números que se evitan (4 y 9)', firestoreId: 'd4-co-1' },
+          { titulo: 'Dos sistemas de contar: wago y kango', firestoreId: 'd4-co-2' },
+          { titulo: 'Contadores curiosos para otras cosas', firestoreId: 'd4-co-3' }
+        ] }
+      } },
+      dia5: { titulo: 'Día 5 · Restaurantes I (llegada)', emoji: '🍽️', sistemas: {
+        'palabras-comunes': { titulo: 'Palabras comunes', firestoreCol: 'japones-semana1', puntos: [
+          { titulo: 'Vocabulario de la entrada', firestoreId: 'd5-pc-1' },
+          { titulo: 'Tipos de sitio para sentarte', firestoreId: 'd5-pc-2' },
+          { titulo: 'Esperar tu turno', firestoreId: 'd5-pc-3' }
+        ] },
+        'frases-cotidianas': { titulo: 'Frases cotidianas', firestoreCol: 'japones-semana1', puntos: [
+          { titulo: 'Responder cuántos sois', firestoreId: 'd5-fc-1' },
+          { titulo: 'Decir si tienes reserva', firestoreId: 'd5-fc-2' },
+          { titulo: 'Pedir un tipo de mesa concreto', firestoreId: 'd5-fc-3' }
+        ] },
+        'costumbres': { titulo: 'Costumbres', firestoreCol: 'japones-semana1', puntos: [
+          { titulo: 'El ritual de bienvenida japonés', firestoreId: 'd5-co-1' },
+          { titulo: 'Máquinas expendedoras de tickets', firestoreId: 'd5-co-2' },
+          { titulo: 'Las oshibori y detalles de la mesa', firestoreId: 'd5-co-3' }
+        ] }
+      } },
+      dia6: { titulo: 'Día 6 · Restaurantes II (pedir y pagar)', emoji: '💴', sistemas: {
+        'palabras-comunes': { titulo: 'Palabras comunes', firestoreCol: 'japones-semana1', puntos: [
+          { titulo: 'Verbos y palabras para pedir', firestoreId: 'd6-pc-1' },
+          { titulo: 'Alergias e ingredientes', firestoreId: 'd6-pc-2' },
+          { titulo: 'Pagar y despedirte', firestoreId: 'd6-pc-3' }
+        ] },
+        'frases-cotidianas': { titulo: 'Frases cotidianas', firestoreCol: 'japones-semana1', puntos: [
+          { titulo: 'Pedir recomendación y preguntar por el picante', firestoreId: 'd6-fc-1' },
+          { titulo: 'Avisar de una alergia alimentaria', firestoreId: 'd6-fc-2' },
+          { titulo: 'Pedir la cuenta y despedirte', firestoreId: 'd6-fc-3' }
+        ] },
+        'costumbres': { titulo: 'Costumbres', firestoreCol: 'japones-semana1', puntos: [
+          { titulo: 'Itadakimasu y gochisousama', firestoreId: 'd6-co-1' },
+          { titulo: 'Por qué (case-si) no se reparte la cuenta', firestoreId: 'd6-co-2' },
+          { titulo: 'Pedir en un restaurante de especialidad única', firestoreId: 'd6-co-3' }
+        ] }
+      } },
+      dia7: { titulo: 'Día 7 · Repaso semana 1', emoji: '🔁', sistemas: {
+        'palabras-comunes': { titulo: 'Repaso: Palabras comunes', firestoreCol: 'japones-semana1', puntos: [
+          { titulo: 'Repaso: ayuda y contadores', firestoreId: 'd7-pc-1' },
+          { titulo: 'Repaso: restaurantes I', firestoreId: 'd7-pc-2' },
+          { titulo: 'Repaso: restaurantes II', firestoreId: 'd7-pc-3' }
+        ] },
+        'frases-cotidianas': { titulo: 'Repaso: Frases cotidianas', firestoreCol: 'japones-semana1', puntos: [
+          { titulo: 'Repaso: ayuda y contadores', firestoreId: 'd7-fc-1' },
+          { titulo: 'Repaso: restaurantes I', firestoreId: 'd7-fc-2' },
+          { titulo: 'Repaso: restaurantes II', firestoreId: 'd7-fc-3' }
+        ] },
+        'costumbres': { titulo: 'Repaso: Costumbres', firestoreCol: 'japones-semana1', puntos: [
+          { titulo: 'Repaso: ayuda y contadores', firestoreId: 'd7-co-1' },
+          { titulo: 'Repaso: restaurantes I', firestoreId: 'd7-co-2' },
+          { titulo: 'Repaso: restaurantes II', firestoreId: 'd7-co-3' }
+        ] }
+      } }
+    } }
   }
 };
 
@@ -5714,7 +5797,8 @@ var _CAJON_TEMAS = {
   'isabel-m1-comunicacion': 'Comunicación',
   'judith-t1': 'Sistema Sanitario',
   'judith-t2': 'El Cuerpo Humano',
-  'japones-viaje': 'Japonés de Viaje'
+  'japones-viaje': 'Japonés de Viaje',
+  'japones-semana1': 'Japonés · Semana 1'
 };
 function _temaLabel(col) {
   if (_CAJON_TEMAS[col]) return _CAJON_TEMAS[col];
