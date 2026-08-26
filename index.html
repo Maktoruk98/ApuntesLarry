@@ -2559,7 +2559,8 @@ function renderLobbyModulosJapones(){
   var items = [
     { emoji: '🎌', label: 'Módulo 1', title: 'Japonés de Viaje', sub: window._TEMAS.japones.m1.puntos.length+' lecciones', locked: false, progreso: _progresoModulo(window._TEMAS.japones.m1), visitId: 'modulo:japones:m1', _mod: 'm1' },
     { emoji: '📅', label: 'Módulo 2', title: 'Semana 1', sub: '5 días · 3 categorías', locked: false, progreso: _progresoModulo(window._TEMAS.japones.m2), visitId: 'modulo:japones:m2', _mod: 'm2' },
-    { emoji: '📅', label: 'Módulo 3', title: 'Semana 2', sub: '5 días · 3 categorías', locked: false, progreso: _progresoModulo(window._TEMAS.japones.m3), visitId: 'modulo:japones:m3', _mod: 'm3' }
+    { emoji: '📅', label: 'Módulo 3', title: 'Semana 2', sub: '5 días · 3 categorías', locked: false, progreso: _progresoModulo(window._TEMAS.japones.m3), visitId: 'modulo:japones:m3', _mod: 'm3' },
+    { emoji: '📅', label: 'Módulo 4', title: 'Semana 3', sub: '5 días · 3 categorías', locked: false, progreso: _progresoModulo(window._TEMAS.japones.m4), visitId: 'modulo:japones:m4', _mod: 'm4' }
   ];
   _buildCarrusel('lobby-modulos-japones-lista', items, function(idx){
     navModulo('japones', items[idx]._mod);
@@ -4034,11 +4035,7 @@ window._TEMAS = {
     m1: { titulo: 'Japonés de Viaje', tipo: 'modulo-firestore', firestoreCol: 'japones-viaje', puntos: [
       { titulo: 'Día 1 · Fundamentos y cortesía', firestoreId: '01-fundamentos-y-cortesia' },
       { titulo: 'Día 2 · Saludos y presentarte', firestoreId: '02-saludos-y-presentarte' },
-      { titulo: 'Día 14 · Salud y emergencias', firestoreId: '14-salud-y-emergencias' },
-      { titulo: 'Día 15 · Cultura práctica', firestoreId: '15-cultura-practica' },
-      { titulo: 'Día 16 · Vida diaria', firestoreId: '16-vida-diaria' },
-      { titulo: 'Día 17 · Repaso general', firestoreId: '17-repaso-general' },
-      { titulo: 'Día 18 · Quiz final + chuleta', firestoreId: '18-quiz-final-y-chuleta' }
+      { titulo: 'Quiz final + chuleta de viaje', firestoreId: '18-quiz-final-y-chuleta' }
     ] },
     m2: { titulo: 'Semana 1', tipo: 'modulo-bloques', bloques: {
       dia3: { titulo: 'Día 3 · Pedir ayuda y orientarte', emoji: '🆘', sistemas: {
@@ -4211,6 +4208,93 @@ window._TEMAS = {
           { titulo: 'Repaso: transporte', firestoreId: 'd12-co-1' },
           { titulo: 'Repaso: alojamiento', firestoreId: 'd12-co-2' },
           { titulo: 'Repaso: compras', firestoreId: 'd12-co-3' }
+        ] }
+      } }
+    } },
+    m4: { titulo: 'Semana 3', tipo: 'modulo-bloques', bloques: {
+      dia13: { titulo: 'Día 13 · Tecnología y comunicación', emoji: '📱', sistemas: {
+        'palabras-comunes': { titulo: 'Palabras comunes', firestoreCol: 'japones-semana3', puntos: [
+          { titulo: 'Conexión a internet', firestoreId: 'd13-pc-1' },
+          { titulo: 'Traducción', firestoreId: 'd13-pc-2' },
+          { titulo: 'Batería y carga', firestoreId: 'd13-pc-3' }
+        ] },
+        'frases-cotidianas': { titulo: 'Frases cotidianas', firestoreCol: 'japones-semana3', puntos: [
+          { titulo: 'Preguntar por wifi/datos', firestoreId: 'd13-fc-1' },
+          { titulo: 'Usar el traductor con alguien', firestoreId: 'd13-fc-2' },
+          { titulo: 'Cargar el móvil o comprar batería', firestoreId: 'd13-fc-3' }
+        ] },
+        'costumbres': { titulo: 'Costumbres', firestoreCol: 'japones-semana3', puntos: [
+          { titulo: 'Konbini y estaciones como hub tecnológico', firestoreId: 'd13-co-1' },
+          { titulo: 'Traducción bidireccional', firestoreId: 'd13-co-2' },
+          { titulo: 'Etiqueta del móvil en espacios públicos', firestoreId: 'd13-co-3' }
+        ] }
+      } },
+      dia14: { titulo: 'Día 14 · Salud y emergencias', emoji: '🏥', sistemas: {
+        'palabras-comunes': { titulo: 'Palabras comunes', firestoreCol: 'japones-semana3', puntos: [
+          { titulo: 'Partes del cuerpo y dolor', firestoreId: 'd14-pc-1' },
+          { titulo: 'Farmacia y medicinas', firestoreId: 'd14-pc-2' },
+          { titulo: 'Números de emergencia', firestoreId: 'd14-pc-3' }
+        ] },
+        'frases-cotidianas': { titulo: 'Frases cotidianas', firestoreCol: 'japones-semana3', puntos: [
+          { titulo: 'Decir que te duele algo', firestoreId: 'd14-fc-1' },
+          { titulo: 'Pedir en la farmacia', firestoreId: 'd14-fc-2' },
+          { titulo: 'Llamar a emergencias', firestoreId: 'd14-fc-3' }
+        ] },
+        'costumbres': { titulo: 'Costumbres', firestoreCol: 'japones-semana3', puntos: [
+          { titulo: 'El sistema de emergencias', firestoreId: 'd14-co-1' },
+          { titulo: 'Farmacias japonesas: qué esperar', firestoreId: 'd14-co-2' },
+          { titulo: 'Seguro de viaje y hospitales', firestoreId: 'd14-co-3' }
+        ] }
+      } },
+      dia15: { titulo: 'Día 15 · Cultura práctica', emoji: '⛩️', sistemas: {
+        'palabras-comunes': { titulo: 'Palabras comunes', firestoreCol: 'japones-semana3', puntos: [
+          { titulo: 'Vocabulario de templos y santuarios', firestoreId: 'd15-pc-1' },
+          { titulo: 'Señalización y carteles', firestoreId: 'd15-pc-2' },
+          { titulo: 'Etiqueta social', firestoreId: 'd15-pc-3' }
+        ] },
+        'frases-cotidianas': { titulo: 'Frases cotidianas', firestoreCol: 'japones-semana3', puntos: [
+          { titulo: 'Preguntar normas en un templo', firestoreId: 'd15-fc-1' },
+          { titulo: 'Pedir permiso cultural', firestoreId: 'd15-fc-2' },
+          { titulo: 'Disculparse por un fallo cultural', firestoreId: 'd15-fc-3' }
+        ] },
+        'costumbres': { titulo: 'Costumbres', firestoreCol: 'japones-semana3', puntos: [
+          { titulo: 'El ritual sintoísta 2-2-1', firestoreId: 'd15-co-1' },
+          { titulo: 'Propinas y omiyage', firestoreId: 'd15-co-2' },
+          { titulo: 'Meiwaku: no molestar a los demás', firestoreId: 'd15-co-3' }
+        ] }
+      } },
+      dia16: { titulo: 'Día 16 · Vida diaria', emoji: '🏮', sistemas: {
+        'palabras-comunes': { titulo: 'Palabras comunes', firestoreCol: 'japones-semana3', puntos: [
+          { titulo: 'Clima y hora', firestoreId: 'd16-pc-1' },
+          { titulo: 'Konbini y compras rápidas', firestoreId: 'd16-pc-2' },
+          { titulo: 'Fotos y permiso', firestoreId: 'd16-pc-3' }
+        ] },
+        'frases-cotidianas': { titulo: 'Frases cotidianas', firestoreCol: 'japones-semana3', puntos: [
+          { titulo: 'Hablar del tiempo', firestoreId: 'd16-fc-1' },
+          { titulo: 'Preguntar la hora y horarios', firestoreId: 'd16-fc-2' },
+          { titulo: 'Pedir hacer una foto', firestoreId: 'd16-fc-3' }
+        ] },
+        'costumbres': { titulo: 'Costumbres', firestoreCol: 'japones-semana3', puntos: [
+          { titulo: 'El konbini como institución', firestoreId: 'd16-co-1' },
+          { titulo: 'Puntualidad social', firestoreId: 'd16-co-2' },
+          { titulo: 'Gestión de basura y reciclaje', firestoreId: 'd16-co-3' }
+        ] }
+      } },
+      dia17: { titulo: 'Día 17 · Repaso semana 3', emoji: '🔁', sistemas: {
+        'palabras-comunes': { titulo: 'Repaso: Palabras comunes', firestoreCol: 'japones-semana3', puntos: [
+          { titulo: 'Repaso: tecnología', firestoreId: 'd17-pc-1' },
+          { titulo: 'Repaso: salud', firestoreId: 'd17-pc-2' },
+          { titulo: 'Repaso: cultura y vida diaria', firestoreId: 'd17-pc-3' }
+        ] },
+        'frases-cotidianas': { titulo: 'Repaso: Frases cotidianas', firestoreCol: 'japones-semana3', puntos: [
+          { titulo: 'Repaso: tecnología', firestoreId: 'd17-fc-1' },
+          { titulo: 'Repaso: salud', firestoreId: 'd17-fc-2' },
+          { titulo: 'Repaso: cultura y vida diaria', firestoreId: 'd17-fc-3' }
+        ] },
+        'costumbres': { titulo: 'Repaso: Costumbres', firestoreCol: 'japones-semana3', puntos: [
+          { titulo: 'Repaso: tecnología', firestoreId: 'd17-co-1' },
+          { titulo: 'Repaso: salud', firestoreId: 'd17-co-2' },
+          { titulo: 'Repaso: cultura y vida diaria', firestoreId: 'd17-co-3' }
         ] }
       } }
     } }
@@ -5881,7 +5965,8 @@ var _CAJON_TEMAS = {
   'judith-t2': 'El Cuerpo Humano',
   'japones-viaje': 'Japonés de Viaje',
   'japones-semana1': 'Japonés · Semana 1',
-  'japones-semana2': 'Japonés · Semana 2'
+  'japones-semana2': 'Japonés · Semana 2',
+  'japones-semana3': 'Japonés · Semana 3'
 };
 function _temaLabel(col) {
   if (_CAJON_TEMAS[col]) return _CAJON_TEMAS[col];
